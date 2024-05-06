@@ -69,7 +69,7 @@ const Service = () => {
   const isXsScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   const [activeStep, setActiveStep] = useState(0);
-  const maxSteps = images.length;
+  const maxSteps = images?.length;
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => (prevActiveStep + 1) % maxSteps);
@@ -100,7 +100,7 @@ const Service = () => {
         alignItems="center"
         textAlign="justify"
       >
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={5}>
           <Servicelist
             id="1"
             title="Training"
@@ -116,13 +116,14 @@ const Service = () => {
             isXsScreen={isXsScreen}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={2}>
           <div
             style={{
-              padding: "16px",
-              width: !isXsScreen ?"500px":"",
-              height: !isXsScreen ?"500px":"",
+              // padding: "16px",
+              width: !isXsScreen ?"300px":"",
+              height: !isXsScreen ?"400px":"",
               position: "relative",
+              left:"-22%"
             }}
           >
             {/* <img src={DogGroupImg} style={{ width: "100%", height: "100%" }} /> */}
@@ -131,22 +132,23 @@ const Service = () => {
               alt={images[activeStep].label}
               style={{ width: "100%", height: "100%" }}
             />
-            <MobileStepper
+            {/* <MobileStepper
               steps={maxSteps}
               position="static"
               activeStep={activeStep}
               sx={{
                 position: "absolute",
                 bottom: 0,
+                left:"30%",
                 width: "100%",
                 backgroundColor: "transparent",
                 display: "flex",
                 justifyContent: "center",
               }}
-            />
+            /> */}
           </div>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={5}>
           <Servicelist
             id="3"
             title="Buy & Sell"

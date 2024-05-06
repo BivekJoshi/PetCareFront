@@ -218,7 +218,7 @@ function Navbar({ data }) {
               ))}
             </Box>
             <Button sx={{ color: 'black' }} onClick={() => navigate("wish-list")}>
-              <Badge badgeContent={cartItems.length} color="secondary">
+              <Badge badgeContent={cartItems?.length} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </Button>

@@ -6,6 +6,7 @@ import Loadable from "../components/loader/Loadable";
 import AppLayout from "../components/Layout/AppLayout";
 import PetGallery from "../pages/Gallery/PetGallery/PetGallery";
 import Wishlist from "../pages/WishList/Wishlist";
+import ScrollToTop from "../utility/ScrollToTop";
 
 const LoginPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
 const RegisterPage = Loadable(lazy(() => import("../pages/Auth/RegisterPage")));
@@ -26,23 +27,23 @@ const Notice = Loadable(
 const AppRoutes = () => {
   return (
     <HashRouter hashType="slash">
-      {/* <ScrollToTop> */}
-      <Routes>
-        <Route exact path="*" element={<ErrorPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+      <ScrollToTop>
+        <Routes>
+          <Route exact path="*" element={<ErrorPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/" element={<AppLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<LandingPage />} />
-          <Route path="/aboutUs" element={<AboutUs />} />
-          <Route path="/gallery" element={<PetGallery />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/notice" element={<Notice />} />
-          <Route path="/wish-list" element={<Wishlist />} />
-        </Route>
-      </Routes>
-      {/* </ScrollToTop> */}
+          <Route path="/" element={<AppLayout />}>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<LandingPage />} />
+            <Route path="/aboutUs" element={<AboutUs />} />
+            <Route path="/gallery" element={<PetGallery />} />
+            <Route path="/testimonials" element={<Testimonials />} />
+            <Route path="/notice" element={<Notice />} />
+            <Route path="/wish-list" element={<Wishlist />} />
+          </Route>
+        </Routes>
+      </ScrollToTop>
     </HashRouter>
   );
 };

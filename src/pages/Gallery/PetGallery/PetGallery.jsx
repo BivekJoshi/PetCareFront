@@ -18,7 +18,7 @@ const PetGallery = () => {
       setInterval(() => {
         setTimeout(() => {
           setRandomText(texts[index]);
-          index = (index + 1) % texts.length;
+          index = (index + 1) % texts?.length;
         }, 500);
       }, 3000);
     };
@@ -87,7 +87,8 @@ const PetGallery = () => {
                 sx={{
                   padding: "10px",
                   width: "600px",
-                  backgroundColor: "rgb(240, 128, 26)",
+                  // backgroundColor: "rgb(240, 128, 26)",
+                  backgroundImage: 'linear-gradient(to right, orange,#45BBBD, #567A39)',
                   color: "white",
                   textAlign: "center",
                   paddingTop: "42px",
@@ -102,7 +103,7 @@ const PetGallery = () => {
       <div
         style={{
           width: "100%",
-          marginTop:'15px',
+          marginTop: '15px',
         }}
       >
         <Gallery />

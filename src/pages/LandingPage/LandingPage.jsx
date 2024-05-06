@@ -3,6 +3,7 @@ import InitialFind from "./InitialFind/InitialFind";
 import Service from "./ServicePage/Service";
 import AboutUs from "./AboutUs/AboutUs";
 import PetStore from "../Product/PetStore";
+import RequestSection from "../RequestForm/RequestSection";
 
 const LandingPage = () => {
   return (
@@ -11,6 +12,7 @@ const LandingPage = () => {
       <Service />
       <AboutUs />
       <PetStore />
+      <RequestSection/>
     </>
   );
 };

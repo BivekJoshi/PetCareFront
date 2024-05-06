@@ -19,8 +19,8 @@ export const useLoginForm = () => {
     validationSchema: loginSchema,
     onSubmit: (values) => {
       setLoading(true);
-      //   handleLogin(values);
-      //   console.log(values);
+        handleLogin(values);
+        console.log(values);
     },
   });
 

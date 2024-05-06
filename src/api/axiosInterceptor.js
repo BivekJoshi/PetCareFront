@@ -7,7 +7,7 @@ const BASEURL = getBaseUrl();
 export const DOC_URL = getDocUrl();
 
 export const axiosInstance = Axios.create({
-  baseURL: getBaseUrl,
+  baseURL: BASEURL,
   timeout: 20000,
 });
 

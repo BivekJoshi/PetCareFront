@@ -34,7 +34,7 @@ const LoginPage = () => {
   return (
     <Grid container direction="row" justifyContent="space-between">
       {isXsScreen && (
-        <div style={{width:"100%",height:"200px"}}>
+        <div style={{ width: "100%", height: "200px" }}>
           <img
             src={ImageMobile}
             style={{
@@ -46,7 +46,7 @@ const LoginPage = () => {
           />
         </div>
       )}
-      <Box sx={{ width: isXsScreen?"100%":"55%", padding: "30px" }}>
+      <Box sx={{ width: isXsScreen ? "100%" : "55%", padding: "30px" }}>
         <div style={{ height: "37px", width: "150px" }}>
           <img
             src={LoginImage}
@@ -151,9 +151,13 @@ const LoginPage = () => {
               variant="contained"
               onClick={() => formik.submitForm()}
               fullWidth
+              sx={{color:"#fff",fontWeight:"bold"}}
             >
               Login
             </LoadingButton>
+            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Typography variant="h6" sx={{color:"#45BBBD"}}>← Back to Home Page</Typography>
+            </Box>
           </div>
         </Box>
       </Box>
