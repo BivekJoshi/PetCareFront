@@ -84,6 +84,11 @@ const Navbar = () => {
   const accent = theme.palette.primary.alt;
   const highlightId = hoveredId ?? activeId;
 
+  // At the very top the bar blends into the hero (no background). It becomes
+  // solid teal once you scroll, or when the mobile menu is open.
+  const solid = scrolled || (isMobile && mobileOpen);
+  const navText = solid ? "#FFFFFF" : "#15302E";
+
   const brand = (
     <MotionBox
       component="img"
@@ -106,16 +111,16 @@ const Navbar = () => {
     >
       <MotionBox
         animate={{
-          backgroundColor: scrolled
+          backgroundColor: solid
             ? "rgba(69, 187, 189, 0.82)"
-            : "rgba(69, 187, 189, 1)",
-          backdropFilter: scrolled ? "blur(10px)" : "blur(0px)",
-          boxShadow: scrolled
+            : "rgba(69, 187, 189, 0)",
+          backdropFilter: solid ? "blur(10px)" : "blur(0px)",
+          boxShadow: solid
             ? "0 10px 30px -12px rgba(48, 111, 107, 0.55)"
             : "0 0px 0px 0px rgba(48, 111, 107, 0)",
         }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        sx={{ WebkitBackdropFilter: scrolled ? "blur(10px)" : "none" }}
+        sx={{ WebkitBackdropFilter: solid ? "blur(10px)" : "none" }}
       >
         <Container maxWidth={CONTENT_MAX_WIDTH}>
           <Toolbar disableGutters sx={{ gap: 2, minHeight: { xs: 56, md: 64 } }}>
@@ -123,7 +128,7 @@ const Navbar = () => {
               <IconButton
                 aria-label="toggle navigation menu"
                 onClick={() => setMobileOpen((prev) => !prev)}
-                sx={{ color: "white" }}
+                sx={{ color: navText, transition: "color 0.35s ease" }}
               >
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.span
@@ -181,14 +186,17 @@ const Navbar = () => {
                           position: "absolute",
                           inset: 0,
                           borderRadius: 2,
-                          backgroundColor: "rgba(255, 255, 255, 0.16)",
+                          backgroundColor: solid
+                            ? "rgba(255, 255, 255, 0.16)"
+                            : "rgba(69, 187, 189, 0.14)",
                         }}
                       />
                     )}
                     <Typography
                       sx={{
                         position: "relative",
-                        color: "white",
+                        color: navText,
+                        transition: "color 0.35s ease",
                         fontWeight: 700,
                         fontSize: "0.95rem",
                         whiteSpace: "nowrap",

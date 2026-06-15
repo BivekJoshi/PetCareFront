@@ -9,8 +9,9 @@ const AppLayout = () => (
     <Box sx={{ position: "fixed", width: "100%", zIndex: 100 }}>
       <Navbar />
     </Box>
-    {/* Spacer offsets the fixed navbar (matches the Toolbar height). */}
-    <Box component="main" sx={{ flex: "1 0 auto", mt: { xs: "56px", md: "64px" } }}>
+    {/* No top spacer: the hero sits behind the transparent navbar so they
+        blend at the top. Sections use scrollMarginTop to clear the bar. */}
+    <Box component="main" sx={{ flex: "1 0 auto" }}>
       <Outlet />
     </Box>
     <Box sx={{ flex: "0 0 auto" }}>
