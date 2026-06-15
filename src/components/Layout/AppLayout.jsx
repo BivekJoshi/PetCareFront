@@ -13,7 +13,7 @@ const AppLayout = () => {
         <Outlet />
       </div>
       <div style={{ flex: "0 0 auto" }}>
-        <Footer style={{ position: "sticky", bottom: "0", zIndex: "100" }} />
+        <Footer />
       </div>
     </div>
   );

@@ -1,18 +1,15 @@
-import React from "react";
-import InitialFind from "./InitialFind/InitialFind";
-import Service from "./ServicePage/Service";
-import AboutUs from "./AboutUs/AboutUs";
-import PetStore from "../Product/PetStore";
+import Hero from "./sections/Hero";
+import Services from "./sections/Services";
+import WhyUs from "./sections/WhyUs";
+import Products from "./sections/Products";
 
-const LandingPage = () => {
-  return (
-    <>
-      <InitialFind />
-      <Service />
-      <AboutUs />
-      <PetStore />
-    </>
-  );
-};
+const LandingPage = () => (
+  <>
+    <Hero />
+    <Services />
+    <WhyUs />
+    <Products />
+  </>
+);
 
 export default LandingPage;

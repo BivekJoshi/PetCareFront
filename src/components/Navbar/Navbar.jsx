@@ -4,13 +4,11 @@ import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
-import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { Avatar, Badge, Box, Container, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Container, useMediaQuery, useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/YejuLogo.png";
 import ResButton from "../ResponsiveComponent/ResButton";
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 function Navbar({ data }) {
   const theme = useTheme();
@@ -25,26 +23,6 @@ function Navbar({ data }) {
       id: 1,
       item: "Home",
       path: "/home",
-    },
-    {
-      id: 2,
-      item: "About Us",
-      path: "/aboutUs",
-    },
-    {
-      id: 3,
-      item: "Gallery",
-      path: "/gallery",
-    },
-    {
-      id: 4,
-      item: "Testimonials",
-      path: "/testimonials",
-    },
-    {
-      id: 5,
-      item: "Notice",
-      path: "/notice",
     },
   ];
 
@@ -215,11 +193,6 @@ function Navbar({ data }) {
                 </Typography>
               ))}
             </Box>
-            <Button sx={{ color: 'black' }} onClick={() => navigate("wish-list")}>
-              <Badge badgeContent={4} color="secondary">
-                <ShoppingCartIcon />
-              </Badge>
-            </Button>
             <Box
               style={{
                 display: "flex",
@@ -231,12 +204,6 @@ function Navbar({ data }) {
                 onClick={() => navigate("/login")}
                 backgroundColor={theme.palette.primary.alt}
                 content="Login"
-              />
-              <ResButton
-                onClick={() => navigate("/register")}
-                backgroundColor={theme.palette.primary.alt}
-                content="Register"
-                variant="outlined"
               />
             </Box>
           </div>

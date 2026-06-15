@@ -1,6 +1,12 @@
-import { Button, useMediaQuery, useTheme } from "@mui/material";
-import React from "react";
+import { Button, useTheme } from "@mui/material";
 
+/**
+ * Shared button that scales down on small screens.
+ *
+ * When an explicit `variant` is passed the MUI default colours for that
+ * variant are used; otherwise it renders a contained button tinted with
+ * `backgroundColor`.
+ */
 const ResButton = ({
   variant,
   endIcon,
@@ -11,41 +17,24 @@ const ResButton = ({
   borderColor,
 }) => {
   const theme = useTheme();
-  const isXsScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
 
   return (
-    <>
-      {!isXsScreen ? (
-        <Button
-          variant={variant || "contained"}
-          endIcon={endIcon || ""}
-          sx={{
-            backgroundColor: variant ? "none" : backgroundColor,
-            color: color || "white",
-            borderColor: borderColor || theme.palette.primary.alt,
-          }}
-          onClick={onClick}
-        >
-          <b>{content}</b>
-        </Button>
-      ) : (
-        <Button
-          variant={variant || "contained"}
-          endIcon={endIcon || ""}
-          sx={{
-            backgroundColor: variant ? "none" : backgroundColor,
-            borderColor: borderColor || theme.palette.primary.alt,
-            color: color || "white",
-            height: "28px",
-            fontSize: "8px",
-            padding: "3px",
-          }}
-          onClick={onClick}
-        >
-          <b>{content}</b>
-        </Button>
-      )}
-    </>
+    <Button
+      variant={variant || "contained"}
+      endIcon={endIcon}
+      onClick={onClick}
+      sx={{
+        backgroundColor: variant ? undefined : backgroundColor,
+        color: color || "white",
+        borderColor: borderColor || theme.palette.primary.alt,
+        fontWeight: 700,
+        height: { xs: "28px", md: "auto" },
+        fontSize: { xs: "8px", md: "0.875rem" },
+        padding: { xs: "3px", md: "6px 16px" },
+      }}
+    >
+      {content}
+    </Button>
   );
 };
 
