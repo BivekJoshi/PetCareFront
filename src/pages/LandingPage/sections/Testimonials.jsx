@@ -1,9 +1,14 @@
 import { Avatar, Box, Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
+import { motion } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
+import { staggerItem, staggerParent } from "../../../components/motion/variants";
 import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import { TESTIMONIALS } from "../data";
 import customerAvatar from "../../../assets/customer.jpg";
+
+const MotionGrid = motion.create(Grid);
+const MotionCard = motion.create(Card);
 
 const Testimonials = () => (
   <Box sx={{ backgroundColor: "grey.50" }}>
@@ -12,11 +17,20 @@ const Testimonials = () => (
         segments={[{ text: "Happy" }, { text: "Pet Parents", color: "primary" }]}
         sx={{ mb: 4 }}
       />
-      <Grid container spacing={3}>
+      <MotionGrid
+        container
+        spacing={3}
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {TESTIMONIALS.map((item) => (
-          <Grid item xs={12} md={4} key={item.id}>
-            <Card
+          <MotionGrid item xs={12} md={4} key={item.id} variants={staggerItem}>
+            <MotionCard
               elevation={0}
+              whileHover={{ y: -6, boxShadow: "0 16px 32px rgba(0,0,0,0.1)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
               sx={{
                 height: "100%",
                 borderRadius: 3,
@@ -41,10 +55,10 @@ const Testimonials = () => (
                   </Box>
                 </Box>
               </CardContent>
-            </Card>
-          </Grid>
+            </MotionCard>
+          </MotionGrid>
         ))}
-      </Grid>
+      </MotionGrid>
     </Container>
   </Box>
 );

@@ -16,13 +16,13 @@ export const COLORS = {
 };
 
 export const HERO = {
-  badge: "A community for every pet",
+  badge: "Care · Track · Adopt",
   title: "Every Pet in Your Community, Cared For",
   subtitle:
-    "Track street and home animals — dogs, cats, horses, cows, hens and more. Share their stories anonymously, find trusted vets nearby, and get the care every pet deserves.",
-  primaryCta: "Join the Community",
+    "Track street and home animals, find trusted vets nearby, and adopt your next companion — every species, one caring community.",
+  primaryCta: "Find a Pet to Adopt",
   secondaryCta: "Explore Pets",
-  imageAlt: "Interactive 3D bone",
+  imageAlt: "Floating pets",
 };
 
 export const STATS = [
@@ -41,10 +41,10 @@ export const PILLARS = [
     desc: "From street strays to home companions, map and follow the wellbeing of all animals in your locality.",
   },
   {
-    id: "community",
-    icon: "community",
-    title: "Anonymous Community",
-    desc: "Share photos and stories of your beloved pets and connect with neighbours — privately and safely.",
+    id: "adopt",
+    icon: "adopt",
+    title: "Adopt & Rehome",
+    desc: "Give a rescue a loving home or safely rehome a pet within your trusted local community.",
   },
   {
     id: "vets",
@@ -53,12 +53,23 @@ export const PILLARS = [
     desc: "Discover nearby veterinarians, check live availability and book appointments in a few taps.",
   },
   {
-    id: "consult",
-    icon: "consult",
-    title: "Expert Consultations",
-    desc: "Get guidance on nutrition, health and behaviour from certified professionals, anytime.",
+    id: "care",
+    icon: "care",
+    title: "Care & Consult",
+    desc: "Vet-approved guidance on health, nutrition and behaviour for every kind of animal, anytime.",
   },
 ];
+
+export const ADOPTION = {
+  body: "Hundreds of animals near you are looking for a forever home. Meet a few of them — every adoption opens a space for another rescue.",
+  cta: "See all pets",
+  pets: [
+    { id: 1, name: "Momo", type: "Dog", detail: "Puppy · 3 months", location: "Lalitpur", emoji: "🐶" },
+    { id: 2, name: "Bagh", type: "Cat", detail: "Adult · 2 years", location: "Kathmandu", emoji: "🐱" },
+    { id: 3, name: "Kali", type: "Cow", detail: "Rescued · gentle", location: "Bhaktapur", emoji: "🐮" },
+    { id: 4, name: "Thumper", type: "Rabbit", detail: "Young · playful", location: "Patan", emoji: "🐰" },
+  ],
+};
 
 export const SPECIES = [
   { id: "dogs", emoji: "🐶", name: "Dogs" },

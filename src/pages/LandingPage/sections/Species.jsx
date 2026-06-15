@@ -1,46 +1,67 @@
 import { Box, Container, Grid, Paper, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
+import { staggerItem, staggerParent } from "../../../components/motion/variants";
 import { CONTENT_MAX_WIDTH, SECTION_PY, TEXT_MAX_WIDTH } from "../../../constants/layout";
 import { SPECIES } from "../data";
+
+const MotionGrid = motion.create(Grid);
+const MotionPaper = motion.create(Paper);
 
 const Species = () => (
   <Box sx={{ backgroundColor: "grey.50" }}>
     <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
       <SectionHeading
         segments={[{ text: "Every" }, { text: "Animal Counts", color: "primary" }]}
-        sx={{ mb: 1.5, flexWrap: "wrap" }}
+        sx={{ mb: 1.5 }}
       />
       <Typography
         variant="h6"
         color="text.secondary"
         sx={{ maxWidth: TEXT_MAX_WIDTH, mx: "auto", mb: 4, textAlign: "center" }}
       >
-        Not just dogs. We help communities track and care for every kind of pet
-        and street animal.
+        Not just dogs. We help communities track, care for and rehome every kind
+        of pet and street animal.
       </Typography>
-      <Grid container spacing={2} justifyContent="center">
+      <MotionGrid
+        container
+        spacing={2}
+        justifyContent="center"
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {SPECIES.map((species) => (
-          <Grid item xs={6} sm={4} md={3} key={species.id}>
-            <Paper
+          <MotionGrid item xs={6} sm={4} md={3} key={species.id} variants={staggerItem}>
+            <MotionPaper
               elevation={0}
+              whileHover={{ y: -6, scale: 1.04 }}
+              transition={{ type: "spring", stiffness: 300, damping: 18 }}
               sx={{
                 py: 3,
                 textAlign: "center",
                 borderRadius: 3,
                 border: "1px solid",
                 borderColor: "divider",
-                transition: "transform 0.2s ease, border-color 0.2s ease",
-                "&:hover": { transform: "translateY(-4px)", borderColor: "primary.main" },
+                "&:hover": { borderColor: "primary.main" },
               }}
             >
-              <Typography sx={{ fontSize: 40, lineHeight: 1 }}>{species.emoji}</Typography>
+              <Box
+                component={motion.div}
+                whileHover={{ rotate: [0, -15, 15, -8, 0], scale: 1.2 }}
+                transition={{ duration: 0.6 }}
+                sx={{ fontSize: 44, lineHeight: 1 }}
+              >
+                {species.emoji}
+              </Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, mt: 1 }}>
                 {species.name}
               </Typography>
-            </Paper>
-          </Grid>
+            </MotionPaper>
+          </MotionGrid>
         ))}
-      </Grid>
+      </MotionGrid>
     </Container>
   </Box>
 );

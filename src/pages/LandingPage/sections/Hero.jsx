@@ -12,6 +12,7 @@ import {
 import ResButton from "../../../components/ResponsiveComponent/ResButton";
 import { CONTENT_MAX_WIDTH } from "../../../constants/layout";
 import { HERO } from "../data";
+import petHeroVideo from "../../../assets/Videos/petHero.mp4";
 
 const MotionBox = motion.create(Box);
 const MotionStack = motion.create(Stack);
@@ -155,6 +156,28 @@ const Hero = () => {
           "linear-gradient(160deg, #FDF7DE 0%, #EAFBFB 55%, #FFFFFF 100%)",
       }}
     >
+      {/* Background video watermark */}
+      <Box
+        component="video"
+        src={petHeroVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden
+        sx={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: 0.52,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+
       {/* Slowly rotating aurora wash */}
       <MotionBox
         aria-hidden

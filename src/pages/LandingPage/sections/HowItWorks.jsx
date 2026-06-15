@@ -1,7 +1,11 @@
 import { Box, Container, Grid, Typography, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
+import { staggerItem, staggerParent } from "../../../components/motion/variants";
 import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import { STEPS } from "../data";
+
+const MotionGrid = motion.create(Grid);
 
 const HowItWorks = () => {
   const theme = useTheme();
@@ -12,9 +16,16 @@ const HowItWorks = () => {
         segments={[{ text: "How It" }, { text: "Works", color: "primary" }]}
         sx={{ mb: 4 }}
       />
-      <Grid container spacing={4}>
+      <MotionGrid
+        container
+        spacing={4}
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {STEPS.map((step) => (
-          <Grid item xs={12} md={4} key={step.id}>
+          <MotionGrid item xs={12} md={4} key={step.id} variants={staggerItem}>
             <Box sx={{ textAlign: { xs: "center", md: "left" } }}>
               <Typography
                 variant="h1"
@@ -34,9 +45,9 @@ const HowItWorks = () => {
                 {step.desc}
               </Typography>
             </Box>
-          </Grid>
+          </MotionGrid>
         ))}
-      </Grid>
+      </MotionGrid>
     </Container>
   );
 };

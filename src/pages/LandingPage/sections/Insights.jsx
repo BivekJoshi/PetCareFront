@@ -1,7 +1,12 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
+import { motion } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
+import Counter from "../../../components/motion/Counter";
+import { staggerItem, staggerParent } from "../../../components/motion/variants";
 import { CONTENT_MAX_WIDTH, SECTION_PY, TEXT_MAX_WIDTH } from "../../../constants/layout";
 import { INSIGHTS } from "../data";
+
+const MotionGrid = motion.create(Grid);
 
 const Insights = () => (
   <Box sx={{ backgroundColor: "grey.50" }}>
@@ -17,9 +22,16 @@ const Insights = () => (
       >
         {INSIGHTS.body}
       </Typography>
-      <Grid container spacing={3}>
+      <MotionGrid
+        container
+        spacing={3}
+        variants={staggerParent}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {INSIGHTS.metrics.map((metric) => (
-          <Grid item xs={6} md={3} key={metric.id}>
+          <MotionGrid item xs={6} md={3} key={metric.id} variants={staggerItem}>
             <Box
               sx={{
                 p: 3,
@@ -32,15 +44,15 @@ const Insights = () => (
               }}
             >
               <Typography variant="h2" color="primary" sx={{ fontWeight: 800 }}>
-                {metric.value}
+                <Counter value={metric.value} />
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 {metric.label}
               </Typography>
             </Box>
-          </Grid>
+          </MotionGrid>
         ))}
-      </Grid>
+      </MotionGrid>
     </Container>
   </Box>
 );

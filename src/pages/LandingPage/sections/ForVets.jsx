@@ -3,6 +3,7 @@ import { Box, Container, Grid, List, ListItem, ListItemIcon, ListItemText, Typog
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import ResButton from "../../../components/ResponsiveComponent/ResButton";
+import Reveal from "../../../components/motion/Reveal";
 import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import { VET } from "../data";
 
@@ -12,7 +13,7 @@ const ForVets = () => {
 
   return (
     <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
-      <Box
+      <Reveal
         sx={{
           borderRadius: 4,
           p: { xs: 3, md: 6 },
@@ -54,7 +55,7 @@ const ForVets = () => {
             />
           </Grid>
         </Grid>
-      </Box>
+      </Reveal>
     </Container>
   );
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Box, Container, Stack, TextField, Typography, useTheme } from "@mui/material";
 import ResButton from "../../../components/ResponsiveComponent/ResButton";
+import Reveal from "../../../components/motion/Reveal";
 import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import { NEWSLETTER } from "../data";
 
@@ -17,12 +18,14 @@ const Newsletter = () => {
   return (
     <Box sx={{ backgroundColor: theme.palette.primary.main, color: "#FFFFFF" }}>
       <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY, textAlign: "center" }}>
-        <Typography variant="h2" sx={{ fontWeight: 800, mb: 1 }}>
-          {NEWSLETTER.title}
-        </Typography>
-        <Typography variant="h6" sx={{ opacity: 0.9, mb: 3 }}>
-          {NEWSLETTER.subtitle}
-        </Typography>
+        <Reveal>
+          <Typography variant="h2" sx={{ fontWeight: 800, mb: 1 }}>
+            {NEWSLETTER.title}
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.9, mb: 3 }}>
+            {NEWSLETTER.subtitle}
+          </Typography>
+        </Reveal>
         <Stack
           component="form"
           onSubmit={handleSubscribe}

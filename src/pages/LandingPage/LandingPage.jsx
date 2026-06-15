@@ -4,6 +4,7 @@ import Stats from "./sections/Stats";
 import Pillars from "./sections/Pillars";
 import Species from "./sections/Species";
 import HowItWorks from "./sections/HowItWorks";
+import Adoption from "./sections/Adoption";
 import Community from "./sections/Community";
 import Insights from "./sections/Insights";
 import Services from "./sections/Services";
@@ -29,6 +30,9 @@ const LandingPage = () => (
     <Species />
     <Box component="section" id="how-it-works" sx={anchorSx}>
       <HowItWorks />
+    </Box>
+    <Box component="section" id="adopt" sx={anchorSx}>
+      <Adoption />
     </Box>
     <Community />
     <Insights />
