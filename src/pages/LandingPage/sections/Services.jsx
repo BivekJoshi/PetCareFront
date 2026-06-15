@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Box, Grid, MobileStepper } from "@mui/material";
+import { Box, Container, Grid, MobileStepper } from "@mui/material";
 import SectionHeading from "../components/SectionHeading";
 import ServiceItem from "../components/ServiceItem";
+import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import { SERVICES, SERVICE_SLIDES } from "../data";
 
 const SLIDE_INTERVAL_MS = 3000;
@@ -23,15 +24,17 @@ const Services = () => {
   const activeSlide = SERVICE_SLIDES[activeStep];
 
   return (
-    <Box sx={{ margin: "2rem 3rem" }}>
+    <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
       <SectionHeading
-        segments={[{ text: "Our" }, { text: "Services", color: "primary" }]}
+        segments={[{ text: "Care &" }, { text: "Consultations", color: "primary" }]}
+        sx={{ mb: 3, flexWrap: "wrap" }}
       />
       <Grid
         container
         direction="row"
         justifyContent="space-between"
         alignItems="center"
+        spacing={2}
         textAlign="justify"
       >
         <Grid item xs={12} md={4}>
@@ -44,16 +47,17 @@ const Services = () => {
           <Box
             sx={{
               position: "relative",
-              padding: "16px",
-              width: { md: "500px" },
-              height: { md: "500px" },
+              width: "100%",
+              maxWidth: 500,
+              mx: "auto",
+              aspectRatio: "1 / 1",
             }}
           >
             <Box
               component="img"
               src={activeSlide.image}
               alt={activeSlide.label}
-              sx={{ width: "100%", height: "100%" }}
+              sx={{ width: "100%", height: "100%", objectFit: "contain" }}
             />
             <MobileStepper
               steps={slideCount}
@@ -77,7 +81,7 @@ const Services = () => {
           ))}
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 };
 

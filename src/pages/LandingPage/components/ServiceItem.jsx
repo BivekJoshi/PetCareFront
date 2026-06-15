@@ -17,9 +17,10 @@ const ServiceItem = ({ id, title, desc }) => {
       direction="row"
       justifyContent="space-between"
       alignItems="center"
-      sx={{ padding: { xs: "1rem 0", md: "1rem 6rem" } }}
+      columnSpacing={2}
+      sx={{ py: { xs: 1.5, md: 2 } }}
     >
-      <Grid item xs={1}>
+      <Grid item xs={2} sm={1}>
         <Typography
           variant={isMobile ? "h4" : "h1"}
           sx={{ fontWeight: 700, color: theme.palette.primary.main }}
@@ -27,13 +28,13 @@ const ServiceItem = ({ id, title, desc }) => {
           {id}
         </Typography>
       </Grid>
-      <Grid item xs={11}>
+      <Grid item xs={10} sm={11}>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           <Typography variant={isMobile ? "h6" : "h3"} sx={{ fontWeight: 700 }}>
             {title}
           </Typography>
           <Typography variant={isMobile ? "h7" : "h6"}>{desc}</Typography>
-          <Box sx={{ marginTop: { xs: "0.2rem", md: "2rem" } }}>
+          <Box sx={{ mt: { xs: 1, md: 2 } }}>
             <ResButton
               variant="contained"
               endIcon={<ChevronRightIcon />}

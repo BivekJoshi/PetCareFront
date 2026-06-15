@@ -1,0 +1,48 @@
+import { Box, Container, Grid, Typography } from "@mui/material";
+import SectionHeading from "../components/SectionHeading";
+import { CONTENT_MAX_WIDTH, SECTION_PY, TEXT_MAX_WIDTH } from "../../../constants/layout";
+import { INSIGHTS } from "../data";
+
+const Insights = () => (
+  <Box sx={{ backgroundColor: "grey.50" }}>
+    <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
+      <SectionHeading
+        segments={[{ text: "Data That" }, { text: "Helps Animals", color: "primary" }]}
+        sx={{ mb: 1.5, flexWrap: "wrap" }}
+      />
+      <Typography
+        variant="h6"
+        color="text.secondary"
+        sx={{ maxWidth: TEXT_MAX_WIDTH, mx: "auto", mb: 4, textAlign: "center" }}
+      >
+        {INSIGHTS.body}
+      </Typography>
+      <Grid container spacing={3}>
+        {INSIGHTS.metrics.map((metric) => (
+          <Grid item xs={6} md={3} key={metric.id}>
+            <Box
+              sx={{
+                p: 3,
+                height: "100%",
+                textAlign: "center",
+                borderRadius: 3,
+                backgroundColor: "background.paper",
+                border: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography variant="h2" color="primary" sx={{ fontWeight: 800 }}>
+                {metric.value}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                {metric.label}
+              </Typography>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
+    </Container>
+  </Box>
+);
+
+export default Insights;

@@ -6,27 +6,21 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { CONTENT_MAX_WIDTH, SECTION_PY } from "../../../constants/layout";
 import Logo from "../../../assets/YejuLogo.png";
 
 const LINK_COLUMNS = [
   {
-    title: "Customer Service",
-    links: [
-      "Track Order",
-      "Returns and Exchange",
-      "Shipping Info",
-      "Find Stores",
-      "Contact Us",
-      "FAQ's",
-    ],
+    title: "Platform",
+    links: ["Track Pets", "Community", "Find a Vet", "Insights", "How It Works"],
   },
   {
     title: "Services",
-    links: ["Training", "Consultation", "Buy & Sell", "Grooming"],
+    links: ["Consultation", "Vaccination", "Booking", "Stray Care"],
   },
   {
-    title: "Corporate",
-    links: ["Careers", "About Us", "Blogs"],
+    title: "Company",
+    links: ["About Us", "Careers", "Blog", "Contact"],
   },
 ];
 
@@ -70,18 +64,19 @@ const Footer = () => {
       component="footer"
       sx={{ backgroundColor: theme.palette.primary.main, color: "#FFFFFF" }}
     >
-      <Container maxWidth="lg" sx={{ py: 5 }}>
+      <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
         <Grid container spacing={4}>
           {/* Brand */}
           <Grid item xs={12} md={3}>
             <Box
               component="img"
               src={Logo}
-              alt="Yejus Paw"
+              alt="Yeju Saathi"
               sx={{ height: 48, mb: 2 }}
             />
             <Typography variant="body2" sx={{ opacity: 0.85, mb: 2 }}>
-              Quality care, food and supplies for dogs of all shapes and sizes.
+              A community platform to track, share and care for every pet — from
+              street animals to home companions.
             </Typography>
             <Stack direction="row" spacing={1}>
               {SOCIALS.map(({ icon: Icon, label, href }) => (
@@ -153,7 +148,7 @@ const Footer = () => {
             ))}
           </Stack>
           <Typography variant="body2" sx={{ opacity: 0.85, textAlign: "center" }}>
-            © {year} YEJUS PAW. All rights reserved.
+            © {year} YEJU SAATHI. All rights reserved.
           </Typography>
         </Box>
       </Container>
