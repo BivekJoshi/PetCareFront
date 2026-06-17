@@ -129,9 +129,22 @@ const palette = {
 export default palette;
 
 export const themeSettings = () => {
+  const primaryMain = palette.primary[500];
+  const accent = palette.secondary[900];
+  const deepTeal = palette.primary[800]; // #388D8C
+  const deepOrange = "#D9701B"; // darker than the accent orange
+  const gradient = `linear-gradient(135deg, ${deepTeal} 0%, ${accent} 55%, ${deepOrange} 100%)`;
+  const gradientHover = `linear-gradient(135deg, ${deepOrange} 0%, ${accent} 45%, ${deepTeal} 100%)`;
+
   return {
+    shape: { borderRadius: 14 },
     typography: {
       fontFamily: ["DM Sans", "sans-serif"].join(","),
+      button: {
+        textTransform: "none",
+        fontWeight: 700,
+        letterSpacing: "0.01em",
+      },
       h1: {
         fontSize: "2.225rem",
         lineHeight: "1",
@@ -227,6 +240,63 @@ export const themeSettings = () => {
         backgroundCard: palette.primary[300],
         text:palette.secondary[500],
         background: palette.tertiary[400],
+      },
+    },
+    components: {
+      MuiButton: {
+        defaultProps: {
+          disableElevation: true,
+        },
+        styleOverrides: {
+          root: {
+            borderRadius: 999,
+            paddingInline: "1.5rem",
+            paddingBlock: "0.55rem",
+            transition:
+              "transform .25s ease, box-shadow .25s ease, filter .25s ease, background .25s ease",
+            "&:hover": {
+              transform: "translateY(-2px)",
+            },
+          },
+          contained: {
+            background: gradient,
+            color: "#ffffff",
+            backgroundSize: "150% 150%",
+            boxShadow: "0 8px 22px -8px rgba(33, 75, 72, 0.7)",
+            "&:hover": {
+              background: gradientHover,
+              boxShadow: "0 14px 28px -8px rgba(217, 112, 27, 0.6)",
+            },
+          },
+          outlined: {
+            borderWidth: 2,
+            borderColor: accent,
+            color: deepOrange,
+            "&:hover": {
+              borderWidth: 2,
+              borderColor: deepOrange,
+              backgroundColor: `${accent}1f`,
+            },
+          },
+          outlinedPrimary: {
+            borderColor: accent,
+            color: deepOrange,
+            "&:hover": {
+              borderColor: deepOrange,
+              backgroundColor: `${accent}1f`,
+            },
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          rounded: { borderRadius: 16 },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: { fontWeight: 600 },
+        },
       },
     },
   };

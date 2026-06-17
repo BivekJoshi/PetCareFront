@@ -25,38 +25,51 @@ export const HERO = {
   imageAlt: "Floating pets",
 };
 
+// `icon` maps to an MUI icon inside Stats.jsx.
 export const STATS = [
-  { id: "pets", value: "24K+", label: "Pets Mapped" },
-  { id: "communities", value: "60+", label: "Communities" },
-  { id: "vets", value: "500+", label: "Verified Vets" },
-  { id: "species", value: "15", label: "Species Tracked" },
+  { id: "pets", icon: "pets", value: "24K+", label: "Pets Mapped", caption: "and counting every week", trend: "+12% this month" },
+  { id: "communities", icon: "communities", value: "60+", label: "Communities", caption: "across the region", trend: "+8 new" },
+  { id: "vets", icon: "vets", value: "500+", label: "Verified Vets", caption: "ready to help nearby", trend: "24/7 support" },
+  { id: "species", icon: "species", value: "15", label: "Species Tracked", caption: "from cats to parrots", trend: "fully covered" },
 ];
 
-// `icon` maps to an MUI icon inside Pillars.jsx.
+// `icon` maps to an MUI icon inside Pillars.jsx; `accent` colors that card.
 export const PILLARS = [
   {
     id: "track",
     icon: "track",
+    accent: "#388D8C",
+    tag: "Map",
     title: "Track Every Pet",
     desc: "From street strays to home companions, map and follow the wellbeing of all animals in your locality.",
+    points: ["Live location pins", "Health & vaccination logs", "Lost & found alerts"],
   },
   {
     id: "adopt",
     icon: "adopt",
+    accent: "#F57C00",
+    tag: "Rehome",
     title: "Adopt & Rehome",
     desc: "Give a rescue a loving home or safely rehome a pet within your trusted local community.",
+    points: ["Verified adopter profiles", "Match by breed & space", "Safe handover guides"],
   },
   {
     id: "vets",
     icon: "vets",
+    accent: "#1E88E5",
+    tag: "Book",
     title: "Find & Book Vets",
     desc: "Discover nearby veterinarians, check live availability and book appointments in a few taps.",
+    points: ["Real-time availability", "In-app appointment booking", "Ratings & reviews"],
   },
   {
     id: "care",
     icon: "care",
+    accent: "#43A047",
+    tag: "Consult",
     title: "Care & Consult",
     desc: "Vet-approved guidance on health, nutrition and behaviour for every kind of animal, anytime.",
+    points: ["Vet-approved articles", "Chat consultations", "Diet & care reminders"],
   },
 ];
 
@@ -64,22 +77,35 @@ export const ADOPTION = {
   body: "Hundreds of animals near you are looking for a forever home. Meet a few of them — every adoption opens a space for another rescue.",
   cta: "See all pets",
   pets: [
-    { id: 1, name: "Momo", type: "Dog", detail: "Puppy · 3 months", location: "Lalitpur", emoji: "🐶" },
-    { id: 2, name: "Bagh", type: "Cat", detail: "Adult · 2 years", location: "Kathmandu", emoji: "🐱" },
-    { id: 3, name: "Kali", type: "Cow", detail: "Rescued · gentle", location: "Bhaktapur", emoji: "🐮" },
-    { id: 4, name: "Thumper", type: "Rabbit", detail: "Young · playful", location: "Patan", emoji: "🐰" },
+    {
+      id: 1, name: "Momo", type: "Dog", detail: "Puppy · 3 months", location: "Lalitpur",
+      emoji: "🐶", gender: "Male", vaccinated: true, urgent: true, traits: ["Playful", "Friendly"],
+    },
+    {
+      id: 2, name: "Bagh", type: "Cat", detail: "Adult · 2 years", location: "Kathmandu",
+      emoji: "🐱", gender: "Female", vaccinated: true, urgent: false, traits: ["Calm", "Indoor"],
+    },
+    {
+      id: 3, name: "Kali", type: "Cow", detail: "Rescued · gentle", location: "Bhaktapur",
+      emoji: "🐮", gender: "Female", vaccinated: false, urgent: true, traits: ["Gentle", "Grazer"],
+    },
+    {
+      id: 4, name: "Thumper", type: "Rabbit", detail: "Young · playful", location: "Patan",
+      emoji: "🐰", gender: "Male", vaccinated: true, urgent: false, traits: ["Curious", "Litter-trained"],
+    },
   ],
 };
 
+// `count` is the number tracked; `tint` colors the card accent.
 export const SPECIES = [
-  { id: "dogs", emoji: "🐶", name: "Dogs" },
-  { id: "cats", emoji: "🐱", name: "Cats" },
-  { id: "horses", emoji: "🐴", name: "Horses" },
-  { id: "cows", emoji: "🐮", name: "Cows" },
-  { id: "hens", emoji: "🐔", name: "Hens" },
-  { id: "goats", emoji: "🐐", name: "Goats" },
-  { id: "rabbits", emoji: "🐰", name: "Rabbits" },
-  { id: "birds", emoji: "🐦", name: "Birds" },
+  { id: "dogs", emoji: "🐶", name: "Dogs", count: "9.4K", tint: "#F57C00" },
+  { id: "cats", emoji: "🐱", name: "Cats", count: "6.1K", tint: "#8E5DD9" },
+  { id: "horses", emoji: "🐴", name: "Horses", count: "820", tint: "#8D6E63" },
+  { id: "cows", emoji: "🐮", name: "Cows", count: "2.3K", tint: "#43A047" },
+  { id: "hens", emoji: "🐔", name: "Hens", count: "3.7K", tint: "#FBC02D" },
+  { id: "goats", emoji: "🐐", name: "Goats", count: "1.5K", tint: "#00897B" },
+  { id: "rabbits", emoji: "🐰", name: "Rabbits", count: "640", tint: "#EC407A" },
+  { id: "birds", emoji: "🐦", name: "Birds", count: "1.1K", tint: "#1E88E5" },
 ];
 
 export const STEPS = [

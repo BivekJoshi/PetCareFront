@@ -1,7 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Card, Chip, Container, Grid, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Button, Card, Chip, Container, Divider, Grid, Stack, Typography, useTheme } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import MaleIcon from "@mui/icons-material/Male";
+import FemaleIcon from "@mui/icons-material/Female";
 import { motion } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
 import { staggerItem, staggerParent } from "../../../components/motion/variants";
@@ -82,12 +86,55 @@ const Adoption = () => {
                     color: theme.palette.primary.main,
                   }}
                 />
+                {pet.urgent && (
+                  <Chip
+                    label="Urgent"
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 12,
+                      left: 12,
+                      fontWeight: 700,
+                      color: "#fff",
+                      backgroundColor: theme.palette.error.main,
+                    }}
+                  />
+                )}
+                {/* wishlist heart */}
+                <Box
+                  component={motion.div}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.85 }}
+                  sx={{
+                    position: "absolute",
+                    bottom: 12,
+                    right: 12,
+                    width: 32,
+                    height: 32,
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "50%",
+                    cursor: "pointer",
+                    color: accent,
+                    backgroundColor: "#fff",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                  }}
+                >
+                  <FavoriteBorderIcon sx={{ fontSize: 18 }} />
+                </Box>
               </Box>
 
               <Box sx={{ p: 2.5 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                  {pet.name}
-                </Typography>
+                <Stack direction="row" spacing={0.75} alignItems="center" justifyContent="center">
+                  <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                    {pet.name}
+                  </Typography>
+                  {pet.gender === "Male" ? (
+                    <MaleIcon sx={{ fontSize: 18, color: theme.palette.info.main }} />
+                  ) : (
+                    <FemaleIcon sx={{ fontSize: 18, color: theme.palette.error.light }} />
+                  )}
+                </Stack>
                 <Typography variant="body2" color="text.secondary">
                   {pet.detail}
                 </Typography>
@@ -101,6 +148,40 @@ const Adoption = () => {
                   <LocationOnIcon sx={{ fontSize: 16 }} />
                   <Typography variant="caption">{pet.location}</Typography>
                 </Stack>
+
+                {/* trait + health chips */}
+                <Stack
+                  direction="row"
+                  spacing={0.75}
+                  flexWrap="wrap"
+                  useFlexGap
+                  justifyContent="center"
+                  sx={{ mb: 1.5 }}
+                >
+                  {pet.vaccinated && (
+                    <Chip
+                      icon={<VerifiedIcon sx={{ fontSize: 14, color: `${theme.palette.success.main} !important` }} />}
+                      label="Vaccinated"
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        height: 24,
+                        fontWeight: 600,
+                        color: theme.palette.success.main,
+                        borderColor: `${theme.palette.success.main}66`,
+                      }}
+                    />
+                  )}
+                  {pet.traits?.map((trait) => (
+                    <Chip
+                      key={trait}
+                      label={trait}
+                      size="small"
+                      sx={{ height: 24, fontWeight: 600, backgroundColor: `${accent}14`, color: accent }}
+                    />
+                  ))}
+                </Stack>
+                <Divider sx={{ mb: 1.5 }} />
                 <Button
                   fullWidth
                   variant="contained"
@@ -116,7 +197,6 @@ const Adoption = () => {
                   }
                   onClick={() => navigate("/login")}
                   sx={{
-                    mt: 1,
                     fontWeight: 700,
                     borderRadius: 2,
                     backgroundColor: accent,

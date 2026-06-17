@@ -32,35 +32,57 @@ const Species = () => (
         whileInView="show"
         viewport={{ once: true, margin: "-60px" }}
       >
-        {SPECIES.map((species) => (
-          <MotionGrid item xs={6} sm={4} md={3} key={species.id} variants={staggerItem}>
-            <MotionPaper
-              elevation={0}
-              whileHover={{ y: -6, scale: 1.04 }}
-              transition={{ type: "spring", stiffness: 300, damping: 18 }}
-              sx={{
-                py: 3,
-                textAlign: "center",
-                borderRadius: 3,
-                border: "1px solid",
-                borderColor: "divider",
-                "&:hover": { borderColor: "primary.main" },
-              }}
-            >
-              <Box
-                component={motion.div}
-                whileHover={{ rotate: [0, -15, 15, -8, 0], scale: 1.2 }}
-                transition={{ duration: 0.6 }}
-                sx={{ fontSize: 44, lineHeight: 1 }}
+        {SPECIES.map((species) => {
+          const tint = species.tint;
+          return (
+            <MotionGrid item xs={6} sm={4} md={3} key={species.id} variants={staggerItem}>
+              <MotionPaper
+                elevation={0}
+                whileHover={{ y: -6, scale: 1.04 }}
+                transition={{ type: "spring", stiffness: 300, damping: 18 }}
+                sx={{
+                  py: 3,
+                  px: 2,
+                  textAlign: "center",
+                  borderRadius: 3,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  transition: "border-color 0.25s ease, box-shadow 0.25s ease",
+                  "&:hover": {
+                    borderColor: `${tint}80`,
+                    boxShadow: `0 16px 32px -16px ${tint}80`,
+                  },
+                }}
               >
-                {species.emoji}
-              </Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, mt: 1 }}>
-                {species.name}
-              </Typography>
-            </MotionPaper>
-          </MotionGrid>
-        ))}
+                <Box
+                  component={motion.div}
+                  whileHover={{ rotate: [0, -15, 15, -8, 0], scale: 1.15 }}
+                  transition={{ duration: 0.6 }}
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    mx: "auto",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "50%",
+                    fontSize: 38,
+                    lineHeight: 1,
+                    backgroundColor: `${tint}1A`,
+                  }}
+                >
+                  {species.emoji}
+                </Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mt: 1.5 }}>
+                  {species.name}
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: tint, mt: 0.25 }}>
+                  {species.count} tracked
+                </Typography>
+              </MotionPaper>
+            </MotionGrid>
+          );
+        })}
       </MotionGrid>
     </Container>
   </Box>
