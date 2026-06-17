@@ -7,6 +7,8 @@ export const PET_SPECIES = [
   "RABBIT",
   "REPTILE",
   "FISH",
+  "CATTLE",
+  "GOAT",
   "OTHER",
 ];
 
@@ -26,6 +28,46 @@ export const STATUS_COLORS = {
   CANCELLED: "default",
 };
 
+export const VACCINATION_STATUSES = [
+  "SCHEDULED",
+  "ADMINISTERED",
+  "OVERDUE",
+  "SKIPPED",
+];
+
+export const VACCINATION_STATUS_COLORS = {
+  SCHEDULED: "info",
+  ADMINISTERED: "success",
+  OVERDUE: "error",
+  SKIPPED: "default",
+};
+
+export const RECORD_TYPES = [
+  "CHECKUP",
+  "TREATMENT",
+  "PRESCRIPTION",
+  "DIET",
+  "SURGERY",
+];
+
+export const REMINDER_TYPES = [
+  "VACCINE",
+  "CHECKUP",
+  "DEWORMING",
+  "CARE_TIP",
+  "GENERAL",
+];
+
+export const REMINDER_TYPE_COLORS = {
+  VACCINE: "success",
+  CHECKUP: "info",
+  DEWORMING: "warning",
+  CARE_TIP: "secondary",
+  GENERAL: "default",
+};
+
+export const AREA_LEVELS = ["PROVINCE", "DISTRICT", "MUNICIPALITY", "WARD"];
+
 export const ROLES = {
   SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
@@ -35,6 +77,10 @@ export const ROLES = {
 
 export const isAdmin = (role) =>
   role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN;
+
+export const isVet = (role) => role === ROLES.VET;
+
+export const isStaff = (role) => isAdmin(role) || isVet(role);
 
 // Title-case an ENUM_VALUE for display: "PET_OWNER" -> "Pet Owner".
 export const humanize = (value = "") =>

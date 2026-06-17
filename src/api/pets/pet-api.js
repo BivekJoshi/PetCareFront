@@ -7,6 +7,10 @@ export const fetchPets = (params) =>
 
 export const fetchPet = (id) => axiosInstance.get(`/pets/${id}`).then(unwrap);
 
+// Vet-facing: pull up a pet (with owner, vaccinations, records) by its code.
+export const lookupPetByCode = (code) =>
+  axiosInstance.get(`/pets/lookup/${encodeURIComponent(code)}`).then(unwrap);
+
 export const createPet = (payload) =>
   axiosInstance.post("/pets", payload).then(unwrap);
 
