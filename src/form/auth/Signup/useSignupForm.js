@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import toast from "react-hot-toast";
 import { signupSchema } from "./signupSchema";
+import { useSignup } from "../../../hooks/auth/useAuth";
+
+// "Jane Mary Doe" -> { firstName: "Jane", lastName: "Mary Doe" }
+const splitName = (fullName) => {
+  const [first, ...rest] = fullName.trim().split(/\s+/);
+  return { firstName: first, lastName: rest.join(" ") || first };
+};
 
 export const useSignupForm = () => {
-  const [loading, setLoading] = useState(false);
   const [showValues, setShowValues] = useState({
     showPassword: false,
     showConfirmPassword: false,
   });
+  const { mutate, isLoading } = useSignup();
 
   const formik = useFormik({
     initialValues: {
@@ -18,11 +24,9 @@ export const useSignupForm = () => {
       confirmPassword: "",
     },
     validationSchema: signupSchema,
-    onSubmit: (values) => {
-      setLoading(true);
-      // No register endpoint wired yet — surface the intent and reset the flag.
-      toast.success("Account details look good!");
-      setTimeout(() => setLoading(false), 600);
+    onSubmit: ({ fullName, email, password }) => {
+      const { firstName, lastName } = splitName(fullName);
+      mutate({ firstName, lastName, email: email.trim(), password: password.trim() });
     },
   });
 
@@ -39,7 +43,7 @@ export const useSignupForm = () => {
 
   return {
     formik,
-    loading,
+    loading: isLoading,
     showValues,
     handleClickShowPassword,
     handleClickShowConfirmPassword,

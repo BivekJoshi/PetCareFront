@@ -4,6 +4,8 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import ErrorPage from "../components/Errorboundary/ErrorPage";
 import Loadable from "../components/loader/Loadable";
 import AppLayout from "../components/Layout/AppLayout";
+import ProtectedRoute from "../components/routing/ProtectedRoute";
+import { AuthProvider } from "../context/AuthContext";
 
 const LoginPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
 const SignupPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
@@ -12,19 +14,51 @@ const LandingPage = Loadable(
   lazy(() => import("../pages/LandingPage/LandingPage"))
 );
 
+// Dashboard (protected) area
+const DashboardLayout = Loadable(
+  lazy(() => import("../components/dashboard/DashboardLayout"))
+);
+const DashboardHome = Loadable(
+  lazy(() => import("../pages/Dashboard/DashboardHome"))
+);
+const PetsPage = Loadable(lazy(() => import("../pages/Pets/PetsPage")));
+const AppointmentsPage = Loadable(
+  lazy(() => import("../pages/Appointments/AppointmentsPage"))
+);
+const ServicesPage = Loadable(
+  lazy(() => import("../pages/Services/ServicesPage"))
+);
+const VetsPage = Loadable(lazy(() => import("../pages/Vets/VetsPage")));
+
 const AppRoutes = () => {
   return (
     <HashRouter hashType="slash">
-      <Routes>
-        <Route exact path="*" element={<ErrorPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage initialMode="signup" />} />
+      <AuthProvider>
+        <Routes>
+          {/* Public */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage initialMode="signup" />} />
 
-        <Route path="/" element={<AppLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<LandingPage />} />
-        </Route>
-      </Routes>
+          <Route path="/" element={<AppLayout />}>
+            <Route index element={<LandingPage />} />
+            <Route path="home" element={<LandingPage />} />
+          </Route>
+
+          {/* Protected dashboard */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/app" element={<DashboardLayout />}>
+              <Route index element={<DashboardHome />} />
+              <Route path="pets" element={<PetsPage />} />
+              <Route path="appointments" element={<AppointmentsPage />} />
+              <Route path="services" element={<ServicesPage />} />
+              <Route path="vets" element={<VetsPage />} />
+            </Route>
+          </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<ErrorPage />} />
+        </Routes>
+      </AuthProvider>
     </HashRouter>
   );
 };

@@ -1,64 +1,44 @@
 import Axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { getBaseUrl, getDocUrl } from "../utility/getBaseUrl";
-import { getUser, removeUser } from "../utility/cookieHelper";
+import { getToken, clearAuth } from "../utility/authStorage";
 
-const BASEURL = getBaseUrl();
 export const DOC_URL = getDocUrl();
 
 export const axiosInstance = Axios.create({
-  baseURL: getBaseUrl,
+  baseURL: getBaseUrl(),
   timeout: 20000,
+  headers: { "Content-Type": "application/json" },
 });
 
-const checkIfExpired = (token) => {
-  if (token) {
-    const decode = jwtDecode(token);
-    const exp = decode.exp;
-
-    const iat = decode.iat;
-    const now = new Date();
-    if (now.getTime() > exp * 1000) {
-      return true;
-    }
-    if (now.getTime() < iat * 10 - 60000) {
-      alert("Wrong System Time \n Please correct your system time");
-      return true;
-    }
-    return false;
+const isExpired = (token) => {
+  try {
+    const { exp } = jwtDecode(token);
+    return !exp || Date.now() >= exp * 1000;
+  } catch {
+    return true;
   }
-  return true;
 };
 
-axiosInstance.interceptors.request.use(function (config) {
-  const data = getUser();
-  config.withCredentials = false;
-  if (data !== null) {
-    if (!checkIfExpired(data)) {
-      config.headers["Authorization"] = "Bearer " + data;
-    } else {
-      removeUser();
-      window.location.href("#/");
-    }
+// Attach a valid access token to every outgoing request.
+axiosInstance.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token && !isExpired(token)) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    try {
-      const authDataString = localStorage.getItem("auth");
-      const authData = JSON.parse(authDataString);
-      let token = authData?.authToken;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+// On 401, clear the session and bounce to login (once).
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearAuth();
+      if (!window.location.hash.includes("/login")) {
+        window.location.assign("/#/login");
       }
-      return config;
-    } catch (err) {
-      console.log(err);
     }
-  },
-  (err) => {
-    return Promise.reject(err);
+    return Promise.reject(error);
   }
 );

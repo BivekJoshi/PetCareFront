@@ -1,56 +1,29 @@
 import { useState } from "react";
+import { useFormik } from "formik";
 import { loginSchema } from "./loginSchema";
 import { useLogin } from "../../../hooks/auth/useAuth";
-import { useFormik } from "formik";
 
 export const useLoginForm = () => {
-  
-  const [loading, setLoading] = useState(false);
-  const [showValues, setShowValues] = useState({
-    password: "",
-    showPassword: false,
-  });
-  const { mutate } = useLogin({});
+  const [showValues, setShowValues] = useState({ showPassword: false });
+  const { mutate, isLoading } = useLogin();
+
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
+    initialValues: { email: "", password: "" },
     validationSchema: loginSchema,
-    onSubmit: (values) => {
-      setLoading(true);
-      //   handleLogin(values);
-      //   console.log(values);
-    },
+    onSubmit: ({ email, password }) =>
+      mutate({ email: email.trim(), password: password.trim() }),
   });
 
-  const handleLogin = (values) => {
-    const { email, password } = values;
+  const handleClickShowPassword = () =>
+    setShowValues((s) => ({ ...s, showPassword: !s.showPassword }));
 
-    const trimmedPassword = password.trim();
-    mutate(
-      { email, password: trimmedPassword },
-      { onSettled: () => setLoading(false) }
-    );
-  };
-
-  const handleClickShowPassword = () => {
-    setShowValues({
-      ...showValues,
-      showPassword: !showValues.showPassword,
-    });
-  };
-
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+  const handleMouseDownPassword = (event) => event.preventDefault();
 
   return {
-    handleLogin,
     formik,
     showValues,
-    loading,
-    handleMouseDownPassword,
+    loading: isLoading,
     handleClickShowPassword,
+    handleMouseDownPassword,
   };
 };

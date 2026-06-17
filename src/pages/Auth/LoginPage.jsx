@@ -32,6 +32,8 @@ import {
   useTransform,
 } from "framer-motion";
 import AuthBackground from "./AuthBackground";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const MotionBox = motion(Box);
 
@@ -549,6 +551,13 @@ const LoginPage = ({ initialMode = "login" }) => {
   const isLogin = mode === "login";
   // direction: +1 when moving to signup, -1 when moving to login
   const direction = isLogin ? -1 : 1;
+
+  // Already signed in? Skip the auth screen.
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (isAuthenticated) navigate("/app", { replace: true });
+  }, [isAuthenticated, navigate]);
 
   const toggle = () => setMode((m) => (m === "login" ? "signup" : "login"));
 
