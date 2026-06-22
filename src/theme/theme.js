@@ -1,3 +1,5 @@
+import { alpha } from "@mui/material/styles";
+
 const palette = {
   surface: {
     neutral: "rgba(225, 233, 238, 1)",
@@ -140,11 +142,46 @@ export const themeSettings = (mode = "light") => {
   // Surface colors swing between the two modes; the brand teal/amber accents
   // stay constant so the identity reads the same in either theme.
   const background = isDark
-    ? { default: palette.surface[900], paper: palette.surface[800] }
+    ? { default: "#0B1220", paper: "#141B2D" }
     : { default: palette.surface[100], paper: palette.surface.light };
   const text = isDark
-    ? { primary: palette.surface[100], secondary: palette.surface[400] }
-    : { primary: palette.surface[900], secondary: palette.surface[600] };
+    ? { primary: "#E6EDF3", secondary: "rgba(230,237,243,0.62)", disabled: "rgba(230,237,243,0.38)" }
+    : { primary: palette.surface[900], secondary: palette.surface[600], disabled: palette.surface[500] };
+  const divider = isDark ? "rgba(230,237,243,0.12)" : "rgba(16,24,40,0.10)";
+
+  // The navigation rail keeps a dark, high-contrast identity in both modes
+  // (a common dashboard pattern); it just deepens a touch in dark mode so it
+  // sits flush with the darkened canvas. Colors centralized here so the
+  // Sidebar/Layout never hard-code a hex value.
+  const sidebar = {
+    bg: isDark ? "#0A101F" : "#1E293B",
+    text: "#E2E8F0",
+    textDim: "rgba(226,232,240,0.66)",
+    textFaint: "rgba(226,232,240,0.42)",
+    divider: "rgba(226,232,240,0.12)",
+    hover: "rgba(226,232,240,0.08)",
+    surface: "rgba(226,232,240,0.06)",
+    scrollThumb: "rgba(226,232,240,0.18)",
+    accent: palette.primary[300], // brighter teal that reads on the dark rail
+    activeBg: alpha(primaryMain, 0.2),
+    activeBgChild: alpha(primaryMain, 0.16),
+  };
+
+  // RGB triplets (0–1) feeding the animated WebGL canvas backdrop, so it
+  // tracks the active mode instead of staying a fixed near-white.
+  const appCanvas = isDark
+    ? {
+        base: [0.035, 0.055, 0.09],
+        mid: [0.05, 0.085, 0.13],
+        peak: [0.08, 0.16, 0.2],
+        crest: [0.04, 0.09, 0.1],
+      }
+    : {
+        base: [0.99, 1.0, 1.0],
+        mid: [0.9, 0.98, 0.98],
+        peak: [0.66, 0.88, 0.89],
+        crest: [0.02, 0.05, 0.05],
+      };
 
   return {
     shape: { borderRadius: 14 },
@@ -257,9 +294,20 @@ export const themeSettings = (mode = "light") => {
       },
       background,
       text,
-      divider: isDark ? "rgba(255,255,255,0.12)" : "rgba(16,24,40,0.10)",
+      divider,
+      // Custom semantic tokens — consumed across the dashboard shell so color
+      // decisions live here, not scattered through components.
+      sidebar,
+      appCanvas,
     },
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            transition: "background-color .3s ease, color .3s ease",
+          },
+        },
+      },
       MuiButton: {
         defaultProps: {
           disableElevation: true,

@@ -1,4 +1,3 @@
-import React from "react";
 import { Alert, Box, CircularProgress, Typography } from "@mui/material";
 
 /**

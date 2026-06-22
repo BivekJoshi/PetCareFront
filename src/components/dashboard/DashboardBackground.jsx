@@ -1,11 +1,16 @@
-import { useMemo, useRef } from "react";
+ 
+ 
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useTheme } from "@mui/material/styles";
 
 /**
- * Abstract red fluid-waves backdrop for the dashboard shell.
- * A single full-screen plane driven by a domain-warped fbm shader that
- * makes flowing crimson/scarlet waves ripple over time. Decorative only:
- * fixed behind all content and ignores pointer events.
+ * Animated fluid-waves backdrop for the dashboard shell.
+ * A single full-screen plane driven by a domain-warped fbm shader that makes
+ * flowing teal waves ripple over time. The color stops are fed in from the
+ * active MUI theme (theme.palette.appCanvas), so the backdrop tracks light /
+ * dark mode instead of staying a fixed near-white. Decorative only: fixed
+ * behind all content and ignores pointer events.
  */
 
 const vertexShader = /* glsl */ `
@@ -20,6 +25,10 @@ const fragmentShader = /* glsl */ `
   precision highp float;
   uniform float uTime;
   uniform vec2 uAspect;
+  uniform vec3 uBase;   // near-background tone
+  uniform vec3 uMid;    // mid wave tone
+  uniform vec3 uPeak;   // crest / accent tone
+  uniform vec3 uCrest;  // glossy highlight tint
   varying vec2 vUv;
 
   // --- value noise + fractal brownian motion ---
@@ -64,16 +73,13 @@ const fragmentShader = /* glsl */ `
     float waves = sin(uv.y * 3.5 + n * 4.0 + uTime * 0.5) * 0.5 + 0.5;
     float mixv = clamp(n * 0.85 + waves * 0.45, 0.0, 1.0);
 
-    // soft light teal palette (brand #45BBBD family):
-    // near-white → pale aqua → gentle teal
-    vec3 base = vec3(0.99, 1.00, 1.00);  // near-white
-    vec3 aqua = vec3(0.90, 0.98, 0.98);  // #E6FAFA
-    vec3 teal = vec3(0.66, 0.88, 0.89);  // soft #A8E0E3 (lighter teal)
-    vec3 col = mix(base, aqua, smoothstep(0.0, 0.6, mixv));
-    col = mix(col, teal, smoothstep(0.55, 1.0, mixv));
+    // palette stops come from the active theme (light: near-white → aqua →
+    // teal; dark: deep navy → slate → teal glow)
+    vec3 col = mix(uBase, uMid, smoothstep(0.0, 0.6, mixv));
+    col = mix(col, uPeak, smoothstep(0.55, 1.0, mixv));
 
     // faint glossy crests — kept subtle so it stays airy
-    col += vec3(0.02, 0.05, 0.05) * pow(waves, 4.0);
+    col += uCrest * pow(waves, 4.0);
 
     // soft vignette: barely darken the edges
     vec2 c = vUv - 0.5;
@@ -84,16 +90,30 @@ const fragmentShader = /* glsl */ `
   }
 `;
 
-const Waves = () => {
+const Waves = ({ colors }) => {
   const { viewport } = useThree();
   const matRef = useRef();
+  // Created once; color values are mutated in place on theme change below.
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uAspect: { value: [1, 1] },
+      uBase: { value: [...colors.base] },
+      uMid: { value: [...colors.mid] },
+      uPeak: { value: [...colors.peak] },
+      uCrest: { value: [...colors.crest] },
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
+
+  // Push new palette stops into the live uniforms whenever the mode flips.
+  useEffect(() => {
+    uniforms.uBase.value = [...colors.base];
+    uniforms.uMid.value = [...colors.mid];
+    uniforms.uPeak.value = [...colors.peak];
+    uniforms.uCrest.value = [...colors.crest];
+  }, [colors, uniforms]);
 
   useFrame((state) => {
     uniforms.uTime.value = state.clock.elapsedTime;
@@ -114,20 +134,27 @@ const Waves = () => {
   );
 };
 
-const DashboardBackground = () => (
-  <Canvas
-    dpr={[1, 1.5]}
-    camera={{ position: [0, 0, 8], fov: 45 }}
-    gl={{ antialias: true }}
-    style={{
-      position: "fixed",
-      inset: 0,
-      zIndex: 0,
-      pointerEvents: "none",
-    }}
-  >
-    <Waves />
-  </Canvas>
-);
+const DashboardBackground = () => {
+  // Read the palette in the normal React tree — R3F does not bridge MUI's
+  // context into the <Canvas>, so the colors are resolved here and passed in.
+  const theme = useTheme();
+  const colors = theme.palette.appCanvas;
+
+  return (
+    <Canvas
+      dpr={[1, 1.5]}
+      camera={{ position: [0, 0, 8], fov: 45 }}
+      gl={{ antialias: true }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: "none",
+      }}
+    >
+      <Waves colors={colors} />
+    </Canvas>
+  );
+};
 
 export default DashboardBackground;

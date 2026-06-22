@@ -1,10 +1,9 @@
-import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 /**
  * Guards nested routes. Redirects unauthenticated users to /login,
- * and users without the required role back to the dashboard.
+ * and signed-in users without the required role to the 401 page.
  */
 const ProtectedRoute = ({ roles }) => {
   const { isAuthenticated, role } = useAuth();
@@ -15,7 +14,7 @@ const ProtectedRoute = ({ roles }) => {
   }
 
   if (roles && roles.length && !roles.includes(role)) {
-    return <Navigate to="/app" replace />;
+    return <Navigate to="/401" replace />;
   }
 
   return <Outlet />;

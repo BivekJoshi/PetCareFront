@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unknown-property -- React Three Fiber uses Three.js props, not DOM attributes */
+ 
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";

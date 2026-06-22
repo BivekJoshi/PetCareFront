@@ -19,7 +19,6 @@ import {
 } from "framer-motion";
 import Logo from "../../assets/YejuLogo.png";
 import ResButton from "../ResponsiveComponent/ResButton";
-import ThemeToggle from "../common/ThemeToggle";
 import { CONTENT_MAX_WIDTH } from "../../constants/layout";
 import { NAV_SECTIONS, SCROLL_OFFSET } from "../../constants/navigation";
 
@@ -230,13 +229,9 @@ const Navbar = () => {
               })}
             </Box>
 
-            {/* Color mode toggle — sits just before the Login button */}
-            <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
-              <ThemeToggle color={navText} />
-            </Box>
-
             {/* Login — pinned to the far right on every breakpoint */}
             <MotionBox
+              sx={{ ml: "auto" }}
               whileHover={{ scale: 1.06 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}

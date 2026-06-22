@@ -1,11 +1,12 @@
-import React, { lazy } from "react";
+import { lazy } from "react";
 
 import { HashRouter, Route, Routes } from "react-router-dom";
-import ErrorPage from "../components/Errorboundary/ErrorPage";
 import Loadable from "../components/loader/Loadable";
 import AppLayout from "../components/Layout/AppLayout";
 import ProtectedRoute from "../components/routing/ProtectedRoute";
+import LightThemeScope from "../theme/LightThemeScope";
 import { AuthProvider } from "../context/AuthContext";
+import ScrollToTop from "../utility/ScrollToTop";
 import { ROLES } from "../constants/domain";
 
 const LoginPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
@@ -40,18 +41,46 @@ const RemindersPage = Loadable(
   lazy(() => import("../pages/Reminders/RemindersPage"))
 );
 
+const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
+const UnauthorizedPage = Loadable(
+  lazy(() => import("../pages/Error/UnauthorizedPage"))
+);
+
 const { SUPER_ADMIN, ADMIN, VET } = ROLES;
 
 const AppRoutes = () => {
   return (
     <HashRouter hashType="slash">
       <AuthProvider>
+        {/* Reset window scroll to the top on every route change */}
+        <ScrollToTop />
         <Routes>
-          {/* Public */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage initialMode="signup" />} />
+          {/* Public — pinned to light mode (not affected by the dark toggle) */}
+          <Route
+            path="/login"
+            element={
+              <LightThemeScope>
+                <LoginPage />
+              </LightThemeScope>
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              <LightThemeScope>
+                <SignupPage initialMode="signup" />
+              </LightThemeScope>
+            }
+          />
 
-          <Route path="/" element={<AppLayout />}>
+          <Route
+            path="/"
+            element={
+              <LightThemeScope>
+                <AppLayout />
+              </LightThemeScope>
+            }
+          >
             <Route index element={<LandingPage />} />
             <Route path="home" element={<LandingPage />} />
           </Route>
@@ -78,8 +107,25 @@ const AppRoutes = () => {
             </Route>
           </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<ErrorPage />} />
+          {/* Access denied (401) */}
+          <Route
+            path="/401"
+            element={
+              <LightThemeScope>
+                <UnauthorizedPage />
+              </LightThemeScope>
+            }
+          />
+
+          {/* Fallback (404) */}
+          <Route
+            path="*"
+            element={
+              <LightThemeScope>
+                <NotFoundPage />
+              </LightThemeScope>
+            }
+          />
         </Routes>
       </AuthProvider>
     </HashRouter>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import LoginImage from "../../assets/Logo-login.png";
 import ImageMobile from "../../assets/ImageMobile.png";
 import googleIcon from "../../assets/devicon_google.png";

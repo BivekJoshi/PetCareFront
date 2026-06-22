@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useAuth } from "../../context/AuthContext";
 import { useLogout } from "../../hooks/auth/useAuth";
@@ -26,6 +27,10 @@ import { fullName } from "../../utility/format";
 import { humanize } from "../../constants/domain";
 import DashboardBreadcrumbs from "./DashboardBreadcrumbs";
 import ThemeToggle from "../common/ThemeToggle";
+import {
+  useCommandPalette,
+  IS_MAC,
+} from "../../context/CommandPaletteContext";
 
 /**
  * Top app bar for the dashboard shell. Layout concerns (sidebar width and the
@@ -38,12 +43,12 @@ const DashboardAppBar = ({
   collapsed,
   onToggleCollapse,
   onToggleMobile,
-  title = "Dashboard",
 }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { user, role } = useAuth();
   const { mutate: logout } = useLogout();
+  const { openPalette } = useCommandPalette();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const initials = fullName(user)
@@ -99,6 +104,73 @@ const DashboardAppBar = ({
         </Box>
 
         <Box sx={{ flex: 1 }} />
+
+        {/* Command palette trigger — pill on desktop, icon on mobile (⌘/Ctrl+K) */}
+        <Box
+          role="button"
+          tabIndex={0}
+          onClick={openPalette}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openPalette();
+            }
+          }}
+          sx={{
+            display: { xs: "none", md: "inline-flex" },
+            alignItems: "center",
+            gap: 1,
+            height: 38,
+            pl: 1.5,
+            pr: 1,
+            cursor: "pointer",
+            borderRadius: 999,
+            border: 1,
+            borderColor: "divider",
+            color: "text.secondary",
+            bgcolor: alpha(theme.palette.text.primary, 0.03),
+            transition: "border-color .2s ease, background-color .2s ease",
+            "&:hover": {
+              borderColor: alpha(theme.palette.primary.main, 0.5),
+              bgcolor: alpha(theme.palette.primary.main, 0.06),
+            },
+          }}
+        >
+          <SearchRoundedIcon fontSize="small" />
+          <Typography variant="body2" sx={{ mr: 2 }}>
+            Search…
+          </Typography>
+          <Box
+            component="kbd"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.25,
+              px: 0.75,
+              height: 22,
+              fontFamily: "inherit",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "text.secondary",
+              bgcolor: "background.paper",
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1,
+            }}
+          >
+            {IS_MAC ? "⌘" : "Ctrl"} K
+          </Box>
+        </Box>
+
+        <Tooltip title="Search (⌘/Ctrl + K)">
+          <IconButton
+            onClick={openPalette}
+            size="small"
+            sx={{ display: { xs: "inline-flex", md: "none" } }}
+          >
+            <SearchRoundedIcon />
+          </IconButton>
+        </Tooltip>
 
         <Chip
           label={humanize(role || "")}

@@ -7,6 +7,8 @@ import { NAV_LEAVES } from "./navItems";
 import Sidebar from "./Sidebar";
 import DashboardAppBar from "./DashboardAppBar";
 import DashboardBackground from "./DashboardBackground";
+import { CommandPaletteProvider } from "../../context/CommandPaletteContext";
+import ScrollTopFab from "../common/ScrollTopFab";
 
 const DRAWER_WIDTH = 264;
 const COLLAPSED_WIDTH = 84;
@@ -47,6 +49,7 @@ const DashboardLayout = () => {
   );
 
   return (
+    <CommandPaletteProvider>
     <Box
       sx={{
         display: "flex",
@@ -100,7 +103,7 @@ const DashboardLayout = () => {
               transition: widthTransition,
               borderRight: 1,
               borderColor: "divider",
-              backgroundColor: "#1E293B",
+              backgroundColor: theme.palette.sidebar.bg,
             },
           }}
         >
@@ -135,7 +138,11 @@ const DashboardLayout = () => {
           </AnimatePresence>
         </Box>
       </Box>
+
+      {/* Floating "back to top" — appears once the page is scrolled down */}
+      <ScrollTopFab />
     </Box>
+    </CommandPaletteProvider>
   );
 };
 

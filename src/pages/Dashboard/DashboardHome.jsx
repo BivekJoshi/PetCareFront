@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -67,7 +67,6 @@ import {
   PolarAngleAxis,
 } from "recharts";
 
-import PageHeader from "../../components/common/PageHeader";
 import { useAuth } from "../../context/AuthContext";
 import { usePets } from "../../hooks/pets/usePets";
 import {
@@ -710,7 +709,9 @@ const ChartCard = ({ title, subtitle, icon: Icon, height = 260, index = 0, child
 );
 
 // Donut: distribution of pets by species.
-const SpeciesDonut = ({ data, palette }) => (
+const SpeciesDonut = ({ data, palette }) => {
+  const theme = useTheme();
+  return (
   <ResponsiveContainer width="100%" height="100%">
     <PieChart>
       <Pie
@@ -732,20 +733,26 @@ const SpeciesDonut = ({ data, palette }) => (
         height={28}
         iconType="circle"
         formatter={(v) => (
-          <span style={{ fontSize: 12, color: "var(--mui-text, #666)" }}>{v}</span>
+          <span style={{ fontSize: 12, color: theme.palette.text.secondary }}>
+            {v}
+          </span>
         )}
       />
     </PieChart>
   </ResponsiveContainer>
-);
+  );
+};
 
 // Vertical bars: appointments grouped by status.
-const StatusBars = ({ data, palette }) => (
+const StatusBars = ({ data, palette }) => {
+  const theme = useTheme();
+  const tick = { fontSize: 11, fill: theme.palette.text.secondary };
+  return (
   <ResponsiveContainer width="100%" height="100%">
     <BarChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
-      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-      <XAxis dataKey="name" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
+      <XAxis dataKey="name" tick={tick} tickLine={false} axisLine={false} />
+      <YAxis allowDecimals={false} tick={tick} tickLine={false} axisLine={false} />
       <RTooltip content={<ChartTooltip />} cursor={{ opacity: 0.08 }} />
       <Bar dataKey="value" name="Appointments" radius={[6, 6, 0, 0]} maxBarSize={48}>
         {data.map((entry, i) => (
@@ -754,10 +761,14 @@ const StatusBars = ({ data, palette }) => (
       </Bar>
     </BarChart>
   </ResponsiveContainer>
-);
+  );
+};
 
 // Area chart: appointments per day over time.
-const TrendArea = ({ data, color }) => (
+const TrendArea = ({ data, color }) => {
+  const theme = useTheme();
+  const tick = { fontSize: 11, fill: theme.palette.text.secondary };
+  return (
   <ResponsiveContainer width="100%" height="100%">
     <AreaChart data={data} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
       <defs>
@@ -766,9 +777,9 @@ const TrendArea = ({ data, color }) => (
           <stop offset="100%" stopColor={color} stopOpacity={0} />
         </linearGradient>
       </defs>
-      <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
-      <XAxis dataKey="label" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
-      <YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
+      <XAxis dataKey="label" tick={tick} tickLine={false} axisLine={false} />
+      <YAxis allowDecimals={false} tick={tick} tickLine={false} axisLine={false} />
       <RTooltip content={<ChartTooltip />} />
       <Area
         type="monotone"
@@ -780,7 +791,8 @@ const TrendArea = ({ data, color }) => (
       />
     </AreaChart>
   </ResponsiveContainer>
-);
+  );
+};
 
 // Radial gauge: vaccine coverage percentage.
 const CoverageGauge = ({ value, color }) => {
@@ -822,20 +834,23 @@ const CoverageGauge = ({ value, color }) => {
 };
 
 // Horizontal bars: vaccine coverage by ward/area.
-const AreaCoverageBars = ({ data, color }) => (
+const AreaCoverageBars = ({ data, color }) => {
+  const theme = useTheme();
+  const tick = { fontSize: 11, fill: theme.palette.text.secondary };
+  return (
   <ResponsiveContainer width="100%" height="100%">
     <BarChart
       data={data}
       layout="vertical"
       margin={{ top: 4, right: 16, left: 8, bottom: 0 }}
     >
-      <CartesianGrid strokeDasharray="3 3" horizontal={false} opacity={0.3} />
-      <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} unit="%" />
+      <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={theme.palette.divider} />
+      <XAxis type="number" domain={[0, 100]} tick={tick} tickLine={false} axisLine={false} unit="%" />
       <YAxis
         type="category"
         dataKey="name"
         width={90}
-        tick={{ fontSize: 11 }}
+        tick={tick}
         tickLine={false}
         axisLine={false}
       />
@@ -843,7 +858,8 @@ const AreaCoverageBars = ({ data, color }) => (
       <Bar dataKey="coverage" name="Coverage" fill={color} radius={[0, 6, 6, 0]} maxBarSize={22} />
     </BarChart>
   </ResponsiveContainer>
-);
+  );
+};
 
 /* -------------------------------------------------------------------------- */
 /*  Main dashboard                                                            */

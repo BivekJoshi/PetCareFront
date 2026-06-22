@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+ 
 import { IconButton, Tooltip } from "@mui/material";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";

@@ -1,3 +1,4 @@
+ 
 import { useState } from "react";
 import {
   useLocation,
@@ -66,18 +67,25 @@ const Sidebar = ({ mini = false, onNavigate }) => {
 
   const primary = theme.palette.primary.main;
 
-  // Solid dark sidebar palette
-  const sidebarBg = "#1E293B"; // solid dark slate backdrop
-  const sbText = "#E2E8F0"; // primary text on dark
-  const sbTextDim = alpha("#E2E8F0", 0.66); // secondary text
-  const sbTextFaint = alpha("#E2E8F0", 0.42); // disabled / icons
-  const sbDivider = alpha("#E2E8F0", 0.12);
-
-  const accent = "#7ADBE0"; // brighter teal that reads clearly on the dark sidebar
+  // Sidebar palette — centralized in the theme (theme.palette.sidebar) so it
+  // tracks the active color mode instead of hard-coding hex values here.
+  const {
+    bg: sidebarBg,
+    text: sbText,
+    textDim: sbTextDim,
+    textFaint: sbTextFaint,
+    divider: sbDivider,
+    hover: sbHover,
+    surface: sbSurface,
+    scrollThumb: sbScrollThumb,
+    accent,
+    activeBg,
+    activeBgChild,
+  } = theme.palette.sidebar;
 
   const activeStyles = {
     color: accent,
-    bgcolor: alpha(primary, 0.2),
+    bgcolor: activeBg,
     "&::before": { backgroundColor: accent },
     "& .MuiListItemIcon-root": { color: accent },
     "& .MuiListItemText-primary": { fontWeight: 700 },
@@ -110,7 +118,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
       transition: "color .2s ease",
     },
     "&:hover": {
-      bgcolor: alpha("#E2E8F0", 0.08),
+      bgcolor: sbHover,
       color: sbText,
       "& .MuiListItemIcon-root": { color: sbText },
     },
@@ -141,13 +149,13 @@ const Sidebar = ({ mini = false, onNavigate }) => {
       transition: "color .2s ease",
     },
     "&:hover": {
-      bgcolor: alpha("#E2E8F0", 0.08),
+      bgcolor: sbHover,
       color: sbText,
       "& .MuiListItemIcon-root": { color: sbText },
     },
     "&.active": {
       color: accent,
-      bgcolor: alpha(primary, 0.16),
+      bgcolor: activeBgChild,
       "& .MuiListItemIcon-root": { color: accent },
       "& .MuiListItemText-primary": { fontWeight: 700 },
     },
@@ -342,7 +350,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
           py: 1.5,
           "&::-webkit-scrollbar": { width: 6 },
           "&::-webkit-scrollbar-thumb": {
-            backgroundColor: alpha("#E2E8F0", 0.18),
+            backgroundColor: sbScrollThumb,
             borderRadius: 3,
           },
         }}
@@ -450,7 +458,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
               gap: 1.25,
               p: 1.25,
               borderRadius: 3,
-              bgcolor: alpha("#E2E8F0", 0.06),
+              bgcolor: sbSurface,
             }}
           >
             <Avatar sx={{ bgcolor: "primary.main", width: 38, height: 38, fontWeight: 700 }}>

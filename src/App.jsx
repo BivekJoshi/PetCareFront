@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
 import { themeSettings } from "./theme/theme";
 import AppRoutes from "./routes/AppRoutes";
-import ScrollToTop from "./utility/ScrollToTop";
 import { ColorModeProvider, useColorMode } from "./context/ColorModeContext";
+import ErrorBoundary from "./components/Errorboundary/ErrorBoundary";
 
 const ThemedApp = () => {
   const { mode } = useColorMode();
@@ -11,9 +11,9 @@ const ThemedApp = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {/* <ScrollToTop> */}
-      <AppRoutes />
-      {/* </ScrollToTop> */}
+      <ErrorBoundary>
+        <AppRoutes />
+      </ErrorBoundary>
     </ThemeProvider>
   );
 };
