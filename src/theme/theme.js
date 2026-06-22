@@ -128,13 +128,23 @@ const palette = {
 };
 export default palette;
 
-export const themeSettings = () => {
+export const themeSettings = (mode = "light") => {
+  const isDark = mode === "dark";
   const primaryMain = palette.primary[500];
   const accent = palette.secondary[900];
   const deepTeal = palette.primary[800]; // #388D8C
   const deepOrange = "#D9701B"; // darker than the accent orange
   const gradient = `linear-gradient(135deg, ${deepTeal} 0%, ${accent} 55%, ${deepOrange} 100%)`;
   const gradientHover = `linear-gradient(135deg, ${deepOrange} 0%, ${accent} 45%, ${deepTeal} 100%)`;
+
+  // Surface colors swing between the two modes; the brand teal/amber accents
+  // stay constant so the identity reads the same in either theme.
+  const background = isDark
+    ? { default: palette.surface[900], paper: palette.surface[800] }
+    : { default: palette.surface[100], paper: palette.surface.light };
+  const text = isDark
+    ? { primary: palette.surface[100], secondary: palette.surface[400] }
+    : { primary: palette.surface[900], secondary: palette.surface[600] };
 
   return {
     shape: { borderRadius: 14 },
@@ -233,14 +243,21 @@ export const themeSettings = () => {
       },
     },
     palette: {
+      mode,
       primary: {
         main: palette.primary[500],
         light: palette.surface[100],
         alt: palette.secondary[900],
-        backgroundCard: palette.primary[300],
-        text:palette.secondary[500],
+        backgroundCard: isDark ? palette.primary[900] : palette.primary[300],
+        text: palette.secondary[500],
         background: palette.tertiary[400],
       },
+      secondary: {
+        main: palette.secondary[500],
+      },
+      background,
+      text,
+      divider: isDark ? "rgba(255,255,255,0.12)" : "rgba(16,24,40,0.10)",
     },
     components: {
       MuiButton: {
