@@ -10,6 +10,11 @@ export const loginRequest = (payload) =>
 export const registerRequest = (payload) =>
   axiosInstance.post("/auth/register", payload).then(unwrap);
 
+// Exchange a Google OAuth access token for a PetCare session. The response
+// includes `needsPhone` when the account has no phone number on file yet.
+export const googleAuthRequest = ({ accessToken }) =>
+  axiosInstance.post("/auth/google", { accessToken }).then(unwrap);
+
 export const getMe = () => axiosInstance.get("/auth/me").then(unwrap);
 
 // Public auth config (e.g. whether phone OTP verification is required).
@@ -22,6 +27,11 @@ export const logoutRequest = () => axiosInstance.post("/auth/logout").then(unwra
 // axios interceptor supplies it automatically (pass no token).
 const authHeader = (token) =>
   token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+
+// Attach a phone number to the signed-in account (used right after Google
+// sign-in, before the session is persisted, so the token is passed explicitly).
+export const setPhoneRequest = ({ phone, token }) =>
+  axiosInstance.post("/auth/phone", { phone }, authHeader(token)).then(unwrap);
 
 export const sendPhoneOtp = (token) =>
   axiosInstance.post("/auth/phone/send-otp", {}, authHeader(token)).then(unwrap);

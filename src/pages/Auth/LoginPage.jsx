@@ -9,7 +9,6 @@ import { useLoginForm } from "../../form/auth/Login/useLoginForm";
 import { useSignupForm } from "../../form/auth/Signup/useSignupForm";
 import {
   Box,
-  Button,
   Checkbox,
   Divider,
   FormControlLabel,
@@ -36,6 +35,8 @@ import {
 import AuthBackground from "./AuthBackground";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useGoogleSignIn } from "../../hooks/auth/useGoogleSignIn";
+import PostOAuthPhoneDialog from "../../components/auth/PostOAuthPhoneDialog";
 
 const MotionBox = motion(Box);
 
@@ -101,7 +102,7 @@ const labelSx = {
 };
 
 /* ----------------------------- Login form ----------------------------- */
-const LoginForm = ({ onSwitch }) => {
+const LoginForm = ({ onSwitch, onGoogle, googleLoading }) => {
   const {
     formik,
     showValues,
@@ -223,7 +224,7 @@ const LoginForm = ({ onSwitch }) => {
         </MotionBox>
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
-          <GoogleButton label="Sign in with Google" />
+          <GoogleButton label="Sign in with Google" onClick={onGoogle} loading={googleLoading} />
         </MotionBox>
 
         <MotionBox variants={item}>
@@ -246,7 +247,7 @@ const LoginForm = ({ onSwitch }) => {
 };
 
 /* ----------------------------- Sign up form ---------------------------- */
-const SignupForm = ({ onSwitch }) => {
+const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
   const {
     formik,
     loading,
@@ -471,7 +472,7 @@ const SignupForm = ({ onSwitch }) => {
         </MotionBox>
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
-          <GoogleButton label="Sign up with Google" />
+          <GoogleButton label="Sign up with Google" onClick={onGoogle} loading={googleLoading} />
         </MotionBox>
 
         <MotionBox variants={item}>
@@ -591,11 +592,14 @@ const TiltCard = ({ children }) => {
   );
 };
 
-const GoogleButton = ({ label }) => (
-  <Button
+const GoogleButton = ({ label, onClick, loading = false }) => (
+  <LoadingButton
     variant="outlined"
     fullWidth
     size="large"
+    onClick={onClick}
+    loading={loading}
+    loadingPosition="start"
     startIcon={
       <Box component="img" src={googleIcon} alt="" sx={{ height: 20, width: 20 }} />
     }
@@ -608,7 +612,7 @@ const GoogleButton = ({ label }) => (
     }}
   >
     {label}
-  </Button>
+  </LoadingButton>
 );
 
 /* ------------------------------ Auth page ------------------------------ */
@@ -625,6 +629,10 @@ const LoginPage = ({ initialMode = "login" }) => {
   useEffect(() => {
     if (isAuthenticated) navigate("/app", { replace: true });
   }, [isAuthenticated, navigate]);
+
+  // Shared "Sign in with Google" flow for both the login and signup forms.
+  const { start: onGoogle, loading: googleLoading, pending, completePending } =
+    useGoogleSignIn();
 
   const toggle = () => setMode((m) => (m === "login" ? "signup" : "login"));
 
@@ -735,9 +743,17 @@ const LoginPage = ({ initialMode = "login" }) => {
                 exit="exit"
               >
                 {isLogin ? (
-                  <LoginForm onSwitch={toggle} />
+                  <LoginForm
+                    onSwitch={toggle}
+                    onGoogle={onGoogle}
+                    googleLoading={googleLoading}
+                  />
                 ) : (
-                  <SignupForm onSwitch={toggle} />
+                  <SignupForm
+                    onSwitch={toggle}
+                    onGoogle={onGoogle}
+                    googleLoading={googleLoading}
+                  />
                 )}
               </MotionBox>
             </AnimatePresence>
@@ -783,6 +799,15 @@ const LoginPage = ({ initialMode = "login" }) => {
             </Box>
           </TiltCard>
         </MotionBox>
+      )}
+
+      {/* After Google sign-in with no phone on file — collect one (then verify). */}
+      {pending && (
+        <PostOAuthPhoneDialog
+          open={Boolean(pending)}
+          token={pending.token}
+          onDone={completePending}
+        />
       )}
     </MotionBox>
   );
