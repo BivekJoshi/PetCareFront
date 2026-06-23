@@ -166,7 +166,8 @@ const ConversationList = ({ meId, selectedUserId, onSelect }) => {
               selected={c.user.id === selectedUserId}
               subtitle={
                 (c.lastMessage?.senderId === meId ? "You: " : "") +
-                (c.lastMessage?.content || "")
+                (c.lastMessage?.content ||
+                  (c.lastMessage?.attachmentUrl ? "📎 Attachment" : ""))
               }
               time={timeAgo(c.lastMessage?.createdAt)}
               unread={c.unread}

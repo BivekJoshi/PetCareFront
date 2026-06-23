@@ -12,14 +12,19 @@ import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import AttachFileRoundedIcon from "@mui/icons-material/AttachFileRounded";
 import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ReplyRoundedIcon from "@mui/icons-material/ReplyRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import { Typography } from "@mui/material";
+import { fullName } from "../../utility/format";
 
 const ACCEPT =
   "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip";
 
 /**
- * Message input bar. Supports text plus an optional file/document attachment.
- * Enter sends, Shift+Enter inserts a newline. Emits typing start/stop through
- * `onTyping`. Calls `onSend(text, file)`.
+ * Message input bar. Supports text + an optional file attachment, plus reply
+ * and edit modes (shown as banners above the input). Enter sends,
+ * Shift+Enter inserts a newline. Calls `onSend(text, file)`.
  */
 const ChatComposer = ({
   onSend,
@@ -27,12 +32,22 @@ const ChatComposer = ({
   disabled = false,
   sending = false,
   placeholder = "Type a message…",
+  replyTo = null,
+  editing = null,
+  onCancelReply,
+  onCancelEdit,
 }) => {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
   const typingRef = useRef(false);
   const idleTimer = useRef(null);
+
+  // Prefill (and reset) the input when entering/leaving edit mode.
+  useEffect(() => {
+    setText(editing ? editing.content || "" : "");
+    if (editing) setFile(null);
+  }, [editing?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stopTyping = () => {
     if (typingRef.current) {
@@ -78,8 +93,60 @@ const ChatComposer = ({
 
   const isImage = file && file.type.startsWith("image/");
 
+  const banner = editing
+    ? {
+        icon: <EditRoundedIcon fontSize="small" color="primary" />,
+        title: "Editing message",
+        text: editing.content,
+        onClose: onCancelEdit,
+      }
+    : replyTo
+    ? {
+        icon: <ReplyRoundedIcon fontSize="small" color="primary" />,
+        title: `Replying to ${fullName(replyTo.sender)}`,
+        text:
+          replyTo.content ||
+          (replyTo.attachmentName ? `📎 ${replyTo.attachmentName}` : "Attachment"),
+        onClose: onCancelReply,
+      }
+    : null;
+
   return (
     <Box sx={{ borderTop: 1, borderColor: "divider", bgcolor: "background.paper" }}>
+      {/* Reply / edit context banner */}
+      {banner && (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            px: 1.5,
+            pt: 1.25,
+          }}
+        >
+          {banner.icon}
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              borderLeft: "3px solid",
+              borderColor: "primary.main",
+              pl: 1,
+            }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 700, display: "block" }}>
+              {banner.title}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap sx={{ display: "block" }}>
+              {banner.text}
+            </Typography>
+          </Box>
+          <IconButton size="small" onClick={banner.onClose}>
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      )}
+
       {/* Selected-file preview chip */}
       {file && (
         <Box sx={{ px: 1.5, pt: 1.25 }}>
@@ -100,17 +167,19 @@ const ChatComposer = ({
           hidden
           onChange={pickFile}
         />
-        <Tooltip title="Attach file">
-          <span>
-            <IconButton
-              onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || sending}
-              sx={{ color: "text.secondary" }}
-            >
-              <AttachFileRoundedIcon />
-            </IconButton>
-          </span>
-        </Tooltip>
+        {!editing && (
+          <Tooltip title="Attach file">
+            <span>
+              <IconButton
+                onClick={() => fileInputRef.current?.click()}
+                disabled={disabled || sending}
+                sx={{ color: "text.secondary" }}
+              >
+                <AttachFileRoundedIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
 
         <InputBase
           multiline

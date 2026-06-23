@@ -37,6 +37,16 @@ export const uploadAttachment = (file, onProgress) => {
 export const markThreadRead = (userId) =>
   axiosInstance.post(`/chat/messages/${userId}/read`).then(unwrap);
 
+export const editMessage = ({ id, content }) =>
+  axiosInstance.patch(`/chat/message/${id}`, { content }).then(unwrap);
+
+// scope: "me" (hide for self) | "everyone" (delete for all participants)
+export const deleteMessage = ({ id, scope = "me" }) =>
+  axiosInstance.delete(`/chat/message/${id}`, { params: { scope } }).then(unwrap);
+
+export const forwardMessage = ({ id, recipientId }) =>
+  axiosInstance.post(`/chat/message/${id}/forward`, { recipientId }).then(unwrap);
+
 export const fetchBroadcast = (params) =>
   axiosInstance.get("/chat/broadcast", { params }).then(unwrap);
 

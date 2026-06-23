@@ -91,6 +91,22 @@ export const ChatProvider = ({ children }) => {
       });
     };
 
+    // A message was edited or deleted-for-everyone — replace it in place.
+    const onMessageUpdated = (message) => {
+      const replace = (old) =>
+        old
+          ? { ...old, items: old.items.map((m) => (m.id === message.id ? message : m)) }
+          : old;
+      if (message.type === "BROADCAST") {
+        queryClient.setQueryData(chatKeys.broadcast, replace);
+      } else {
+        const partnerId =
+          message.senderId === meId ? message.recipientId : message.senderId;
+        queryClient.setQueryData(chatKeys.thread(partnerId), replace);
+      }
+      queryClient.invalidateQueries(chatKeys.conversations);
+    };
+
     const onNotification = (notif) => {
       if (notif.fromUserId === meId) return; // don't notify myself
       toast(`${notif.title}: ${notif.body}`, { icon: "💬" });
@@ -132,6 +148,7 @@ export const ChatProvider = ({ children }) => {
     socket.on("presence:update", onPresenceUpdate);
     socket.on("message:new", onMessageNew);
     socket.on("broadcast:new", onBroadcastNew);
+    socket.on("message:updated", onMessageUpdated);
     socket.on("notification:new", onNotification);
     socket.on("typing", onTyping);
     socket.on("message:read", onReadByOther);
@@ -144,6 +161,7 @@ export const ChatProvider = ({ children }) => {
       socket.off("presence:update", onPresenceUpdate);
       socket.off("message:new", onMessageNew);
       socket.off("broadcast:new", onBroadcastNew);
+      socket.off("message:updated", onMessageUpdated);
       socket.off("notification:new", onNotification);
       socket.off("typing", onTyping);
       socket.off("message:read", onReadByOther);
@@ -163,13 +181,13 @@ export const ChatProvider = ({ children }) => {
 
   // ── Imperative actions ──
   const sendDirect = useCallback(
-    (recipientId, content, attachment) =>
+    (recipientId, content, attachment, replyToId) =>
       new Promise((resolve, reject) => {
         const socket = socketRef.current;
         if (!socket?.connected) return reject(new Error("Not connected"));
         socket.emit(
           "message:send",
-          { recipientId, content, attachment },
+          { recipientId, content, attachment, replyToId },
           (res) => {
             if (res?.ok) resolve(res.message);
             else reject(new Error(res?.error || "Failed to send"));

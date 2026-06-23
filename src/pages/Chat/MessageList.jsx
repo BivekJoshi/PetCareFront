@@ -35,6 +35,7 @@ const MessageList = ({
   loading = false,
   showSender = false,
   typing = false,
+  actions,
   emptyText = "No messages yet — say hello! 👋",
 }) => {
   const endRef = useRef(null);
@@ -73,6 +74,7 @@ const MessageList = ({
             message={m}
             mine={m.senderId === meId}
             showSender={showSender}
+            actions={actions}
           />
         ))
       )}

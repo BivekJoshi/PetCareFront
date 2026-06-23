@@ -9,11 +9,13 @@ import { useThread } from "../../hooks/chat/useChat";
 import { uploadAttachment } from "../../api/chat/chat-api";
 import { useChatContext } from "../../context/ChatContext";
 import { useCallContext } from "../../context/CallContext";
+import { useMessageActions } from "../../hooks/chat/useMessageActions";
 import { fullName } from "../../utility/format";
 import { humanize } from "../../constants/domain";
 import UserAvatar from "./UserAvatar";
 import MessageList from "./MessageList";
 import ChatComposer from "./ChatComposer";
+import ForwardDialog from "./ForwardDialog";
 
 /** One-to-one conversation: header, live message list, and composer. */
 const MessageThread = ({ contact, meId, onBack }) => {
@@ -21,7 +23,11 @@ const MessageThread = ({ contact, meId, onBack }) => {
   const { sendDirect, setTyping, markRead, isOnline, typingByUser, connected } =
     useChatContext();
   const { startCall, inCall } = useCallContext();
+  const { edit, remove } = useMessageActions();
   const [sending, setSending] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [forwarding, setForwarding] = useState(null);
 
   const messages = data?.items || [];
   const online = isOnline(contact.id);
@@ -33,10 +39,23 @@ const MessageThread = ({ contact, meId, onBack }) => {
   }, [contact.id, messages.length, markRead]);
 
   const handleSend = async (content, file) => {
+    // Edit mode: save the edit instead of sending a new message.
+    if (editing) {
+      const target = editing;
+      setEditing(null);
+      try {
+        await edit(target.id, content);
+      } catch {
+        /* toast handled in the hook */
+      }
+      return;
+    }
+
     setSending(true);
     try {
       const attachment = file ? await uploadAttachment(file) : undefined;
-      await sendDirect(contact.id, content, attachment);
+      await sendDirect(contact.id, content, attachment, replyTo?.id);
+      setReplyTo(null);
     } catch (err) {
       toast.error(
         err?.response?.data?.message || err.message || "Message failed to send"
@@ -44,6 +63,19 @@ const MessageThread = ({ contact, meId, onBack }) => {
     } finally {
       setSending(false);
     }
+  };
+
+  const actions = {
+    onReply: (m) => {
+      setEditing(null);
+      setReplyTo(m);
+    },
+    onEdit: (m) => {
+      setReplyTo(null);
+      setEditing(m);
+    },
+    onForward: (m) => setForwarding(m),
+    onDelete: (m, scope) => remove(m.id, scope),
   };
 
   const statusText = theyAreTyping
@@ -122,6 +154,7 @@ const MessageThread = ({ contact, meId, onBack }) => {
         meId={meId}
         loading={isLoading}
         typing={theyAreTyping}
+        actions={actions}
       />
 
       <ChatComposer
@@ -129,7 +162,17 @@ const MessageThread = ({ contact, meId, onBack }) => {
         onTyping={(isTyping) => setTyping(contact.id, isTyping)}
         disabled={!connected}
         sending={sending}
+        replyTo={replyTo}
+        editing={editing}
+        onCancelReply={() => setReplyTo(null)}
+        onCancelEdit={() => setEditing(null)}
         placeholder={connected ? "Type a message…" : "Connecting…"}
+      />
+
+      <ForwardDialog
+        open={Boolean(forwarding)}
+        message={forwarding}
+        onClose={() => setForwarding(null)}
       />
     </Box>
   );

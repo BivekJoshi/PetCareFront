@@ -7,25 +7,44 @@ import toast from "react-hot-toast";
 import { useBroadcast } from "../../hooks/chat/useChat";
 import { uploadAttachment } from "../../api/chat/chat-api";
 import { useChatContext } from "../../context/ChatContext";
+import { useMessageActions } from "../../hooks/chat/useMessageActions";
 import { isAdmin } from "../../constants/domain";
 import MessageList from "./MessageList";
 import ChatComposer from "./ChatComposer";
+import ForwardDialog from "./ForwardDialog";
 
 /**
  * The shared announcement channel. Everyone sees broadcasts; only admins get
- * the composer (others see a read-only notice).
+ * the composer (others see a read-only notice). Everyone can forward or hide
+ * messages; admins can also reply/edit/delete-for-everyone.
  */
 const BroadcastPanel = ({ meId, role, onBack }) => {
   const { data, isLoading } = useBroadcast();
   const { sendBroadcast, connected } = useChatContext();
+  const { edit, remove } = useMessageActions();
   const canPost = isAdmin(role);
   const [sending, setSending] = useState(false);
+  const [replyTo, setReplyTo] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const [forwarding, setForwarding] = useState(null);
 
   const handleSend = async (content, file) => {
+    if (editing) {
+      const target = editing;
+      setEditing(null);
+      try {
+        await edit(target.id, content);
+      } catch {
+        /* toast handled in the hook */
+      }
+      return;
+    }
+
     setSending(true);
     try {
       const attachment = file ? await uploadAttachment(file) : undefined;
-      await sendBroadcast(content, attachment);
+      await sendBroadcast(content, attachment, replyTo?.id);
+      setReplyTo(null);
     } catch (err) {
       toast.error(
         err?.response?.data?.message || err.message || "Broadcast failed"
@@ -33,6 +52,23 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
     } finally {
       setSending(false);
     }
+  };
+
+  const actions = {
+    onForward: (m) => setForwarding(m),
+    onDelete: (m, scope) => remove(m.id, scope),
+    ...(canPost
+      ? {
+          onReply: (m) => {
+            setEditing(null);
+            setReplyTo(m);
+          },
+          onEdit: (m) => {
+            setReplyTo(null);
+            setEditing(m);
+          },
+        }
+      : {}),
   };
 
   return (
@@ -83,6 +119,7 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
         meId={meId}
         loading={isLoading}
         showSender
+        actions={actions}
         emptyText="No announcements yet."
       />
 
@@ -91,6 +128,10 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
           onSend={handleSend}
           disabled={!connected}
           sending={sending}
+          replyTo={replyTo}
+          editing={editing}
+          onCancelReply={() => setReplyTo(null)}
+          onCancelEdit={() => setEditing(null)}
           placeholder={
             connected ? "Write an announcement to everyone…" : "Connecting…"
           }
@@ -110,6 +151,12 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
           </Typography>
         </Box>
       )}
+
+      <ForwardDialog
+        open={Boolean(forwarding)}
+        message={forwarding}
+        onClose={() => setForwarding(null)}
+      />
     </Box>
   );
 };
