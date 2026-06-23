@@ -23,7 +23,7 @@ import {
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
-import PhoneOtpForm from "../../components/auth/PhoneOtpForm";
+import OtpForm from "../../components/auth/OtpForm";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -252,7 +252,9 @@ const SignupForm = ({ onSwitch }) => {
     loading,
     showValues,
     step,
-    phone,
+    channel,
+    destination,
+    stepInfo,
     verify,
     resend,
     verifyLater,
@@ -263,8 +265,9 @@ const SignupForm = ({ onSwitch }) => {
     handleMouseDownPassword,
   } = useSignupForm();
 
-  // Step 2 — WhatsApp OTP verification (after the account is created).
+  // Step 2 — OTP verification (one step per enabled channel).
   if (step === "otp") {
+    const multi = stepInfo.total > 1;
     return (
       <MotionBox variants={container} initial="hidden" animate="show">
         <MotionBox variants={item}>
@@ -272,12 +275,15 @@ const SignupForm = ({ onSwitch }) => {
         </MotionBox>
         <MotionBox variants={item} sx={{ mb: 3 }}>
           <Typography sx={{ color: "text.secondary" }}>
-            Confirm your number to get verified — or do it later.
+            {multi
+              ? `Verify your details (${stepInfo.current} of ${stepInfo.total}) — or do it later.`
+              : "Confirm the code we just sent — or do it later."}
           </Typography>
         </MotionBox>
         <MotionBox variants={item}>
-          <PhoneOtpForm
-            phone={phone}
+          <OtpForm
+            channel={channel}
+            destination={destination}
             onVerify={verify}
             onResend={resend}
             onSkip={verifyLater}

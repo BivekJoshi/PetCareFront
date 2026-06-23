@@ -3,16 +3,32 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Link, Stack, TextField, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
 
 const RESEND_COOLDOWN = 30; // seconds — mirrors the server-side cooldown
 
+// Per-channel copy + icon.
+const CHANNELS = {
+  email: {
+    icon: <MarkEmailReadOutlinedIcon color="primary" />,
+    title: "Verify your email",
+    where: "email",
+  },
+  phone: {
+    icon: <WhatsAppIcon sx={{ color: "#25D366" }} />,
+    title: "Verify your WhatsApp number",
+    where: "WhatsApp",
+  },
+};
+
 /**
- * Phone OTP entry: a 6-digit code field, verify button, resend (with a cooldown
- * countdown), and an optional "verify later" skip. Presentational — the parent
- * supplies the async handlers and busy flags.
+ * Generic OTP entry for any channel (email / phone): a 6-digit code field,
+ * verify button, resend with a cooldown countdown, and an optional skip.
+ * Presentational — the parent supplies the async handlers and busy flags.
  */
-const PhoneOtpForm = ({
-  phone,
+const OtpForm = ({
+  channel = "email",
+  destination,
   onVerify,
   onResend,
   onSkip,
@@ -20,11 +36,17 @@ const PhoneOtpForm = ({
   resending = false,
   skipLabel = "Verify later",
 }) => {
+  const cfg = CHANNELS[channel] || CHANNELS.email;
   const [code, setCode] = useState("");
   const [cooldown, setCooldown] = useState(RESEND_COOLDOWN);
   const timerRef = useRef(null);
 
-  // Count the resend cooldown down to zero.
+  // Reset the field + cooldown whenever the channel changes (multi-step flow).
+  useEffect(() => {
+    setCode("");
+    setCooldown(RESEND_COOLDOWN);
+  }, [channel, destination]);
+
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setCooldown((c) => (c > 0 ? c - 1 : 0));
@@ -45,15 +67,20 @@ const PhoneOtpForm = ({
   return (
     <Stack spacing={2.5}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <WhatsAppIcon sx={{ color: "#25D366" }} />
-        <Typography sx={{ fontWeight: 700 }}>Verify your WhatsApp number</Typography>
+        {cfg.icon}
+        <Typography sx={{ fontWeight: 700 }}>{cfg.title}</Typography>
       </Box>
 
       <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>
-        We sent a 6-digit code to{" "}
-        <Box component="span" sx={{ fontWeight: 700, color: "text.primary" }}>
-          {phone || "your number"}
-        </Box>
+        We sent a 6-digit code to your {cfg.where}
+        {destination ? (
+          <>
+            {" "}
+            <Box component="span" sx={{ fontWeight: 700, color: "text.primary" }}>
+              {destination}
+            </Box>
+          </>
+        ) : null}
         . Enter it below to verify.
       </Typography>
 
@@ -125,4 +152,4 @@ const PhoneOtpForm = ({
   );
 };
 
-export default PhoneOtpForm;
+export default OtpForm;

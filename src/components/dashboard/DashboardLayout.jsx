@@ -11,7 +11,7 @@ import { CommandPaletteProvider } from "../../context/CommandPaletteContext";
 import { ChatProvider } from "../../context/ChatContext";
 import { CallProvider } from "../../context/CallContext";
 import ScrollTopFab from "../common/ScrollTopFab";
-import PhoneVerifyBanner from "../auth/PhoneVerifyBanner";
+import VerificationBanners from "../auth/VerificationBanners";
 
 const DRAWER_WIDTH = 264;
 const COLLAPSED_WIDTH = 84;
@@ -129,7 +129,7 @@ const DashboardLayout = () => {
         }}
       >
         <Toolbar sx={{ minHeight: 62 }} />
-        <PhoneVerifyBanner />
+        <VerificationBanners />
         <Box sx={{ p: { xs: 2, md: 4 } }}>
           <AnimatePresence mode="wait">
             <motion.div

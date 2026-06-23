@@ -30,3 +30,17 @@ export const verifyPhoneOtp = ({ code, token }) =>
   axiosInstance
     .post("/auth/phone/verify", { code }, authHeader(token))
     .then(unwrap);
+
+export const sendEmailOtp = (token) =>
+  axiosInstance.post("/auth/email/send-otp", {}, authHeader(token)).then(unwrap);
+
+export const verifyEmailOtp = ({ code, token }) =>
+  axiosInstance
+    .post("/auth/email/verify", { code }, authHeader(token))
+    .then(unwrap);
+
+// Per-channel senders/verifiers keyed by channel name, for generic flows.
+export const otpApi = {
+  email: { send: sendEmailOtp, verify: verifyEmailOtp },
+  phone: { send: sendPhoneOtp, verify: verifyPhoneOtp },
+};

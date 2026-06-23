@@ -10,13 +10,11 @@ export const useAuthSettings = (options = {}) =>
 export const useAuthSettingsMutation = () => {
   const queryClient = useQueryClient();
   return useMutation(updateAuthSettings, {
-    onSuccess: (data) => {
+    onSuccess: () => {
+      // Refresh both the admin view and the public auth-config the banners read.
       queryClient.invalidateQueries(KEY);
-      toast.success(
-        data?.otpEnabled
-          ? "WhatsApp OTP verification turned ON"
-          : "WhatsApp OTP verification turned OFF"
-      );
+      queryClient.invalidateQueries(["auth-config"]);
+      toast.success("Verification settings saved");
     },
     onError: (error) =>
       toast.error(error?.response?.data?.message || "Something went wrong"),
