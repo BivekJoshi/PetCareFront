@@ -23,6 +23,16 @@ export const AuthProvider = ({ children }) => {
     setAuthState(null);
   };
 
+  // Merge fields into the stored user (e.g. after phone verification).
+  const updateUser = (patch) => {
+    setAuthState((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, user: { ...prev.user, ...patch } };
+      persist(next);
+      return next;
+    });
+  };
+
   const value = useMemo(
     () => ({
       auth,
@@ -31,6 +41,7 @@ export const AuthProvider = ({ children }) => {
       isAuthenticated: Boolean(auth?.token),
       login,
       logout,
+      updateUser,
     }),
     [auth]
   );

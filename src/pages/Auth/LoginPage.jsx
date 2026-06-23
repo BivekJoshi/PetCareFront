@@ -22,6 +22,8 @@ import {
 } from "@mui/material";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
+import PhoneOtpForm from "../../components/auth/PhoneOtpForm";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -249,10 +251,44 @@ const SignupForm = ({ onSwitch }) => {
     formik,
     loading,
     showValues,
+    step,
+    phone,
+    verify,
+    resend,
+    verifyLater,
+    verifying,
+    resending,
     handleClickShowPassword,
     handleClickShowConfirmPassword,
     handleMouseDownPassword,
   } = useSignupForm();
+
+  // Step 2 — WhatsApp OTP verification (after the account is created).
+  if (step === "otp") {
+    return (
+      <MotionBox variants={container} initial="hidden" animate="show">
+        <MotionBox variants={item}>
+          <AnimatedHeading text="One last step ✨" />
+        </MotionBox>
+        <MotionBox variants={item} sx={{ mb: 3 }}>
+          <Typography sx={{ color: "text.secondary" }}>
+            Confirm your number to get verified — or do it later.
+          </Typography>
+        </MotionBox>
+        <MotionBox variants={item}>
+          <PhoneOtpForm
+            phone={phone}
+            onVerify={verify}
+            onResend={resend}
+            onSkip={verifyLater}
+            verifying={verifying}
+            resending={resending}
+            skipLabel="Verify later"
+          />
+        </MotionBox>
+      </MotionBox>
+    );
+  }
 
   return (
     <MotionBox variants={container} initial="hidden" animate="show">
@@ -304,6 +340,31 @@ const SignupForm = ({ onSwitch }) => {
               endAdornment: (
                 <InputAdornment position="end">
                   <MailOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </MotionBox>
+
+        <MotionBox variants={item}>
+          <Typography sx={labelSx}>WhatsApp number</Typography>
+          <TextField
+            required
+            name="phone"
+            value={formik.values.phone}
+            onChange={formik.handleChange}
+            error={formik.touched.phone && Boolean(formik.errors.phone)}
+            helperText={
+              (formik.touched.phone && formik.errors.phone) ||
+              "Include country code — we'll send a verification code here"
+            }
+            placeholder="+9779812345678"
+            fullWidth
+            variant="outlined"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <PhoneIphoneIcon fontSize="small" sx={{ color: "text.disabled" }} />
                 </InputAdornment>
               ),
             }}

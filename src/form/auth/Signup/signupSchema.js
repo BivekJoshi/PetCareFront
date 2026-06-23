@@ -7,6 +7,12 @@ const signupSchema = Yup.object().shape({
   email: Yup.string()
     .email("Enter valid email address")
     .required("Email is required"),
+  phone: Yup.string()
+    .matches(
+      /^\+?[1-9]\d{7,14}$/,
+      "Enter a valid phone number with country code (e.g. +9779812345678)"
+    )
+    .required("WhatsApp number is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),

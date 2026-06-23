@@ -11,3 +11,10 @@ export const updateChatRetention = (payload) =>
 
 export const purgeChatNow = () =>
   axiosInstance.post("/admin/chat-retention/purge").then(unwrap);
+
+// Auth settings — WhatsApp OTP master switch (super admin only).
+export const fetchAuthSettings = () =>
+  axiosInstance.get("/admin/auth-settings").then(unwrap);
+
+export const updateAuthSettings = (payload) =>
+  axiosInstance.put("/admin/auth-settings", payload).then(unwrap);
