@@ -1,9 +1,11 @@
 /* eslint-disable react/prop-types */
+import { useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import toast from "react-hot-toast";
 import { useBroadcast } from "../../hooks/chat/useChat";
+import { uploadAttachment } from "../../api/chat/chat-api";
 import { useChatContext } from "../../context/ChatContext";
 import { isAdmin } from "../../constants/domain";
 import MessageList from "./MessageList";
@@ -17,12 +19,19 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
   const { data, isLoading } = useBroadcast();
   const { sendBroadcast, connected } = useChatContext();
   const canPost = isAdmin(role);
+  const [sending, setSending] = useState(false);
 
-  const handleSend = async (content) => {
+  const handleSend = async (content, file) => {
+    setSending(true);
     try {
-      await sendBroadcast(content);
+      const attachment = file ? await uploadAttachment(file) : undefined;
+      await sendBroadcast(content, attachment);
     } catch (err) {
-      toast.error(err.message || "Broadcast failed");
+      toast.error(
+        err?.response?.data?.message || err.message || "Broadcast failed"
+      );
+    } finally {
+      setSending(false);
     }
   };
 
@@ -81,6 +90,7 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
         <ChatComposer
           onSend={handleSend}
           disabled={!connected}
+          sending={sending}
           placeholder={
             connected ? "Write an announcement to everyone…" : "Connecting…"
           }
