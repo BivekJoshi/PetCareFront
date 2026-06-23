@@ -8,6 +8,8 @@ import Sidebar from "./Sidebar";
 import DashboardAppBar from "./DashboardAppBar";
 import DashboardBackground from "./DashboardBackground";
 import { CommandPaletteProvider } from "../../context/CommandPaletteContext";
+import { ChatProvider } from "../../context/ChatContext";
+import { CallProvider } from "../../context/CallContext";
 import ScrollTopFab from "../common/ScrollTopFab";
 
 const DRAWER_WIDTH = 264;
@@ -49,6 +51,8 @@ const DashboardLayout = () => {
   );
 
   return (
+    <ChatProvider>
+    <CallProvider>
     <CommandPaletteProvider>
     <Box
       sx={{
@@ -143,6 +147,8 @@ const DashboardLayout = () => {
       <ScrollTopFab />
     </Box>
     </CommandPaletteProvider>
+    </CallProvider>
+    </ChatProvider>
   );
 };
 

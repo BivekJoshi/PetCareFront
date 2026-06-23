@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Avatar,
+  Badge,
   Box,
   Chip,
   Divider,
@@ -20,6 +21,7 @@ import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useAuth } from "../../context/AuthContext";
 import { useLogout } from "../../hooks/auth/useAuth";
@@ -31,6 +33,7 @@ import {
   useCommandPalette,
   IS_MAC,
 } from "../../context/CommandPaletteContext";
+import { useUnreadCount } from "../../hooks/chat/useChat";
 
 /**
  * Top app bar for the dashboard shell. Layout concerns (sidebar width and the
@@ -49,6 +52,7 @@ const DashboardAppBar = ({
   const { user, role } = useAuth();
   const { mutate: logout } = useLogout();
   const { openPalette } = useCommandPalette();
+  const { data: unread = 0 } = useUnreadCount();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const initials = fullName(user)
@@ -182,6 +186,14 @@ const DashboardAppBar = ({
             color: "primary.main",
           }}
         />
+
+        <Tooltip title="Messages">
+          <IconButton onClick={() => navigate("/app/chat")} size="small">
+            <Badge badgeContent={unread} color="error" max={99}>
+              <ChatBubbleOutlineRoundedIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
 
         <ThemeToggle />
 

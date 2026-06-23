@@ -6,6 +6,7 @@ import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined
 import QrCodeScannerOutlinedIcon from "@mui/icons-material/QrCodeScannerOutlined";
 import NotificationsActiveOutlinedIcon from "@mui/icons-material/NotificationsActiveOutlined";
 import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 // child-level icons
 import SummarizeOutlinedIcon from "@mui/icons-material/SummarizeOutlined";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
@@ -75,6 +76,11 @@ export const NAV_SECTIONS = [
         to: "/app/reminders",
         icon: NotificationsActiveOutlinedIcon,
         roles: [PET_OWNER, VET, ADMIN, SUPER_ADMIN],
+      },
+      {
+        label: "Messages",
+        to: "/app/chat",
+        icon: ChatOutlinedIcon,
       },
     ],
   },
