@@ -47,6 +47,44 @@ export const deleteMessage = ({ id, scope = "me" }) =>
 export const forwardMessage = ({ id, recipientId }) =>
   axiosInstance.post(`/chat/message/${id}/forward`, { recipientId }).then(unwrap);
 
+// ── Nicknames ──
+export const setNickname = ({ userId, label }) =>
+  axiosInstance.put(`/chat/nicknames/${userId}`, { label }).then(unwrap);
+
+export const clearNickname = (userId) =>
+  axiosInstance.delete(`/chat/nicknames/${userId}`).then(unwrap);
+
+// ── Call history ──
+export const fetchCallHistory = () =>
+  axiosInstance.get("/chat/calls").then(unwrap);
+
+// ── Groups ──
+export const fetchGroups = () => axiosInstance.get("/chat/groups").then(unwrap);
+
+export const createGroup = ({ name, memberIds }) =>
+  axiosInstance.post("/chat/groups", { name, memberIds }).then(unwrap);
+
+export const fetchGroup = (id) =>
+  axiosInstance.get(`/chat/groups/${id}`).then(unwrap);
+
+export const fetchGroupMessages = (id, params) =>
+  axiosInstance.get(`/chat/groups/${id}/messages`, { params }).then(unwrap);
+
+export const fetchGroupMembers = (id) =>
+  axiosInstance.get(`/chat/groups/${id}/members`).then(unwrap);
+
+export const addGroupMembers = ({ id, memberIds }) =>
+  axiosInstance.post(`/chat/groups/${id}/members`, { memberIds }).then(unwrap);
+
+export const removeGroupMember = ({ id, userId }) =>
+  axiosInstance.delete(`/chat/groups/${id}/members/${userId}`).then(unwrap);
+
+export const renameGroup = ({ id, name }) =>
+  axiosInstance.patch(`/chat/groups/${id}`, { name }).then(unwrap);
+
+export const leaveGroup = (id) =>
+  axiosInstance.post(`/chat/groups/${id}/leave`).then(unwrap);
+
 export const fetchBroadcast = (params) =>
   axiosInstance.get("/chat/broadcast", { params }).then(unwrap);
 

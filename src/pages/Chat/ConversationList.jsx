@@ -11,7 +11,7 @@ import { alpha } from "@mui/material/styles";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useConversations, useContacts } from "../../hooks/chat/useChat";
 import { useChatContext } from "../../context/ChatContext";
-import { fullName } from "../../utility/format";
+import { displayName } from "../../utility/format";
 import { humanize } from "../../constants/domain";
 import UserAvatar from "./UserAvatar";
 
@@ -48,7 +48,7 @@ const Row = ({ user, online, selected, onClick, subtitle, time, unread }) => (
     <Box sx={{ minWidth: 0, flex: 1 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
         <Typography sx={{ fontWeight: 700 }} noWrap>
-          {fullName(user)}
+          {displayName(user)}
         </Typography>
         {time && (
           <Typography variant="caption" color="text.disabled" sx={{ flexShrink: 0 }}>

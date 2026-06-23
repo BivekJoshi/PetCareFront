@@ -8,11 +8,13 @@ import {
   useRef,
   useState,
 } from "react";
+import { useQueryClient } from "react-query";
 import toast from "react-hot-toast";
 import { useAuth } from "./AuthContext";
 import { getSocket } from "../api/socket";
 import { getIceServers } from "../utility/webrtc";
 import { startRingtone, stopRingtone } from "../utility/ringtone";
+import { chatKeys } from "../hooks/chat/useChat";
 import IncomingCallDialog from "../pages/Chat/call/IncomingCallDialog";
 import CallWindow from "../pages/Chat/call/CallWindow";
 
@@ -28,6 +30,7 @@ const CallContext = createContext(null);
  */
 export const CallProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
 
   // `call` mirrors the live state for rendering; `callRef` is read inside
   // socket handlers (which close over the first render).
@@ -82,7 +85,9 @@ export const CallProvider = ({ children }) => {
   const resetCall = useCallback(() => {
     teardown();
     setCallState(null);
-  }, [teardown, setCallState]);
+    // A call just finished — refresh the call-history list.
+    queryClient.invalidateQueries(chatKeys.calls);
+  }, [teardown, setCallState, queryClient]);
 
   const getMedia = useCallback(async (type) => {
     const stream = await navigator.mediaDevices.getUserMedia({

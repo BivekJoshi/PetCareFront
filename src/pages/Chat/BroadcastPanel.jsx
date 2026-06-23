@@ -19,7 +19,8 @@ import ForwardDialog from "./ForwardDialog";
  * messages; admins can also reply/edit/delete-for-everyone.
  */
 const BroadcastPanel = ({ meId, role, onBack }) => {
-  const { data, isLoading } = useBroadcast();
+  const { data, isLoading, hasMore, fetchOlder, isFetchingOlder } =
+    useBroadcast();
   const { sendBroadcast, connected } = useChatContext();
   const { edit, remove } = useMessageActions();
   const canPost = isAdmin(role);
@@ -121,6 +122,9 @@ const BroadcastPanel = ({ meId, role, onBack }) => {
         showSender
         actions={actions}
         emptyText="No announcements yet."
+        hasMore={hasMore}
+        loadingOlder={isFetchingOlder}
+        onLoadOlder={fetchOlder}
       />
 
       {canPost ? (

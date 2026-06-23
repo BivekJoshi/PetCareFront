@@ -75,12 +75,33 @@ export const ChatProvider = ({ children }) => {
         return next;
       });
 
+    const appendToList = (key, message) =>
+      queryClient.setQueryData(key, (old) => {
+        if (!old) return old;
+        if (old.items?.some((m) => m.id === message.id)) return old;
+        return { ...old, items: [...(old.items || []), message] };
+      });
+
     const onMessageNew = (message) => {
+      if (message.type === "GROUP") {
+        appendToList(chatKeys.groupThread(message.groupId), message);
+        queryClient.invalidateQueries(chatKeys.groups);
+        return;
+      }
       const partnerId =
         message.senderId === meId ? message.recipientId : message.senderId;
       appendToThread(partnerId, message);
       queryClient.invalidateQueries(chatKeys.conversations);
       queryClient.invalidateQueries(chatKeys.unread);
+    };
+
+    // A member was added/removed, the group was renamed, or you were added to
+    // a new group — refresh the group list (and that group's caches).
+    const onGroupUpdated = ({ groupId }) => {
+      queryClient.invalidateQueries(chatKeys.groups);
+      if (groupId) {
+        queryClient.invalidateQueries(chatKeys.groupMembers(groupId));
+      }
     };
 
     const onBroadcastNew = (message) => {
@@ -97,6 +118,11 @@ export const ChatProvider = ({ children }) => {
         old
           ? { ...old, items: old.items.map((m) => (m.id === message.id ? message : m)) }
           : old;
+      if (message.type === "GROUP") {
+        queryClient.setQueryData(chatKeys.groupThread(message.groupId), replace);
+        queryClient.invalidateQueries(chatKeys.groups);
+        return;
+      }
       if (message.type === "BROADCAST") {
         queryClient.setQueryData(chatKeys.broadcast, replace);
       } else {
@@ -149,6 +175,7 @@ export const ChatProvider = ({ children }) => {
     socket.on("message:new", onMessageNew);
     socket.on("broadcast:new", onBroadcastNew);
     socket.on("message:updated", onMessageUpdated);
+    socket.on("group:updated", onGroupUpdated);
     socket.on("notification:new", onNotification);
     socket.on("typing", onTyping);
     socket.on("message:read", onReadByOther);
@@ -162,6 +189,7 @@ export const ChatProvider = ({ children }) => {
       socket.off("message:new", onMessageNew);
       socket.off("broadcast:new", onBroadcastNew);
       socket.off("message:updated", onMessageUpdated);
+      socket.off("group:updated", onGroupUpdated);
       socket.off("notification:new", onNotification);
       socket.off("typing", onTyping);
       socket.off("message:read", onReadByOther);
@@ -198,14 +226,35 @@ export const ChatProvider = ({ children }) => {
   );
 
   const sendBroadcast = useCallback(
-    (content, attachment) =>
+    (content, attachment, replyToId) =>
       new Promise((resolve, reject) => {
         const socket = socketRef.current;
         if (!socket?.connected) return reject(new Error("Not connected"));
-        socket.emit("broadcast:send", { content, attachment }, (res) => {
-          if (res?.ok) resolve(res.message);
-          else reject(new Error(res?.error || "Failed to broadcast"));
-        });
+        socket.emit(
+          "broadcast:send",
+          { content, attachment, replyToId },
+          (res) => {
+            if (res?.ok) resolve(res.message);
+            else reject(new Error(res?.error || "Failed to broadcast"));
+          }
+        );
+      }),
+    []
+  );
+
+  const sendGroup = useCallback(
+    (groupId, content, attachment, replyToId) =>
+      new Promise((resolve, reject) => {
+        const socket = socketRef.current;
+        if (!socket?.connected) return reject(new Error("Not connected"));
+        socket.emit(
+          "group:send",
+          { groupId, content, attachment, replyToId },
+          (res) => {
+            if (res?.ok) resolve(res.message);
+            else reject(new Error(res?.error || "Failed to send"));
+          }
+        );
       }),
     []
   );
@@ -236,6 +285,7 @@ export const ChatProvider = ({ children }) => {
       typingByUser,
       sendDirect,
       sendBroadcast,
+      sendGroup,
       setTyping,
       markRead,
     }),
@@ -246,6 +296,7 @@ export const ChatProvider = ({ children }) => {
       typingByUser,
       sendDirect,
       sendBroadcast,
+      sendGroup,
       setTyping,
       markRead,
     ]

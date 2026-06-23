@@ -1,14 +1,27 @@
 import { useState } from "react";
-import { Box, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
 import ForumRoundedIcon from "@mui/icons-material/ForumRounded";
 import CampaignRoundedIcon from "@mui/icons-material/CampaignRounded";
+import GroupsRoundedIcon from "@mui/icons-material/GroupsRounded";
+import CallRoundedIcon from "@mui/icons-material/CallRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useAuth } from "../../context/AuthContext";
 import { useChatContext } from "../../context/ChatContext";
+import { useGroups } from "../../hooks/chat/useChat";
 import ConversationList from "./ConversationList";
 import MessageThread from "./MessageThread";
 import BroadcastPanel from "./BroadcastPanel";
+import GroupThread from "./GroupThread";
+import CallsPanel from "./CallsPanel";
+import CreateGroupDialog from "./CreateGroupDialog";
 
 const TabButton = ({ active, icon, label, onClick }) => (
   <Box
@@ -18,11 +31,11 @@ const TabButton = ({ active, icon, label, onClick }) => (
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      gap: 0.75,
+      gap: 0.5,
       py: 1.1,
       cursor: "pointer",
       fontWeight: 700,
-      fontSize: "0.9rem",
+      fontSize: "0.82rem",
       color: active ? "primary.main" : "text.secondary",
       borderBottom: 2,
       borderColor: active ? "primary.main" : "transparent",
@@ -35,7 +48,7 @@ const TabButton = ({ active, icon, label, onClick }) => (
   </Box>
 );
 
-const EmptyState = () => (
+const EmptyState = ({ text }) => (
   <Box
     sx={{
       flex: 1,
@@ -48,19 +61,109 @@ const EmptyState = () => (
     }}
   >
     <ChatBubbleOutlineRoundedIcon sx={{ fontSize: 56, opacity: 0.4 }} />
-    <Typography>Select a conversation to start messaging</Typography>
+    <Typography>{text}</Typography>
   </Box>
 );
 
+// Left-rail list of the user's groups.
+const GroupsList = ({ selectedId, onSelect, onNew }) => {
+  const { data: groups = [], isLoading } = useGroups();
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Box sx={{ p: 1.5 }}>
+        <Button
+          fullWidth
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          onClick={onNew}
+        >
+          New group
+        </Button>
+      </Box>
+      <Box sx={{ flex: 1, overflowY: "auto", pb: 1 }}>
+        {isLoading ? (
+          <Box sx={{ display: "grid", placeItems: "center", py: 5 }}>
+            <CircularProgress size={22} />
+          </Box>
+        ) : groups.length === 0 ? (
+          <Typography sx={{ textAlign: "center", px: 3, py: 4 }} color="text.secondary">
+            No groups yet. Create one to start a group chat.
+          </Typography>
+        ) : (
+          groups.map((g) => {
+            const last = g.lastMessage;
+            const preview = last
+              ? (last.content ||
+                  (last.attachmentUrl ? "📎 Attachment" : "")) ||
+                "New group"
+              : "No messages yet";
+            return (
+              <Box
+                key={g.id}
+                onClick={() => onSelect(g)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  px: 1.5,
+                  py: 1.25,
+                  mx: 1,
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  bgcolor:
+                    g.id === selectedId
+                      ? (t) => alpha(t.palette.primary.main, 0.12)
+                      : "transparent",
+                  "&:hover": {
+                    bgcolor: (t) =>
+                      alpha(t.palette.primary.main, g.id === selectedId ? 0.12 : 0.06),
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 46,
+                    height: 46,
+                    borderRadius: "50%",
+                    display: "grid",
+                    placeItems: "center",
+                    color: "#fff",
+                    flexShrink: 0,
+                    background: (t) =>
+                      `linear-gradient(135deg, ${t.palette.primary.main}, ${t.palette.secondary.main})`,
+                  }}
+                >
+                  <GroupsRoundedIcon />
+                </Box>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography sx={{ fontWeight: 700 }} noWrap>
+                    {g.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" noWrap>
+                    {preview}
+                  </Typography>
+                </Box>
+              </Box>
+            );
+          })
+        )}
+      </Box>
+    </Box>
+  );
+};
+
 /**
- * Full chat experience: a left rail (Direct conversations / Broadcast) and a
- * right pane (thread or announcements). Collapses to a single pane on mobile.
+ * Full chat experience: a left rail (Direct / Groups / Calls / Broadcast) and a
+ * right pane. Collapses to a single pane on mobile.
  */
 const ChatPage = () => {
   const { user, role } = useAuth();
   const { connected } = useChatContext();
-  const [mode, setMode] = useState("direct"); // "direct" | "broadcast"
+  const [mode, setMode] = useState("direct"); // direct | groups | calls | broadcast
   const [contact, setContact] = useState(null);
+  const [group, setGroup] = useState(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [mobilePane, setMobilePane] = useState("list"); // "list" | "detail"
 
   const meId = user?.id;
@@ -71,10 +174,28 @@ const ChatPage = () => {
     setMobilePane("detail");
   };
 
-  const openBroadcast = () => {
-    setMode("broadcast");
+  const openGroup = (g) => {
+    setGroup(g);
+    setMode("groups");
     setMobilePane("detail");
   };
+
+  const switchMode = (next) => {
+    setMode(next);
+    // Broadcast and Calls have no list selection — go straight to the pane.
+    setMobilePane(next === "broadcast" || next === "calls" ? "detail" : "list");
+  };
+
+  const tabs = [
+    { key: "direct", icon: <ForumRoundedIcon fontSize="small" />, label: "Direct" },
+    { key: "groups", icon: <GroupsRoundedIcon fontSize="small" />, label: "Groups" },
+    { key: "calls", icon: <CallRoundedIcon fontSize="small" />, label: "Calls" },
+    {
+      key: "broadcast",
+      icon: <CampaignRoundedIcon fontSize="small" />,
+      label: "News",
+    },
+  ];
 
   return (
     <Box>
@@ -122,29 +243,41 @@ const ChatPage = () => {
           }}
         >
           <Box sx={{ display: "flex", borderBottom: 1, borderColor: "divider" }}>
-            <TabButton
-              active={mode === "direct"}
-              icon={<ForumRoundedIcon fontSize="small" />}
-              label="Direct"
-              onClick={() => setMode("direct")}
-            />
-            <TabButton
-              active={mode === "broadcast"}
-              icon={<CampaignRoundedIcon fontSize="small" />}
-              label="Broadcast"
-              onClick={openBroadcast}
-            />
+            {tabs.map((t) => (
+              <TabButton
+                key={t.key}
+                active={mode === t.key}
+                icon={t.icon}
+                label={t.label}
+                onClick={() => switchMode(t.key)}
+              />
+            ))}
           </Box>
 
-          {mode === "direct" ? (
+          {mode === "direct" && (
             <ConversationList
               meId={meId}
               selectedUserId={contact?.id}
               onSelect={openContact}
             />
-          ) : (
+          )}
+          {mode === "groups" && (
+            <GroupsList
+              selectedId={group?.id}
+              onSelect={openGroup}
+              onNew={() => setCreateOpen(true)}
+            />
+          )}
+          {mode === "calls" && (
+            <Box sx={{ p: 3, color: "text.secondary" }}>
+              <Typography variant="body2">
+                Your recent calls are shown on the right.
+              </Typography>
+            </Box>
+          )}
+          {mode === "broadcast" && (
             <Box
-              onClick={openBroadcast}
+              onClick={() => switchMode("broadcast")}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -202,6 +335,23 @@ const ChatPage = () => {
               role={role}
               onBack={() => setMobilePane("list")}
             />
+          ) : mode === "calls" ? (
+            <CallsPanel onBack={() => setMobilePane("list")} />
+          ) : mode === "groups" ? (
+            group ? (
+              <GroupThread
+                key={group.id}
+                group={group}
+                meId={meId}
+                onBack={() => setMobilePane("list")}
+                onLeft={() => {
+                  setGroup(null);
+                  setMobilePane("list");
+                }}
+              />
+            ) : (
+              <EmptyState text="Select a group to start chatting" />
+            )
           ) : contact ? (
             <MessageThread
               key={contact.id}
@@ -210,10 +360,16 @@ const ChatPage = () => {
               onBack={() => setMobilePane("list")}
             />
           ) : (
-            <EmptyState />
+            <EmptyState text="Select a conversation to start messaging" />
           )}
         </Box>
       </Paper>
+
+      <CreateGroupDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={openGroup}
+      />
     </Box>
   );
 };

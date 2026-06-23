@@ -41,6 +41,9 @@ const RemindersPage = Loadable(
   lazy(() => import("../pages/Reminders/RemindersPage"))
 );
 const ChatPage = Loadable(lazy(() => import("../pages/Chat/ChatPage")));
+const ChatRetentionPage = Loadable(
+  lazy(() => import("../pages/Admin/ChatRetentionPage"))
+);
 
 const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
 const UnauthorizedPage = Loadable(
@@ -105,6 +108,7 @@ const AppRoutes = () => {
               {/* Government / admin only */}
               <Route element={<ProtectedRoute roles={[ADMIN, SUPER_ADMIN]} />}>
                 <Route path="insights" element={<InsightsPage />} />
+                <Route path="admin/chat-retention" element={<ChatRetentionPage />} />
               </Route>
             </Route>
           </Route>

@@ -1,25 +1,38 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import CallRoundedIcon from "@mui/icons-material/CallRounded";
 import VideocamRoundedIcon from "@mui/icons-material/VideocamRounded";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+import DriveFileRenameOutlineRoundedIcon from "@mui/icons-material/DriveFileRenameOutlineRounded";
 import toast from "react-hot-toast";
 import { useThread } from "../../hooks/chat/useChat";
 import { uploadAttachment } from "../../api/chat/chat-api";
 import { useChatContext } from "../../context/ChatContext";
 import { useCallContext } from "../../context/CallContext";
 import { useMessageActions } from "../../hooks/chat/useMessageActions";
-import { fullName } from "../../utility/format";
+import { displayName } from "../../utility/format";
 import { humanize } from "../../constants/domain";
 import UserAvatar from "./UserAvatar";
 import MessageList from "./MessageList";
 import ChatComposer from "./ChatComposer";
 import ForwardDialog from "./ForwardDialog";
+import NicknameDialog from "./NicknameDialog";
 
 /** One-to-one conversation: header, live message list, and composer. */
 const MessageThread = ({ contact, meId, onBack }) => {
-  const { data, isLoading } = useThread(contact.id);
+  const { data, isLoading, hasMore, fetchOlder, isFetchingOlder } = useThread(
+    contact.id
+  );
   const { sendDirect, setTyping, markRead, isOnline, typingByUser, connected } =
     useChatContext();
   const { startCall, inCall } = useCallContext();
@@ -28,6 +41,8 @@ const MessageThread = ({ contact, meId, onBack }) => {
   const [replyTo, setReplyTo] = useState(null);
   const [editing, setEditing] = useState(null);
   const [forwarding, setForwarding] = useState(null);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [nickOpen, setNickOpen] = useState(false);
 
   const messages = data?.items || [];
   const online = isOnline(contact.id);
@@ -109,7 +124,7 @@ const MessageThread = ({ contact, meId, onBack }) => {
         <UserAvatar user={contact} online={online} size={42} />
         <Box sx={{ minWidth: 0 }}>
           <Typography sx={{ fontWeight: 700 }} noWrap>
-            {fullName(contact)}
+            {displayName(contact)}
           </Typography>
           <Typography
             variant="caption"
@@ -147,6 +162,30 @@ const MessageThread = ({ contact, meId, onBack }) => {
             </IconButton>
           </span>
         </Tooltip>
+        <Tooltip title="More">
+          <IconButton onClick={(e) => setMenuAnchor(e.currentTarget)}>
+            <MoreVertRoundedIcon />
+          </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={() => setMenuAnchor(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem
+            onClick={() => {
+              setMenuAnchor(null);
+              setNickOpen(true);
+            }}
+          >
+            <ListItemIcon>
+              <DriveFileRenameOutlineRoundedIcon fontSize="small" />
+            </ListItemIcon>
+            {contact.nickname ? "Edit nickname" : "Set nickname"}
+          </MenuItem>
+        </Menu>
       </Box>
 
       <MessageList
@@ -155,6 +194,9 @@ const MessageThread = ({ contact, meId, onBack }) => {
         loading={isLoading}
         typing={theyAreTyping}
         actions={actions}
+        hasMore={hasMore}
+        loadingOlder={isFetchingOlder}
+        onLoadOlder={fetchOlder}
       />
 
       <ChatComposer
@@ -173,6 +215,12 @@ const MessageThread = ({ contact, meId, onBack }) => {
         open={Boolean(forwarding)}
         message={forwarding}
         onClose={() => setForwarding(null)}
+      />
+
+      <NicknameDialog
+        open={nickOpen}
+        user={contact}
+        onClose={() => setNickOpen(false)}
       />
     </Box>
   );

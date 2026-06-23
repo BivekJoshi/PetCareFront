@@ -42,3 +42,7 @@ export const toDateTimeLocal = (date = new Date()) => {
 
 export const fullName = (user) =>
   user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() : "—";
+
+// Prefer a viewer-set nickname over the real name, when present on the object.
+export const displayName = (user) =>
+  user?.nickname ? user.nickname : fullName(user);
