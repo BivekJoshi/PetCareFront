@@ -50,6 +50,9 @@ const ChatRetentionPage = Loadable(
 const AuthSettingsPage = Loadable(
   lazy(() => import("../pages/Admin/AuthSettingsPage"))
 );
+const EmailTemplatesPage = Loadable(
+  lazy(() => import("../pages/Admin/EmailTemplatesPage"))
+);
 
 const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
 const UnauthorizedPage = Loadable(
@@ -121,6 +124,7 @@ const AppRoutes = () => {
               {/* Super admin only */}
               <Route element={<ProtectedRoute roles={[SUPER_ADMIN]} />}>
                 <Route path="admin/auth-settings" element={<AuthSettingsPage />} />
+                <Route path="admin/email-templates" element={<EmailTemplatesPage />} />
               </Route>
             </Route>
           </Route>

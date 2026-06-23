@@ -18,3 +18,13 @@ export const fetchAuthSettings = () =>
 
 export const updateAuthSettings = (payload) =>
   axiosInstance.put("/admin/auth-settings", payload).then(unwrap);
+
+// Editable transactional-email templates (super admin only).
+export const fetchEmailTemplates = () =>
+  axiosInstance.get("/admin/email-templates").then(unwrap);
+
+export const updateEmailTemplate = ({ key, subject, html }) =>
+  axiosInstance.put(`/admin/email-templates/${key}`, { subject, html }).then(unwrap);
+
+export const resetEmailTemplate = (key) =>
+  axiosInstance.post(`/admin/email-templates/${key}/reset`).then(unwrap);

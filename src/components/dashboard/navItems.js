@@ -22,6 +22,7 @@ import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import AutoDeleteOutlinedIcon from "@mui/icons-material/AutoDeleteOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
+import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
 import { ROLES } from "../../constants/domain";
 
 const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
@@ -125,6 +126,12 @@ export const NAV_SECTIONS = [
             label: "Sign-up Verification",
             to: "/app/admin/auth-settings",
             icon: VerifiedUserOutlinedIcon,
+            roles: [SUPER_ADMIN],
+          },
+          {
+            label: "Email Templates",
+            to: "/app/admin/email-templates",
+            icon: MarkEmailReadOutlinedIcon,
             roles: [SUPER_ADMIN],
           },
         ],
