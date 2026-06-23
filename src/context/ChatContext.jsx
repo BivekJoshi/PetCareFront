@@ -63,7 +63,13 @@ export const ChatProvider = ({ children }) => {
     ensureNotificationPermission();
     initPushNotifications();
 
-    const onConnect = () => setConnected(true);
+    const onConnect = () => {
+      setConnected(true);
+      // Pull the current online roster. The server also pushes presence:list
+      // once on connect, but requesting it here covers reconnects and the case
+      // where we (re)subscribe after that one-time emit already fired.
+      socket.emit("presence:get");
+    };
     const onDisconnect = () => setConnected(false);
 
     const onPresenceList = ({ online }) => setOnlineUsers(new Set(online));
@@ -180,6 +186,14 @@ export const ChatProvider = ({ children }) => {
     socket.on("typing", onTyping);
     socket.on("message:read", onReadByOther);
     socket.on("thread:read", onThreadRead);
+
+    // If the socket was already connected when this effect (re)subscribed, the
+    // "connect" event won't fire again — sync state right away so we don't miss
+    // the one-time presence roster (otherwise everyone shows as offline).
+    if (socket.connected) {
+      setConnected(true);
+      socket.emit("presence:get");
+    }
 
     return () => {
       socket.off("connect", onConnect);

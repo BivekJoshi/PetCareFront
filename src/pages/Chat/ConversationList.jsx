@@ -13,7 +13,18 @@ import { useConversations, useContacts } from "../../hooks/chat/useChat";
 import { useChatContext } from "../../context/ChatContext";
 import { displayName } from "../../utility/format";
 import { humanize } from "../../constants/domain";
+import { callPreview } from "../../utility/call";
 import UserAvatar from "./UserAvatar";
+
+// Short preview line for a conversation's most recent activity.
+const previewOf = (lastMessage, meId) => {
+  if (!lastMessage) return "";
+  const mine = lastMessage.senderId === meId;
+  if (lastMessage.type === "CALL") return callPreview(lastMessage, mine);
+  const body =
+    lastMessage.content || (lastMessage.attachmentUrl ? "📎 Attachment" : "");
+  return (mine ? "You: " : "") + body;
+};
 
 const timeAgo = (value) => {
   if (!value) return "";
@@ -164,11 +175,7 @@ const ConversationList = ({ meId, selectedUserId, onSelect }) => {
               user={c.user}
               online={isOnline(c.user.id)}
               selected={c.user.id === selectedUserId}
-              subtitle={
-                (c.lastMessage?.senderId === meId ? "You: " : "") +
-                (c.lastMessage?.content ||
-                  (c.lastMessage?.attachmentUrl ? "📎 Attachment" : ""))
-              }
+              subtitle={previewOf(c.lastMessage, meId)}
               time={timeAgo(c.lastMessage?.createdAt)}
               unread={c.unread}
               onClick={() => onSelect(c.user)}

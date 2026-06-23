@@ -2,6 +2,7 @@
 import { useCallback, useLayoutEffect, useRef } from "react";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import MessageBubble from "./MessageBubble";
+import CallMessage from "./CallMessage";
 
 // How close to the top (px) the user must scroll before we pull older messages.
 const LOAD_OLDER_THRESHOLD = 80;
@@ -113,15 +114,19 @@ const MessageList = ({
           <Typography color="text.secondary">{emptyText}</Typography>
         </Box>
       ) : (
-        messages.map((m) => (
-          <MessageBubble
-            key={m.id}
-            message={m}
-            mine={m.senderId === meId}
-            showSender={showSender}
-            actions={actions}
-          />
-        ))
+        messages.map((m) =>
+          m.type === "CALL" ? (
+            <CallMessage key={m.id} message={m} mine={m.senderId === meId} />
+          ) : (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              mine={m.senderId === meId}
+              showSender={showSender}
+              actions={actions}
+            />
+          )
+        )
       )}
       {typing && (
         <Box sx={{ pl: 1.5 }}>
