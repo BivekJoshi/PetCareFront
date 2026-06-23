@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   InputAdornment,
   Stack,
   TextField,
@@ -13,9 +14,11 @@ import {
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import toast from "react-hot-toast";
 import OtpForm from "./OtpForm";
-import { setPhoneRequest, otpApi } from "../../api/auth/auth-api";
+import { setPhoneRequest, setPasswordRequest, otpApi } from "../../api/auth/auth-api";
 
 const errorMessage = (error, fallback) =>
   error?.response?.data?.message || error?.message || fallback;
@@ -32,16 +35,20 @@ const announce = (res) => {
 };
 
 /**
- * Shown right after Google sign-in when the new account has no phone number.
- * Step 1 collects the number; if the server then sends a WhatsApp OTP (only when
- * phone verification is enabled), step 2 verifies it. The user can skip at any
- * point — `onDone(user)` finalizes the session either way.
+ * Post Google sign-in onboarding for a brand-new account. Three steps, each
+ * skippable:
+ *   1. "phone"    — collect a WhatsApp number (used for reminders).
+ *   2. "otp"      — verify it, only when phone verification is enabled.
+ *   3. "password" — OPTIONAL. Offer to set a password so the user can also sign
+ *                   in with email + password later. Clearly not required — they
+ *                   can always keep using Google.
+ * `onDone(user)` finalizes the session once the flow resolves.
  *
  * `token` is the just-issued access token (the session isn't persisted yet, so
  * the API calls carry it explicitly).
  */
 const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
-  const [step, setStep] = useState("phone"); // "phone" | "otp"
+  const [step, setStep] = useState("phone"); // "phone" | "otp" | "password"
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [destination, setDestination] = useState("");
@@ -49,6 +56,19 @@ const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
   const [saving, setSaving] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+
+  // Optional password step.
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [pwError, setPwError] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
+
+  // Move on to the optional password step, remembering the latest user record.
+  const goToPassword = (user) => {
+    if (user) setSavedUser(user);
+    setStep("password");
+  };
 
   const submitPhone = async () => {
     const value = phone.trim();
@@ -67,8 +87,8 @@ const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
         setDestination(value);
         setStep("otp");
       } else {
-        // Verification disabled — the number is saved, we're done.
-        onDone(user);
+        // Verification disabled — number saved, move to the optional password.
+        goToPassword(user);
       }
     } catch (err) {
       toast.error(errorMessage(err, "Could not save your phone number"));
@@ -82,7 +102,7 @@ const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
     try {
       const { user } = await otpApi.phone.verify({ code, token });
       toast.success("WhatsApp number verified ✅");
-      onDone(user || savedUser);
+      goToPassword(user || savedUser);
     } catch (err) {
       toast.error(errorMessage(err, "Verification failed"));
     } finally {
@@ -101,13 +121,45 @@ const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
     }
   };
 
+  const savePassword = async () => {
+    const value = password;
+    if (value.length < 6) {
+      setPwError("Password must be at least 6 characters");
+      return;
+    }
+    if (value !== confirm) {
+      setPwError("Passwords do not match");
+      return;
+    }
+    setPwError("");
+    setSavingPw(true);
+    try {
+      const { user } = await setPasswordRequest({
+        password: value,
+        confirmPassword: confirm,
+        token,
+      });
+      toast.success("Password set ✅ You can now sign in with email & password too");
+      onDone(user || savedUser);
+    } catch (err) {
+      toast.error(errorMessage(err, "Could not set your password"));
+    } finally {
+      setSavingPw(false);
+    }
+  };
+
+  const title =
+    step === "phone"
+      ? "Add your WhatsApp number"
+      : step === "otp"
+        ? "Verify your WhatsApp number"
+        : "Set a password (optional)";
+
   return (
     <Dialog open={open} maxWidth="xs" fullWidth disableEscapeKeyDown>
-      <DialogTitle sx={{ fontWeight: 700 }}>
-        {step === "phone" ? "Add your WhatsApp number" : "Verify your WhatsApp number"}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>{title}</DialogTitle>
       <DialogContent>
-        {step === "phone" ? (
+        {step === "phone" && (
           <Stack spacing={2.5} sx={{ pt: 1 }}>
             <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>
               We use it for pet-care reminders and to reach you about appointments.
@@ -143,25 +195,101 @@ const PostOAuthPhoneDialog = ({ open, token, onDone }) => {
             <Button
               variant="text"
               color="inherit"
-              onClick={() => onDone(savedUser)}
+              onClick={() => goToPassword(savedUser)}
               sx={{ color: "text.secondary" }}
             >
               Skip for now
             </Button>
           </Stack>
-        ) : (
+        )}
+
+        {step === "otp" && (
           <Box sx={{ pt: 1 }}>
             <OtpForm
               channel="phone"
               destination={destination}
               onVerify={verify}
               onResend={resend}
-              onSkip={() => onDone(savedUser)}
+              onSkip={() => goToPassword(savedUser)}
               verifying={verifying}
               resending={resending}
               skipLabel="Verify later"
             />
           </Box>
+        )}
+
+        {step === "password" && (
+          <Stack spacing={2.5} sx={{ pt: 1 }}>
+            <Typography sx={{ color: "text.secondary", fontSize: "0.9rem" }}>
+              You don&apos;t need a password — you can always sign in with Google.
+              Set one only if you&apos;d also like to sign in with your email and
+              password.
+            </Typography>
+            <TextField
+              autoFocus
+              name="password"
+              type={showPw ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={Boolean(pwError)}
+              placeholder="Create a password"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPw((s) => !s)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      edge="end"
+                      size="small"
+                    >
+                      {showPw ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              name="confirmPassword"
+              type={showPw ? "text" : "password"}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && savePassword()}
+              error={Boolean(pwError)}
+              helperText={pwError || "Re-enter your password"}
+              placeholder="Confirm password"
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <LockOutlinedIcon fontSize="small" sx={{ color: "text.disabled" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <LoadingButton
+              loading={savingPw}
+              variant="contained"
+              size="large"
+              onClick={savePassword}
+              fullWidth
+              sx={{ py: 1.2 }}
+            >
+              Save password
+            </LoadingButton>
+            <Button
+              variant="text"
+              color="inherit"
+              onClick={() => onDone(savedUser)}
+              sx={{ color: "text.secondary" }}
+            >
+              Skip — I&apos;ll use Google
+            </Button>
+          </Stack>
         )}
       </DialogContent>
     </Dialog>

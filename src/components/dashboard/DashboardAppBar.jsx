@@ -19,6 +19,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import ChatBubbleOutlineRoundedIcon from "@mui/icons-material/ChatBubbleOutlineRounded";
@@ -222,6 +223,18 @@ const DashboardAppBar = ({
               {user?.email}
             </Typography>
           </Box>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              setAnchorEl(null);
+              navigate("/app/account/security");
+            }}
+          >
+            <ListItemIcon>
+              <LockOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            {user?.hasPassword ? "Change password" : "Set a password"}
+          </MenuItem>
           <Divider />
           <MenuItem
             onClick={() => {

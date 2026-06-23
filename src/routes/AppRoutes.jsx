@@ -41,6 +41,9 @@ const RemindersPage = Loadable(
   lazy(() => import("../pages/Reminders/RemindersPage"))
 );
 const ChatPage = Loadable(lazy(() => import("../pages/Chat/ChatPage")));
+const SecurityPage = Loadable(
+  lazy(() => import("../pages/Account/SecurityPage"))
+);
 const ChatRetentionPage = Loadable(
   lazy(() => import("../pages/Admin/ChatRetentionPage"))
 );
@@ -102,6 +105,7 @@ const AppRoutes = () => {
               <Route path="services" element={<ServicesPage />} />
               <Route path="vets" element={<VetsPage />} />
               <Route path="chat" element={<ChatPage />} />
+              <Route path="account/security" element={<SecurityPage />} />
 
               {/* Vet + admin only */}
               <Route element={<ProtectedRoute roles={[VET, ADMIN, SUPER_ADMIN]} />}>

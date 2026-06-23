@@ -33,6 +33,21 @@ const authHeader = (token) =>
 export const setPhoneRequest = ({ phone, token }) =>
   axiosInstance.post("/auth/phone", { phone }, authHeader(token)).then(unwrap);
 
+// Add a password to an account that has none (e.g. right after Google sign-in,
+// before the session is persisted — so the token is passed explicitly). Once
+// signed in, omit `token` and the interceptor supplies it.
+export const setPasswordRequest = ({ password, confirmPassword, token }) =>
+  axiosInstance
+    .post("/auth/password/set", { password, confirmPassword }, authHeader(token))
+    .then(unwrap);
+
+// Change an existing password (requires the current one). Uses the logged-in
+// session token from the interceptor.
+export const changePasswordRequest = ({ currentPassword, newPassword, confirmPassword }) =>
+  axiosInstance
+    .post("/auth/password/change", { currentPassword, newPassword, confirmPassword })
+    .then(unwrap);
+
 export const sendPhoneOtp = (token) =>
   axiosInstance.post("/auth/phone/send-otp", {}, authHeader(token)).then(unwrap);
 
