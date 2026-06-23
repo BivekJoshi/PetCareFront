@@ -123,7 +123,7 @@ export const NAV_SECTIONS = [
             icon: AutoDeleteOutlinedIcon,
           },
           {
-            label: "Sign-up Verification",
+            label: "Authentication",
             to: "/app/admin/auth-settings",
             icon: VerifiedUserOutlinedIcon,
             roles: [SUPER_ADMIN],

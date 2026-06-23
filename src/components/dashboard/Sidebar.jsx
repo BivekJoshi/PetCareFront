@@ -193,7 +193,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
         {!mini && (
           <ListItemText
             primary={leaf.label}
-            primaryTypographyProps={{ fontWeight: 600, fontSize: ".9rem" }}
+            primaryTypographyProps={{ fontWeight: 600, fontSize: ".9rem", noWrap: true }}
           />
         )}
       </ListItemButton>
@@ -238,7 +238,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
           </ListItemIcon>
           <ListItemText
             primary={group.label}
-            primaryTypographyProps={{ fontWeight: 600, fontSize: ".9rem" }}
+            primaryTypographyProps={{ fontWeight: 600, fontSize: ".9rem", noWrap: true }}
           />
           {open ? (
             <ExpandLessIcon fontSize="small" sx={{ opacity: 0.6 }} />
@@ -262,7 +262,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
                 </ListItemIcon>
                 <ListItemText
                   primary={child.label}
-                  primaryTypographyProps={{ fontSize: ".85rem", fontWeight: 500 }}
+                  primaryTypographyProps={{ fontSize: ".85rem", fontWeight: 500, noWrap: true }}
                 />
               </ListItemButton>
             ))}
