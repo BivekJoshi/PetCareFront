@@ -20,4 +20,16 @@ export const clearAuth = () => {
 
 export const getToken = () => getAuth()?.token ?? null;
 
+export const getRefreshToken = () => getAuth()?.refreshToken ?? null;
+
 export const getStoredUser = () => getAuth()?.user ?? null;
+
+// Swap in freshly minted tokens after a refresh, keeping the stored user/role.
+// No-op if there's no existing session (nothing to refresh into).
+export const updateTokens = ({ token, refreshToken }) => {
+  const current = getAuth();
+  if (!current) return null;
+  const next = { ...current, token, refreshToken };
+  setAuth(next);
+  return next;
+};

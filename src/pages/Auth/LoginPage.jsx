@@ -7,6 +7,7 @@ import "../../app.css";
 import TextField from "@mui/material/TextField";
 import { useLoginForm } from "../../form/auth/Login/useLoginForm";
 import { useSignupForm } from "../../form/auth/Signup/useSignupForm";
+import { useForgotPasswordForm } from "../../form/auth/Forgot/useForgotPasswordForm";
 import {
   Box,
   Checkbox,
@@ -102,7 +103,7 @@ const labelSx = {
 };
 
 /* ----------------------------- Login form ----------------------------- */
-const LoginForm = ({ onSwitch, onGoogle, googleLoading }) => {
+const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
   const {
     formik,
     showValues,
@@ -196,7 +197,9 @@ const LoginForm = ({ onSwitch, onGoogle, googleLoading }) => {
             label={<Typography sx={{ fontSize: "0.875rem" }}>Remember me</Typography>}
           />
           <Link
-            href="#"
+            component="button"
+            type="button"
+            onClick={onForgot}
             underline="hover"
             sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
           >
@@ -494,6 +497,204 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
   );
 };
 
+/* -------------------------- Forgot password form ----------------------- */
+const ForgotPasswordForm = ({ onBack }) => {
+  const {
+    step,
+    email,
+    setEmail,
+    code,
+    setCode,
+    password,
+    setPassword,
+    confirm,
+    setConfirm,
+    errors,
+    showPw,
+    toggleShowPw,
+    sendCode,
+    resend,
+    submitReset,
+    sending,
+    resetting,
+  } = useForgotPasswordForm({ onDone: onBack });
+
+  // Step 1 — request a reset code by email.
+  if (step === "request") {
+    return (
+      <MotionBox variants={container} initial="hidden" animate="show">
+        <MotionBox variants={item}>
+          <AnimatedHeading text="Forgot password?" />
+        </MotionBox>
+        <MotionBox variants={item}>
+          <Typography sx={{ color: "text.secondary", mb: 4 }}>
+            Enter your account email and we&apos;ll send you a 6-digit reset code.
+          </Typography>
+        </MotionBox>
+
+        <Stack spacing={2.5} component="form" noValidate>
+          <MotionBox variants={item}>
+            <Typography sx={labelSx}>Email</Typography>
+            <TextField
+              autoFocus
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), sendCode())}
+              error={Boolean(errors.email)}
+              helperText={errors.email}
+              placeholder="you@example.com"
+              fullWidth
+              variant="outlined"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <MailOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </MotionBox>
+
+          <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+            <LoadingButton
+              loading={sending}
+              variant="contained"
+              onClick={sendCode}
+              fullWidth
+              size="large"
+              sx={{ py: 1.25, fontSize: "1rem" }}
+            >
+              Send reset code
+            </LoadingButton>
+          </MotionBox>
+
+          <MotionBox variants={item}>
+            <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary", mt: 1 }}>
+              Remembered it?{" "}
+              <Link
+                component="button"
+                type="button"
+                onClick={onBack}
+                underline="hover"
+                sx={{ fontWeight: 700, color: "primary.main" }}
+              >
+                Back to sign in
+              </Link>
+            </Typography>
+          </MotionBox>
+        </Stack>
+      </MotionBox>
+    );
+  }
+
+  // Step 2 — enter the code + a new password.
+  return (
+    <MotionBox variants={container} initial="hidden" animate="show">
+      <MotionBox variants={item}>
+        <AnimatedHeading text="Check your email 📬" />
+      </MotionBox>
+      <MotionBox variants={item}>
+        <Typography sx={{ color: "text.secondary", mb: 4 }}>
+          Enter the 6-digit code we sent to{" "}
+          <Box component="span" sx={{ fontWeight: 700, color: "text.primary" }}>
+            {email}
+          </Box>{" "}
+          and choose a new password.
+        </Typography>
+      </MotionBox>
+
+      <Stack spacing={2.5} component="form" noValidate>
+        <MotionBox variants={item}>
+          <Typography sx={labelSx}>Reset code</Typography>
+          <TextField
+            autoFocus
+            name="code"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            error={Boolean(errors.code)}
+            helperText={errors.code}
+            placeholder="••••••"
+            fullWidth
+            variant="outlined"
+            inputProps={{
+              inputMode: "numeric",
+              maxLength: 6,
+              style: { letterSpacing: "0.4em", fontWeight: 700 },
+            }}
+          />
+        </MotionBox>
+
+        <MotionBox variants={item}>
+          <Typography sx={labelSx}>New password</Typography>
+          <TextField
+            name="password"
+            placeholder="Create a new password"
+            fullWidth
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={Boolean(errors.password)}
+            helperText={errors.password}
+            type={showPw ? "text" : "password"}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={toggleShowPw} onMouseDown={(e) => e.preventDefault()} edge="end" size="small">
+                    {showPw ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </MotionBox>
+
+        <MotionBox variants={item}>
+          <Typography sx={labelSx}>Confirm password</Typography>
+          <TextField
+            name="confirmPassword"
+            placeholder="Re-enter your new password"
+            fullWidth
+            variant="outlined"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), submitReset())}
+            error={Boolean(errors.confirm)}
+            helperText={errors.confirm}
+            type={showPw ? "text" : "password"}
+          />
+        </MotionBox>
+
+        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+          <LoadingButton
+            loading={resetting}
+            variant="contained"
+            onClick={submitReset}
+            fullWidth
+            size="large"
+            sx={{ py: 1.25, fontSize: "1rem" }}
+          >
+            Reset password
+          </LoadingButton>
+        </MotionBox>
+
+        <MotionBox variants={item}>
+          <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary" }}>
+            Didn&apos;t get it?{" "}
+            <Link component="button" type="button" onClick={resend} underline="hover" sx={{ fontWeight: 700 }}>
+              {sending ? "Resending…" : "Resend code"}
+            </Link>
+            {"  ·  "}
+            <Link component="button" type="button" onClick={onBack} underline="hover" sx={{ fontWeight: 700, color: "text.secondary" }}>
+              Back to sign in
+            </Link>
+          </Typography>
+        </MotionBox>
+      </Stack>
+    </MotionBox>
+  );
+};
+
 /* Slowly cross-fading random pet images (Ken Burns) */
 const SLIDES = [
   "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80",
@@ -620,8 +821,10 @@ const LoginPage = ({ initialMode = "login" }) => {
   const isXsScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [mode, setMode] = useState(initialMode);
   const isLogin = mode === "login";
-  // direction: +1 when moving to signup, -1 when moving to login
-  const direction = isLogin ? -1 : 1;
+  const isSignup = mode === "signup";
+  // Signup sits on the right; login & forgot share the left layout.
+  // direction: +1 when moving to signup, -1 otherwise.
+  const direction = isSignup ? 1 : -1;
 
   // Already signed in? Skip the auth screen.
   const { isAuthenticated } = useAuth();
@@ -646,7 +849,7 @@ const LoginPage = ({ initialMode = "login" }) => {
         display: "flex",
         flexDirection: {
           xs: "column",
-          md: isLogin ? "row" : "row-reverse",
+          md: isSignup ? "row-reverse" : "row",
         },
         bgcolor: "background.default",
       }}
@@ -742,18 +945,23 @@ const LoginPage = ({ initialMode = "login" }) => {
                 animate="center"
                 exit="exit"
               >
-                {isLogin ? (
+                {isLogin && (
                   <LoginForm
                     onSwitch={toggle}
+                    onForgot={() => setMode("forgot")}
                     onGoogle={onGoogle}
                     googleLoading={googleLoading}
                   />
-                ) : (
+                )}
+                {isSignup && (
                   <SignupForm
                     onSwitch={toggle}
                     onGoogle={onGoogle}
                     googleLoading={googleLoading}
                   />
+                )}
+                {mode === "forgot" && (
+                  <ForgotPasswordForm onBack={() => setMode("login")} />
                 )}
               </MotionBox>
             </AnimatePresence>
@@ -787,12 +995,12 @@ const LoginPage = ({ initialMode = "login" }) => {
                   transition={{ duration: 0.45, ease: EASE }}
                 >
                   <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "1.5rem", lineHeight: 1.25, mb: 0.5 }}>
-                    {isLogin ? "Care that your pets can feel." : "Every tail deserves a great home."}
+                    {isSignup ? "Every tail deserves a great home." : "Care that your pets can feel."}
                   </Typography>
                   <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: "0.95rem" }}>
-                    {isLogin
-                      ? "Track health, reminders and everything in one place."
-                      : "Join thousands of owners managing their pets with ease."}
+                    {isSignup
+                      ? "Join thousands of owners managing their pets with ease."
+                      : "Track health, reminders and everything in one place."}
                   </Typography>
                 </MotionBox>
               </AnimatePresence>

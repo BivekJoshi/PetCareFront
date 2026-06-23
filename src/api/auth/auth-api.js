@@ -33,6 +33,17 @@ const authHeader = (token) =>
 export const setPhoneRequest = ({ phone, token }) =>
   axiosInstance.post("/auth/phone", { phone }, authHeader(token)).then(unwrap);
 
+// Forgot password — request a reset code by email. The response is the same
+// whether or not the email is registered (no account enumeration).
+export const forgotPasswordRequest = ({ email }) =>
+  axiosInstance.post("/auth/password/forgot", { email }).then(unwrap);
+
+// Reset password — exchange the emailed code for a new password.
+export const resetPasswordRequest = ({ email, code, password, confirmPassword }) =>
+  axiosInstance
+    .post("/auth/password/reset", { email, code, password, confirmPassword })
+    .then(unwrap);
+
 // Add a password to an account that has none (e.g. right after Google sign-in,
 // before the session is persisted — so the token is passed explicitly). Once
 // signed in, omit `token` and the interceptor supplies it.
