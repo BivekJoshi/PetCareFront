@@ -100,7 +100,6 @@ export const ADOPTION = {
 export const SPECIES = [
   { id: "dogs", emoji: "🐶", name: "Dogs", count: "9.4K", tint: "#F57C00" },
   { id: "cats", emoji: "🐱", name: "Cats", count: "6.1K", tint: "#8E5DD9" },
-  { id: "horses", emoji: "🐴", name: "Horses", count: "820", tint: "#8D6E63" },
   { id: "cows", emoji: "🐮", name: "Cows", count: "2.3K", tint: "#43A047" },
   { id: "hens", emoji: "🐔", name: "Hens", count: "3.7K", tint: "#FBC02D" },
   { id: "goats", emoji: "🐐", name: "Goats", count: "1.5K", tint: "#00897B" },

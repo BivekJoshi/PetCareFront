@@ -1,6 +1,14 @@
 import { lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Chip, Container, Stack, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Container,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
@@ -28,7 +36,11 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 28 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  },
 };
 
 const Blob = ({ color, depth, pulse, sx, mx, my, reduceMotion }) => {
@@ -139,20 +151,43 @@ const Hero = () => {
       />
 
       {/* Parallax colour blobs */}
-      <Blob color={`${primary}55`} depth={35} pulse={[1, 1.12, 0.96, 1]}
+      <Blob
+        color={`${primary}55`}
+        depth={35}
+        pulse={[1, 1.12, 0.96, 1]}
         sx={{ width: 460, height: 460, top: -120, left: -90, zIndex: 0 }}
-        mx={mx} my={my} reduceMotion={reduceMotion} />
-      <Blob color={`${accent}40`} depth={45} pulse={[1, 1.08, 0.94, 1]}
+        mx={mx}
+        my={my}
+        reduceMotion={reduceMotion}
+      />
+      <Blob
+        color={`${accent}40`}
+        depth={45}
+        pulse={[1, 1.08, 0.94, 1]}
         sx={{ width: 520, height: 520, bottom: -160, right: -120, zIndex: 0 }}
-        mx={mx} my={my} reduceMotion={reduceMotion} />
-      <Blob color="#F8D15244" depth={25} pulse={[1, 1.15, 0.9, 1]}
+        mx={mx}
+        my={my}
+        reduceMotion={reduceMotion}
+      />
+      <Blob
+        color="#F8D15244"
+        depth={25}
+        pulse={[1, 1.15, 0.9, 1]}
         sx={{ width: 380, height: 380, top: "28%", right: "12%", zIndex: 0 }}
-        mx={mx} my={my} reduceMotion={reduceMotion} />
+        mx={mx}
+        my={my}
+        reduceMotion={reduceMotion}
+      />
 
       {/* 3D floating pets (Three.js) */}
       <Box
         aria-hidden
-        sx={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
+        sx={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
       >
         <Suspense fallback={null}>
           <PetField reduceMotion={reduceMotion} />
@@ -160,7 +195,10 @@ const Hero = () => {
       </Box>
 
       {/* Content */}
-      <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ position: "relative", zIndex: 1, py: 6 }}>
+      <Container
+        maxWidth={CONTENT_MAX_WIDTH}
+        sx={{ position: "relative", zIndex: 1, py: 6 }}
+      >
         <MotionStack
           variants={containerVariants}
           initial="hidden"
@@ -177,10 +215,12 @@ const Hero = () => {
                 fontWeight: 700,
                 fontSize: "0.85rem",
                 color: primary,
-                backgroundColor: "rgba(255,255,255,0.75)",
-                backdropFilter: "blur(6px)",
-                border: `1px solid ${primary}55`,
-                boxShadow: "0 6px 20px -8px rgba(48,111,107,0.4)",
+                backgroundColor: "rgba(255,255,255,0.18)",
+                backdropFilter: "blur(12px) saturate(140%)",
+                WebkitBackdropFilter: "blur(12px) saturate(140%)",
+                border: "1px solid rgba(255,255,255,0.35)",
+                boxShadow:
+                  "0 6px 24px -10px rgba(48,111,107,0.35), inset 0 1px 0 rgba(255,255,255,0.45)",
               }}
             />
           </MotionBox>
@@ -212,18 +252,18 @@ const Hero = () => {
                 transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 sx={{
                   display: "inline-block",
-                  fontFamily: '"Pacifico", cursive',
+                  fontFamily: '"Kaushan Script", cursive',
                   fontWeight: 400,
-                  fontSize: "1.15em",
+                  fontSize: "1.2em",
                   lineHeight: 1.3,
                   pr: "0.1em",
-                  background: `linear-gradient(90deg, ${primary}95, ${accent}95, ${primary}95)`,
+                  background: `linear-gradient(90deg, #FF7A00, #FFA033, #FF7A00)`,
                   backgroundSize: "200% auto",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  color: "transparent",
-                  filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.18))",
+                  color: "#FB9C43",
+                  filter: "drop-shadow(0 2px 6px rgba(255,122,0,0.15))",
                 }}
               >
                 Cared For
@@ -233,8 +273,13 @@ const Hero = () => {
 
           <MotionBox variants={itemVariants}>
             <Typography
-              variant="h6"
-              sx={{ color: "text.secondary", maxWidth: 640, mx: "auto", fontWeight: 400 }}
+              variant="body2"
+              sx={{
+                color: "white",
+                maxWidth: 640,
+                mx: "auto",
+                fontWeight:"bold"
+              }}
             >
               {HERO.subtitle}
             </Typography>
@@ -246,15 +291,16 @@ const Hero = () => {
             spacing={1.5}
             justifyContent="center"
           >
-            <MotionBox whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}>
-              <ResButton
-                endIcon={<ChevronRightIcon />}
-                backgroundColor={accent}
-                color="white"
-                content={HERO.primaryCta}
-                onClick={() => navigate("/login")}
-              />
-            </MotionBox>
+            <Button
+              endIcon={<ChevronRightIcon />}
+              variant="contained"
+              color="primary"
+              sx={{ fontWeight: 700, px: 3 }}
+              onClick={() => navigate("/login")}
+            >
+              {HERO.primaryCta}
+            </Button>
+
             <Button
               variant="outlined"
               color="primary"
@@ -266,8 +312,12 @@ const Hero = () => {
           </MotionStack>
 
           <MotionBox variants={itemVariants}>
-            <Typography variant="body2" sx={{ color: "text.secondary", opacity: 0.85 }}>
-              🐶 Dogs · 🐱 Cats · 🐴 Horses · 🐮 Cows · 🐔 Hens · and every creature in between
+            <Typography
+              variant="body2"
+              sx={{ opacity: 0.85 }}
+            >
+              🐶 Dogs · 🐱 Cats  · 🐮 Cows · 🐔 Hens · and every
+              creature in between
             </Typography>
           </MotionBox>
         </MotionStack>

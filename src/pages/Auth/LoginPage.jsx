@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import LoginImage from "../../assets/Logo-login.png";
+import LoginImage from "../../assets/LogoYeju.svg";
 import ImageMobile from "../../assets/ImageMobile.png";
 import googleIcon from "../../assets/devicon_google.png";
 
@@ -18,7 +18,10 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import OtpForm from "../../components/auth/OtpForm";
-import { RenderForm, controlledControl } from "../../components/common/RenderInput";
+import {
+  RenderForm,
+  controlledControl,
+} from "../../components/common/RenderInput";
 import {
   loginFields,
   signupFields,
@@ -48,7 +51,9 @@ const AnimatedHeading = ({ text }) => (
   <MotionBox
     initial="hidden"
     animate="show"
-    variants={{ show: { transition: { staggerChildren: 0.035, delayChildren: 0.1 } } }}
+    variants={{
+      show: { transition: { staggerChildren: 0.035, delayChildren: 0.1 } },
+    }}
     sx={{
       fontFamily: '"Kaushan Script", cursive',
       fontWeight: 400,
@@ -64,7 +69,12 @@ const AnimatedHeading = ({ text }) => (
         key={`${ch}-${i}`}
         variants={{
           hidden: { opacity: 0, y: 24, rotate: -8 },
-          show: { opacity: 1, y: 0, rotate: 0, transition: { duration: 0.5, ease: EASE } },
+          show: {
+            opacity: 1,
+            y: 0,
+            rotate: 0,
+            transition: { duration: 0.5, ease: EASE },
+          },
         }}
         style={{ display: "inline-block", whiteSpace: "pre" }}
       >
@@ -115,24 +125,38 @@ const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
 
         <MotionBox
           variants={item}
-          sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
           <FormControlLabel
             control={<Checkbox size="small" color="primary" />}
-            label={<Typography sx={{ fontSize: "0.875rem" }}>Remember me</Typography>}
+            label={
+              <Typography sx={{ fontSize: "0.875rem" }}>Remember me</Typography>
+            }
           />
           <Link
             component="button"
             type="button"
             onClick={onForgot}
             underline="hover"
-            sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "primary.main",
+            }}
           >
             Forgot password?
           </Link>
         </MotionBox>
 
-        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+        <MotionBox
+          variants={item}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
+        >
           <LoadingButton
             loading={loading}
             variant="contained"
@@ -151,12 +175,27 @@ const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
           </Divider>
         </MotionBox>
 
-        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
-          <GoogleButton label="Sign in with Google" onClick={onGoogle} loading={googleLoading} />
+        <MotionBox
+          variants={item}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
+        >
+          <GoogleButton
+            label="Sign in with Google"
+            onClick={onGoogle}
+            loading={googleLoading}
+          />
         </MotionBox>
 
         <MotionBox variants={item}>
-          <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary", mt: 1 }}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "0.875rem",
+              color: "text.secondary",
+              mt: 1,
+            }}
+          >
             Don&apos;t have an account?{" "}
             <Link
               component="button"
@@ -235,7 +274,11 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
       <Stack spacing={2.5} component="form" noValidate>
         <RenderForm fields={signupFields} formik={formik} />
 
-        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+        <MotionBox
+          variants={item}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
+        >
           <LoadingButton
             loading={loading}
             variant="contained"
@@ -254,12 +297,27 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
           </Divider>
         </MotionBox>
 
-        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
-          <GoogleButton label="Sign up with Google" onClick={onGoogle} loading={googleLoading} />
+        <MotionBox
+          variants={item}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
+        >
+          <GoogleButton
+            label="Sign up with Google"
+            onClick={onGoogle}
+            loading={googleLoading}
+          />
         </MotionBox>
 
         <MotionBox variants={item}>
-          <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary", mt: 1 }}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "0.875rem",
+              color: "text.secondary",
+              mt: 1,
+            }}
+          >
             Already have an account?{" "}
             <Link
               component="button"
@@ -300,7 +358,12 @@ const ForgotPasswordForm = ({ onBack }) => {
   // This flow drives plain useState (not Formik) — `controlledControl` maps each
   // field's state into the same control contract the Formik forms use.
   const requestControl = controlledControl({
-    email: { value: email, set: setEmail, error: errors.email, onEnter: sendCode },
+    email: {
+      value: email,
+      set: setEmail,
+      error: errors.email,
+      onEnter: sendCode,
+    },
   });
 
   const resetControl = controlledControl({
@@ -310,7 +373,12 @@ const ForgotPasswordForm = ({ onBack }) => {
       error: errors.code,
     },
     password: { value: password, set: setPassword, error: errors.password },
-    confirmPassword: { value: confirm, set: setConfirm, error: errors.confirm, onEnter: submitReset },
+    confirmPassword: {
+      value: confirm,
+      set: setConfirm,
+      error: errors.confirm,
+      onEnter: submitReset,
+    },
   });
 
   // Step 1 — request a reset code by email.
@@ -322,14 +390,19 @@ const ForgotPasswordForm = ({ onBack }) => {
         </MotionBox>
         <MotionBox variants={item}>
           <Typography sx={{ color: "text.secondary", mb: 4 }}>
-            Enter your account email and we&apos;ll send you a 6-digit reset code.
+            Enter your account email and we&apos;ll send you a 6-digit reset
+            code.
           </Typography>
         </MotionBox>
 
         <Stack spacing={2.5} component="form" noValidate>
           <RenderForm fields={forgotRequestFields} control={requestControl} />
 
-          <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+          <MotionBox
+            variants={item}
+            whileHover={{ scale: 1.015 }}
+            whileTap={{ scale: 0.985 }}
+          >
             <LoadingButton
               loading={sending}
               variant="contained"
@@ -343,7 +416,14 @@ const ForgotPasswordForm = ({ onBack }) => {
           </MotionBox>
 
           <MotionBox variants={item}>
-            <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary", mt: 1 }}>
+            <Typography
+              sx={{
+                textAlign: "center",
+                fontSize: "0.875rem",
+                color: "text.secondary",
+                mt: 1,
+              }}
+            >
               Remembered it?{" "}
               <Link
                 component="button"
@@ -380,7 +460,11 @@ const ForgotPasswordForm = ({ onBack }) => {
       <Stack spacing={2.5} component="form" noValidate>
         <RenderForm fields={forgotResetFields} control={resetControl} />
 
-        <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
+        <MotionBox
+          variants={item}
+          whileHover={{ scale: 1.015 }}
+          whileTap={{ scale: 0.985 }}
+        >
           <LoadingButton
             loading={resetting}
             variant="contained"
@@ -394,13 +478,31 @@ const ForgotPasswordForm = ({ onBack }) => {
         </MotionBox>
 
         <MotionBox variants={item}>
-          <Typography sx={{ textAlign: "center", fontSize: "0.875rem", color: "text.secondary" }}>
+          <Typography
+            sx={{
+              textAlign: "center",
+              fontSize: "0.875rem",
+              color: "text.secondary",
+            }}
+          >
             Didn&apos;t get it?{" "}
-            <Link component="button" type="button" onClick={resend} underline="hover" sx={{ fontWeight: 700 }}>
+            <Link
+              component="button"
+              type="button"
+              onClick={resend}
+              underline="hover"
+              sx={{ fontWeight: 700 }}
+            >
               {sending ? "Resending…" : "Resend code"}
             </Link>
             {"  ·  "}
-            <Link component="button" type="button" onClick={onBack} underline="hover" sx={{ fontWeight: 700, color: "text.secondary" }}>
+            <Link
+              component="button"
+              type="button"
+              onClick={onBack}
+              underline="hover"
+              sx={{ fontWeight: 700, color: "text.secondary" }}
+            >
               Back to sign in
             </Link>
           </Typography>
@@ -462,8 +564,14 @@ const ImageCarousel = () => {
 const TiltCard = ({ children }) => {
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
-  const rx = useSpring(useTransform(my, [0, 1], [8, -8]), { stiffness: 150, damping: 18 });
-  const ry = useSpring(useTransform(mx, [0, 1], [-8, 8]), { stiffness: 150, damping: 18 });
+  const rx = useSpring(useTransform(my, [0, 1], [8, -8]), {
+    stiffness: 150,
+    damping: 18,
+  });
+  const ry = useSpring(useTransform(mx, [0, 1], [-8, 8]), {
+    stiffness: 150,
+    damping: 18,
+  });
   const shineX = useTransform(mx, [0, 1], ["0%", "100%"]);
   const shineY = useTransform(my, [0, 1], ["0%", "100%"]);
 
@@ -499,10 +607,15 @@ const TiltCard = ({ children }) => {
           background: useTransform(
             [shineX, shineY],
             ([x, y]) =>
-              `radial-gradient(420px circle at ${x} ${y}, rgba(255,255,255,0.35), transparent 60%)`
+              `radial-gradient(420px circle at ${x} ${y}, rgba(255,255,255,0.35), transparent 60%)`,
           ),
         }}
-        sx={{ position: "absolute", inset: 0, pointerEvents: "none", mixBlendMode: "soft-light" }}
+        sx={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          mixBlendMode: "soft-light",
+        }}
       />
     </MotionBox>
   );
@@ -517,14 +630,22 @@ const GoogleButton = ({ label, onClick, loading = false }) => (
     loading={loading}
     loadingPosition="start"
     startIcon={
-      <Box component="img" src={googleIcon} alt="" sx={{ height: 20, width: 20 }} />
+      <Box
+        component="img"
+        src={googleIcon}
+        alt=""
+        sx={{ height: 20, width: 20 }}
+      />
     }
     sx={{
       py: 1.15,
       borderColor: "divider",
       color: "text.primary",
       borderRadius: 999,
-      "&:hover": { borderColor: "text.secondary", backgroundColor: "action.hover" },
+      "&:hover": {
+        borderColor: "text.secondary",
+        backgroundColor: "action.hover",
+      },
     }}
   >
     {label}
@@ -549,8 +670,12 @@ const LoginPage = ({ initialMode = "login" }) => {
   }, [isAuthenticated, navigate]);
 
   // Shared "Sign in with Google" flow for both the login and signup forms.
-  const { start: onGoogle, loading: googleLoading, pending, completePending } =
-    useGoogleSignIn();
+  const {
+    start: onGoogle,
+    loading: googleLoading,
+    pending,
+    completePending,
+  } = useGoogleSignIn();
 
   const toggle = () => setMode((m) => (m === "login" ? "signup" : "login"));
 
@@ -580,13 +705,21 @@ const LoginPage = ({ initialMode = "login" }) => {
           minHeight: { md: "100vh" },
           position: "relative",
           overflow: "hidden",
-          background: "linear-gradient(135deg, #eef6f8 0%, #ffffff 55%, #fbf7e8 100%)",
+          background:
+            "linear-gradient(135deg, #eef6f8 0%, #ffffff 55%, #fbf7e8 100%)",
         }}
       >
         {/* Creative interactive 3D background */}
         <Box
           aria-hidden
-          sx={{ position: "absolute", inset: 0, zIndex: 0, opacity: 0.55, filter: "blur(1px)", pointerEvents: "none" }}
+          sx={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 0,
+            opacity: 0.55,
+            filter: "blur(1px)",
+            pointerEvents: "none",
+          }}
         >
           <AuthBackground mode={mode} />
         </Box>
@@ -630,12 +763,33 @@ const LoginPage = ({ initialMode = "login" }) => {
             component="img"
             src={ImageMobile}
             alt=""
-            sx={{ width: "100%", height: 180, objectFit: "cover", display: "block", position: "relative", zIndex: 1 }}
+            sx={{
+              width: "100%",
+              height: 180,
+              objectFit: "cover",
+              display: "block",
+              position: "relative",
+              zIndex: 1,
+            }}
           />
         )}
 
-        <Box sx={{ px: { xs: 3, sm: 6 }, py: { xs: 4, md: 5 }, position: "relative", zIndex: 1 }}>
-          <Box component="img" src={LoginImage} alt="logo" sx={{ height: 40, width: "auto", display: "block" }} />
+        <Box
+          sx={{
+            px: { xs: 3, sm: 6 },
+            py: { xs: 4, md: 5 },
+            position: "relative",
+            zIndex: 1,
+            cursor: "pointer",
+          }}
+          onClick={()=>navigate("/")}
+        >
+          <Box
+            component="img"
+            src={LoginImage}
+            alt="logo"
+            sx={{ height: 70, width: "auto", display: "block" }}
+          />
         </Box>
 
         <Box
@@ -689,7 +843,13 @@ const LoginPage = ({ initialMode = "login" }) => {
         <MotionBox
           layout
           transition={panelSpring}
-          sx={{ width: "45%", position: "sticky", top: 0, height: "100vh", p: 2 }}
+          sx={{
+            width: "45%",
+            position: "sticky",
+            top: 0,
+            height: "100vh",
+            p: 2,
+          }}
         >
           <TiltCard>
             <ImageCarousel />
@@ -697,7 +857,8 @@ const LoginPage = ({ initialMode = "login" }) => {
               sx={{
                 position: "absolute",
                 inset: 0,
-                background: "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%)",
+                background:
+                  "linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.55) 100%)",
               }}
             />
             <Box sx={{ position: "absolute", bottom: 32, left: 32, right: 32 }}>
@@ -709,10 +870,25 @@ const LoginPage = ({ initialMode = "login" }) => {
                   exit={{ opacity: 0, y: -18 }}
                   transition={{ duration: 0.45, ease: EASE }}
                 >
-                  <Typography sx={{ color: "#fff", fontWeight: 700, fontSize: "1.5rem", lineHeight: 1.25, mb: 0.5 }}>
-                    {isSignup ? "Every tail deserves a great home." : "Care that your pets can feel."}
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: "1.5rem",
+                      lineHeight: 1.25,
+                      mb: 0.5,
+                    }}
+                  >
+                    {isSignup
+                      ? "Every tail deserves a great home."
+                      : "Care that your pets can feel."}
                   </Typography>
-                  <Typography sx={{ color: "rgba(255,255,255,0.85)", fontSize: "0.95rem" }}>
+                  <Typography
+                    sx={{
+                      color: "rgba(255,255,255,0.85)",
+                      fontSize: "0.95rem",
+                    }}
+                  >
                     {isSignup
                       ? "Join thousands of owners managing their pets with ease."
                       : "Track health, reminders and everything in one place."}

@@ -337,6 +337,13 @@ export const themeSettings = (mode = "light") => {
             borderWidth: 2,
             borderColor: accent,
             color: deepOrange,
+            // Soft whitish glassy fill at rest so the button reads as frosted
+            // glass rather than a flat hollow outline.
+            backgroundColor: isDark
+              ? "rgba(255,255,255,0.04)"
+              : "rgba(255,255,255,0.28)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
             "&:hover": {
               borderWidth: 2,
               borderColor: deepOrange,
@@ -346,6 +353,11 @@ export const themeSettings = (mode = "light") => {
           outlinedPrimary: {
             borderColor: accent,
             color: deepOrange,
+            backgroundColor: isDark
+              ? "rgba(255,255,255,0.04)"
+              : "rgba(255,255,255,0.28)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
             "&:hover": {
               borderColor: deepOrange,
               backgroundColor: `${accent}1f`,

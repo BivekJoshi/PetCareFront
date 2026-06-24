@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Box, Drawer, Toolbar } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
+import { alpha, useTheme } from "@mui/material/styles";
 import { motion, AnimatePresence } from "framer-motion";
 import { NAV_LEAVES } from "./navItems";
 import Sidebar from "./Sidebar";
@@ -130,18 +130,59 @@ const DashboardLayout = () => {
       >
         <Toolbar sx={{ minHeight: 62 }} />
         <VerificationBanners />
-        <Box sx={{ p: { xs: 2, md: 4 } }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.32, ease: "easeOut" }}
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+          {/* Frosted-glass panel — lets the animated waves backdrop diffuse
+              softly behind the page content (glassmorphism). */}
+          <Box
+            sx={{
+              position: "relative",
+              p: { xs: 2, md: 3.5 },
+              borderRadius: { xs: 3, md: 4 },
+              minHeight: "calc(100vh - 62px - 48px)",
+              backgroundColor: alpha(
+                theme.palette.background.paper,
+                theme.palette.mode === "dark" ? 0.7 : 0.86,
+              ),
+              backdropFilter: "blur(18px) saturate(150%)",
+              WebkitBackdropFilter: "blur(18px) saturate(150%)",
+              border: 1,
+              borderColor: alpha(theme.palette.common.white, 0.12),
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? `0 24px 60px -28px ${alpha("#000", 0.7)}, inset 0 1px 0 ${alpha(
+                      theme.palette.common.white,
+                      0.06,
+                    )}`
+                  : `0 24px 60px -32px ${alpha(
+                      theme.palette.primary.main,
+                      0.4,
+                    )}, inset 0 1px 0 ${alpha(theme.palette.common.white, 0.5)}`,
+              // a faint top highlight sweep for that polished glass edge
+              "&::before": {
+                content: '""',
+                position: "absolute",
+                inset: 0,
+                borderRadius: "inherit",
+                pointerEvents: "none",
+                background: `linear-gradient(180deg, ${alpha(
+                  theme.palette.common.white,
+                  theme.palette.mode === "dark" ? 0.05 : 0.35,
+                )} 0%, transparent 18%)`,
+              },
+            }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.32, ease: "easeOut" }}
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
+          </Box>
         </Box>
       </Box>
 

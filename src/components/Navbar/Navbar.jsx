@@ -17,7 +17,7 @@ import {
   useScroll,
   useMotionValueEvent,
 } from "framer-motion";
-import Logo from "../../assets/YejuLogo.png";
+import Logo from "../../assets/LogoYeju.svg";
 import ResButton from "../ResponsiveComponent/ResButton";
 import { CONTENT_MAX_WIDTH } from "../../constants/layout";
 import { NAV_SECTIONS, SCROLL_OFFSET } from "../../constants/navigation";
@@ -87,7 +87,9 @@ const Navbar = () => {
   // At the very top the bar blends into the hero (no background). It becomes
   // solid teal once you scroll, or when the mobile menu is open.
   const solid = scrolled || (isMobile && mobileOpen);
-  const navText = solid ? "#FFFFFF" : "#15302E";
+  // The solid bar is a soft, pale teal glass — keep nav text dark in both
+  // states so it stays legible against the light background.
+  const navText = "#15302E";
 
   const brand = (
     <MotionBox
@@ -98,7 +100,7 @@ const Navbar = () => {
       whileHover={{ scale: 1.08, rotate: [0, -6, 6, -3, 0] }}
       whileTap={{ scale: 0.94 }}
       transition={{ type: "spring", stiffness: 400, damping: 12 }}
-      sx={{ height: 48, cursor: "pointer", display: "block" }}
+      sx={{ height: 68, cursor: "pointer", display: "block" }}
     />
   );
 
@@ -112,8 +114,8 @@ const Navbar = () => {
       <MotionBox
         animate={{
           backgroundColor: solid
-            ? "rgba(69, 187, 189, 0.82)"
-            : "rgba(69, 187, 189, 0)",
+            ? "rgba(225, 247, 246, 0.85)"
+            : "rgba(225, 247, 246, 0)",
           backdropFilter: solid ? "blur(10px)" : "blur(0px)",
           boxShadow: solid
             ? "0 10px 30px -12px rgba(48, 111, 107, 0.55)"
@@ -123,7 +125,10 @@ const Navbar = () => {
         sx={{ WebkitBackdropFilter: solid ? "blur(10px)" : "none" }}
       >
         <Container maxWidth={CONTENT_MAX_WIDTH}>
-          <Toolbar disableGutters sx={{ gap: 2, minHeight: { xs: 56, md: 62 } }}>
+          <Toolbar
+            disableGutters
+            sx={{ gap: 2, minHeight: { xs: 56, md: 62 } }}
+          >
             {isMobile && (
               <IconButton
                 aria-label="toggle navigation menu"
@@ -170,28 +175,10 @@ const Navbar = () => {
                       position: "relative",
                       px: 1.75,
                       py: 1,
-                      borderRadius: 2,
+                      borderRadius: 1,
                       cursor: "pointer",
                     }}
                   >
-                    {isHighlighted && (
-                      <MotionBox
-                        layoutId="nav-highlight"
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                        sx={{
-                          position: "absolute",
-                          inset: 0,
-                          borderRadius: 2,
-                          backgroundColor: solid
-                            ? "rgba(255, 255, 255, 0.16)"
-                            : "rgba(69, 187, 189, 0.14)",
-                        }}
-                      />
-                    )}
                     <Typography
                       sx={{
                         position: "relative",

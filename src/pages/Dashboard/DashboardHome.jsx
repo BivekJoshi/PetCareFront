@@ -206,34 +206,7 @@ const makeDemoUpcoming = () => {
     return d.toISOString();
   };
   return [
-    {
-      id: null,
-      status: "CONFIRMED",
-      scheduledAt: at(1, 10),
-      pet: { name: "Bella", species: "DOG" },
-      service: { name: "Annual checkup" },
-    },
-    {
-      id: null,
-      status: "CONFIRMED",
-      scheduledAt: at(2, 14),
-      pet: { name: "Milo", species: "CAT" },
-      service: { name: "Vaccination" },
-    },
-    {
-      id: null,
-      status: "PENDING",
-      scheduledAt: at(3, 9),
-      pet: { name: "Coco", species: "BIRD" },
-      service: { name: "Wing trim" },
-    },
-    {
-      id: null,
-      status: "CONFIRMED",
-      scheduledAt: at(5, 16),
-      pet: { name: "Rex", species: "DOG" },
-      service: { name: "Dental cleaning" },
-    },
+
   ];
 };
 

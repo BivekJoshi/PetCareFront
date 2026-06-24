@@ -71,7 +71,7 @@ const Footer = () => {
             <Box
               component="img"
               src={Logo}
-              alt="Yeju Saathi"
+              alt="Yejus Paw"
               sx={{ height: 48, mb: 2 }}
             />
             <Typography variant="body2" sx={{ opacity: 0.85, mb: 2 }}>
@@ -148,7 +148,7 @@ const Footer = () => {
             ))}
           </Stack>
           <Typography variant="body2" sx={{ opacity: 0.85, textAlign: "center" }}>
-            © {year} YEJU SAATHI. All rights reserved.
+            © {year} YEJUS PAW. All rights reserved.
           </Typography>
         </Box>
       </Container>

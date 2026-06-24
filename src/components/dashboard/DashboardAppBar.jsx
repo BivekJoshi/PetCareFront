@@ -15,6 +15,7 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  useScrollTrigger,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
@@ -56,6 +57,12 @@ const DashboardAppBar = ({
   const { data: unread = 0 } = useUnreadCount();
   const [anchorEl, setAnchorEl] = useState(null);
 
+  // Scroll-aware "tint": the bar is near-transparent at the very top of the
+  // page and fades into a frosted, primary-tinted glass as soon as the user
+  // scrolls. `solid` flips once past a small threshold.
+  const solid = useScrollTrigger({ disableHysteresis: true, threshold: 8 });
+  const tint = theme.palette.primary.main;
+
   const initials = fullName(user)
     .split(" ")
     .map((w) => w[0])
@@ -71,13 +78,32 @@ const DashboardAppBar = ({
       sx={{
         width: { md: `calc(100% - ${sidebarWidth}px)` },
         ml: { md: `${sidebarWidth}px` },
-        transition: widthTransition,
+        transition:
+          "background-color .35s ease, box-shadow .35s ease, border-color .35s ease, backdrop-filter .35s ease, " +
+          widthTransition,
         color: "text.primary",
-        backgroundColor: alpha(theme.palette.background.paper, 0.85),
-        backdropFilter: "blur(10px)",
+        // Scroll-aware teal "tint": always a frosted glass bar, but lighter at
+        // the top of the page and deeper / more tinted once scrolled. The paper
+        // base keeps it readable in both light & dark mode; the primary-tinted
+        // gradient on top is what reads as the tint.
+        backgroundColor: alpha(
+          theme.palette.background.paper,
+          solid ? 0.85 : 0.7,
+        ),
+        backgroundImage: `linear-gradient(90deg, ${alpha(
+          tint,
+          solid ? 0.1 : 0.05,
+        )} 0%, ${alpha(tint, solid ? 0.04 : 0.02)} 55%, ${alpha(
+          tint,
+          solid ? 0.08 : 0.04,
+        )} 100%)`,
+        backdropFilter: "blur(14px) saturate(160%)",
+        WebkitBackdropFilter: "blur(14px) saturate(160%)",
         borderBottom: 1,
-        borderColor: "divider",
-        boxShadow: "0 1px 3px rgba(16, 24, 40, 0.06)",
+        borderColor: solid ? alpha(tint, 0.18) : alpha(tint, 0.1),
+        boxShadow: solid
+          ? `0 8px 24px -16px ${alpha(tint, 0.9)}, 0 1px 0 ${alpha(tint, 0.06)}`
+          : `0 2px 8px -6px ${alpha(tint, 0.5)}`,
       }}
     >
       <Toolbar sx={{ gap: 1, minHeight: 62 }}>
