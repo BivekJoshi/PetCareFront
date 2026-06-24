@@ -71,6 +71,9 @@ const RoleRequestsPage = Loadable(
 const RoleRequestPage = Loadable(
   lazy(() => import("../pages/Account/RoleRequestPage"))
 );
+const SpeciesPage = Loadable(
+  lazy(() => import("../pages/Admin/SpeciesPage"))
+);
 
 const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
 const UnauthorizedPage = Loadable(
@@ -155,6 +158,7 @@ const AppRoutes = () => {
                 <Route path="insights" element={<InsightsPage />} />
                 <Route path="admin/users" element={<UserManagementPage />} />
                 <Route path="admin/role-requests" element={<RoleRequestsPage />} />
+                <Route path="admin/species" element={<SpeciesPage />} />
                 <Route path="admin/chat-retention" element={<ChatRetentionPage />} />
               </Route>
 

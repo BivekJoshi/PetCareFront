@@ -1,6 +1,8 @@
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 
-// Species → emoji, shared across the owner mobile pages.
+// Species → emoji, shared across the owner mobile pages. Seeded with sensible
+// fallbacks and augmented at runtime from the admin-managed species catalogue
+// (see registerSpeciesEmoji, called whenever the species list loads).
 export const SPECIES_EMOJI = {
   DOG: "🐶",
   CAT: "🐱",
@@ -11,6 +13,14 @@ export const SPECIES_EMOJI = {
   CATTLE: "🐄",
   GOAT: "🐐",
   OTHER: "🐾",
+};
+
+// Merge live species (from the API) into the emoji map so custom species added
+// by an admin render their chosen emoji everywhere petEmoji() is used.
+export const registerSpeciesEmoji = (list = []) => {
+  list.forEach((s) => {
+    if (s?.key && s?.emoji) SPECIES_EMOJI[s.key] = s.emoji;
+  });
 };
 
 export const petEmoji = (species) => SPECIES_EMOJI[species] || "🐾";

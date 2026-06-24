@@ -9,11 +9,12 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { PET_SPECIES, PET_GENDERS, humanize } from "../../constants/domain";
+import { PET_GENDERS, humanize } from "../../constants/domain";
+import { usePublicSpecies } from "../../hooks/species/useSpecies";
 
 const EMPTY = {
   name: "",
-  species: "DOG",
+  species: "",
   breed: "",
   gender: "UNKNOWN",
   notes: "",
@@ -23,23 +24,26 @@ const EMPTY = {
 const PetFormDialog = ({ open, onClose, onSubmit, pet, submitting }) => {
   const [values, setValues] = useState(EMPTY);
   const [errors, setErrors] = useState({});
+  const { data: species = [], isLoading: speciesLoading } = usePublicSpecies();
 
   useEffect(() => {
     if (open) {
+      // Default new pets to the first available species once the list loads.
+      const fallback = species[0]?.key ?? "";
       setValues(
         pet
           ? {
               name: pet.name ?? "",
-              species: pet.species ?? "DOG",
+              species: pet.species ?? fallback,
               breed: pet.breed ?? "",
               gender: pet.gender ?? "UNKNOWN",
               notes: pet.notes ?? "",
             }
-          : EMPTY
+          : { ...EMPTY, species: fallback }
       );
       setErrors({});
     }
-  }, [open, pet]);
+  }, [open, pet, species]);
 
   const handleChange = (field) => (e) =>
     setValues((v) => ({ ...v, [field]: e.target.value }));
@@ -80,10 +84,16 @@ const PetFormDialog = ({ open, onClose, onSubmit, pet, submitting }) => {
             value={values.species}
             onChange={handleChange("species")}
             fullWidth
+            disabled={speciesLoading}
+            helperText={
+              !speciesLoading && species.length === 0
+                ? "No species available — ask an admin to add one."
+                : undefined
+            }
           >
-            {PET_SPECIES.map((s) => (
-              <MenuItem key={s} value={s}>
-                {humanize(s)}
+            {species.map((s) => (
+              <MenuItem key={s.key} value={s.key}>
+                {s.emoji} {s.name}
               </MenuItem>
             ))}
           </TextField>

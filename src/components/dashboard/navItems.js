@@ -26,6 +26,7 @@ import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import { ROLES } from "../../constants/domain";
 
 const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
@@ -136,6 +137,11 @@ export const NAV_SECTIONS = [
             label: "Role Requests",
             to: "/app/admin/role-requests",
             icon: HowToRegOutlinedIcon,
+          },
+          {
+            label: "Species",
+            to: "/app/admin/species",
+            icon: CategoryOutlinedIcon,
           },
           {
             label: "Chat Retention",

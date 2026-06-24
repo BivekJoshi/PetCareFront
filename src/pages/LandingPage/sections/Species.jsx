@@ -4,11 +4,33 @@ import SectionHeading from "../components/SectionHeading";
 import { staggerItem, staggerParent } from "../../../components/motion/variants";
 import { CONTENT_MAX_WIDTH, SECTION_PY, TEXT_MAX_WIDTH } from "../../../constants/layout";
 import { SPECIES } from "../data";
+import { usePublicSpecies } from "../../../hooks/species/useSpecies";
 
 const MotionGrid = motion.create(Grid);
 const MotionPaper = motion.create(Paper);
 
-const Species = () => (
+const compact = (n) =>
+  new Intl.NumberFormat(undefined, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n || 0);
+
+const Species = () => {
+  // Live species from the catalogue; fall back to the static list while the
+  // request is loading or if none have been configured yet.
+  const { data } = usePublicSpecies();
+  const list =
+    data && data.length
+      ? data.map((s) => ({
+          id: s.key,
+          emoji: s.emoji,
+          name: s.name,
+          tint: s.tint,
+          count: compact(s.petCount),
+        }))
+      : SPECIES;
+
+  return (
   <Box sx={{ backgroundColor: "grey.50" }}>
     <Container maxWidth={CONTENT_MAX_WIDTH} sx={{ py: SECTION_PY }}>
       <SectionHeading
@@ -32,7 +54,7 @@ const Species = () => (
         whileInView="show"
         viewport={{ once: true, margin: "-60px" }}
       >
-        {SPECIES.map((species) => {
+        {list.map((species) => {
           const tint = species.tint;
           return (
             <MotionGrid item xs={6} sm={4} md={3} key={species.id} variants={staggerItem}>
@@ -86,6 +108,7 @@ const Species = () => (
       </MotionGrid>
     </Container>
   </Box>
-);
+  );
+};
 
 export default Species;
