@@ -5,8 +5,8 @@ import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 /**
  * Declarative field definitions for every auth form. Each entry is consumed by
  * `RenderInput` / `RenderForm`, so adding or reordering a field is a data edit —
- * no JSX duplication. `grid` spans columns; `visibilityKey` maps a password
- * field to its show/hide toggle; `submitOnEnter` submits the form on Enter.
+ * no JSX duplication. `span` sets the column width (out of 12 on sm+); password
+ * fields manage their own show/hide; `submitOnEnter` submits the form on Enter.
  */
 
 export const loginFields = [
@@ -22,7 +22,6 @@ export const loginFields = [
     type: "password",
     label: "Password",
     placeholder: "Enter your password",
-    visibilityKey: "showPassword",
     submitOnEnter: true,
   },
 ];
@@ -55,17 +54,15 @@ export const signupFields = [
     type: "password",
     label: "Password",
     placeholder: "Create a password",
-    visibilityKey: "showPassword",
-    grid: { xs: 12, sm: 6 },
+    span: 6,
   },
   {
     name: "confirmPassword",
     type: "password",
     label: "Confirm password",
     placeholder: "Re-enter your password",
-    visibilityKey: "showConfirmPassword",
     submitOnEnter: true,
-    grid: { xs: 12, sm: 6 },
+    span: 6,
   },
 ];
 
@@ -99,14 +96,12 @@ export const forgotResetFields = [
     type: "password",
     label: "New password",
     placeholder: "Create a new password",
-    visibilityKey: "showPw",
   },
   {
     name: "confirmPassword",
     type: "password",
     label: "Confirm password",
     placeholder: "Re-enter your new password",
-    visibilityKey: "showPw",
     submitOnEnter: true,
   },
 ];

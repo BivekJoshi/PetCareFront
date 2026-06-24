@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Checkbox,
@@ -5,7 +6,6 @@ import {
   FormControlLabel,
   FormHelperText,
   FormLabel,
-  Grid,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -35,6 +35,10 @@ export const labelSx = {
   mb: 0.75,
 };
 
+/* ------------------------------------------------------------------ *
+ *  Shared helpers
+ * ------------------------------------------------------------------ */
+
 // Trailing decorative icon, when a field configures one.
 const trailingIcon = (Icon) =>
   Icon
@@ -47,250 +51,322 @@ const trailingIcon = (Icon) =>
       }
     : undefined;
 
-// Show / hide toggle for password fields.
-const passwordToggle = ({ visible, onToggle, onMouseDown } = {}) => ({
-  endAdornment: (
-    <InputAdornment position="end">
-      <IconButton
-        aria-label="toggle password visibility"
-        onClick={onToggle}
-        onMouseDown={onMouseDown}
-        edge="end"
-        size="small"
-      >
-        {visible ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-      </IconButton>
-    </InputAdornment>
-  ),
-});
+// Resolve a config value that may be a static value or a `(values) => value` fn.
+const resolveDynamic = (val, values) =>
+  typeof val === "function" ? val(values) : val;
 
-/**
- * RenderInput — global, form-agnostic field renderer.
- *
- * One `switch (field.type)` is the single place to add or extend a field type,
- * so every form in the app (auth, profile, pet, booking…) renders from the same
- * declarative config instead of hand-written JSX.
- *
- * field — { name, type, label, placeholder, icon, helperText, options, rows,
- *           inputProps, autoFocus, required, disabled, multiline, size }
- * ctrl  — { value, onChange, onBlur, onEnter, error, helperText, password }
- *           password = { visible, onToggle, onMouseDown } (type "password" only)
- *
- * Supported types: text · email · phone/tel · number · code · password ·
- *   textarea/multiline · dropdown/select · checkbox · switch · radio
- */
-export const RenderInput = (field, ctrl = {}) => {
-  const {
-    name,
-    type = "text",
-    placeholder,
-    icon: Icon,
-    options = [],
-    inputProps,
-    autoFocus,
-    required,
-    disabled,
-    rows,
-    size = "medium",
-  } = field;
-
-  // Props shared by every TextField-based control.
-  const common = {
-    name,
-    required,
-    disabled,
-    autoFocus,
-    size,
-    fullWidth: true,
-    variant: "outlined",
-    placeholder,
-    value: ctrl.value ?? "",
-    onChange: ctrl.onChange,
-    onBlur: ctrl.onBlur,
-    error: Boolean(ctrl.error),
-    helperText: ctrl.helperText,
-    inputProps,
-    onKeyDown: ctrl.onEnter
+// Props every TextField-based renderer shares. Keeps each renderer tiny.
+const baseProps = (field, ctrl) => ({
+  name: field.name,
+  required: field.required,
+  disabled: field.disabled,
+  autoFocus: field.autoFocus,
+  size: field.size || "medium",
+  fullWidth: true,
+  variant: field.variant || "outlined",
+  placeholder: field.placeholder,
+  value: ctrl.value ?? "",
+  onChange: ctrl.onChange,
+  onBlur: ctrl.onBlur,
+  error: Boolean(ctrl.error),
+  helperText: ctrl.helperText,
+  inputProps: field.inputProps,
+  onKeyDown:
+    ctrl.onEnter && !field.multiline
       ? (e) => {
-          if (e.key === "Enter" && !field.multiline) {
+          if (e.key === "Enter") {
             e.preventDefault();
             ctrl.onEnter();
           }
         }
       : undefined,
-  };
+  ...field.props, // per-field passthrough to the underlying MUI component
+});
 
-  switch (type) {
-    case "dropdown":
-    case "select":
-      return (
-        <TextField {...common} select>
-          {options.map((opt) => (
-            <MenuItem key={opt.value} value={opt.value}>
-              {opt.label}
-            </MenuItem>
-          ))}
-        </TextField>
-      );
+/* ------------------------------------------------------------------ *
+ *  Built-in field renderers — each is a real component, so it can own
+ *  local state (e.g. password visibility). Register more with
+ *  `registerFieldType()` instead of editing this file.
+ * ------------------------------------------------------------------ */
 
-    case "password":
-      return (
-        <TextField
-          {...common}
-          type={ctrl.password?.visible ? "text" : "password"}
-          InputProps={passwordToggle(ctrl.password)}
+const TextInput = ({ field, ctrl }) => (
+  <TextField {...baseProps(field, ctrl)} type="text" InputProps={trailingIcon(field.icon)} />
+);
+
+const EmailInput = ({ field, ctrl }) => (
+  <TextField {...baseProps(field, ctrl)} type="email" InputProps={trailingIcon(field.icon)} />
+);
+
+const NumberInput = ({ field, ctrl }) => (
+  <TextField {...baseProps(field, ctrl)} type="number" InputProps={trailingIcon(field.icon)} />
+);
+
+const TextareaInput = ({ field, ctrl }) => (
+  <TextField {...baseProps(field, ctrl)} multiline minRows={field.rows || 3} />
+);
+
+const PasswordInput = ({ field, ctrl }) => {
+  const [show, setShow] = useState(false); // self-contained: pages never wire this
+  return (
+    <TextField
+      {...baseProps(field, ctrl)}
+      type={show ? "text" : "password"}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={() => setShow((s) => !s)}
+              onMouseDown={(e) => e.preventDefault()}
+              edge="end"
+              size="small"
+            >
+              {show ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+    />
+  );
+};
+
+const SelectInput = ({ field, ctrl }) => (
+  <TextField {...baseProps(field, ctrl)} select>
+    {(field.options || []).map((opt) => (
+      <MenuItem key={opt.value} value={opt.value}>
+        {opt.label}
+      </MenuItem>
+    ))}
+  </TextField>
+);
+
+const CheckboxInput = ({ field, ctrl }) => (
+  <FormControl error={Boolean(ctrl.error)} disabled={field.disabled}>
+    <FormControlLabel
+      control={
+        <Checkbox
+          size="small"
+          color="primary"
+          name={field.name}
+          checked={Boolean(ctrl.value)}
+          onChange={ctrl.onChange}
         />
-      );
+      }
+      label={<Typography sx={{ fontSize: "0.875rem" }}>{field.label}</Typography>}
+    />
+    {ctrl.helperText && <FormHelperText>{ctrl.helperText}</FormHelperText>}
+  </FormControl>
+);
 
-    case "textarea":
-    case "multiline":
-      return <TextField {...common} multiline minRows={rows || 3} />;
+const SwitchInput = ({ field, ctrl }) => (
+  <FormControlLabel
+    control={
+      <Switch
+        color="primary"
+        name={field.name}
+        checked={Boolean(ctrl.value)}
+        onChange={ctrl.onChange}
+        disabled={field.disabled}
+      />
+    }
+    label={<Typography sx={{ fontSize: "0.875rem" }}>{field.label}</Typography>}
+  />
+);
 
-    case "number":
-      return <TextField {...common} type="number" InputProps={trailingIcon(Icon)} />;
-
-    case "checkbox":
-      return (
-        <FormControl error={Boolean(ctrl.error)} disabled={disabled}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                color="primary"
-                name={name}
-                checked={Boolean(ctrl.value)}
-                onChange={ctrl.onChange}
-              />
-            }
-            label={<Typography sx={{ fontSize: "0.875rem" }}>{field.label}</Typography>}
-          />
-          {ctrl.helperText && <FormHelperText>{ctrl.helperText}</FormHelperText>}
-        </FormControl>
-      );
-
-    case "switch":
-      return (
+const RadioInput = ({ field, ctrl }) => (
+  <FormControl error={Boolean(ctrl.error)} disabled={field.disabled} component="fieldset">
+    {field.label && (
+      <FormLabel component="legend" sx={labelSx}>
+        {field.label}
+      </FormLabel>
+    )}
+    <RadioGroup row={field.row} name={field.name} value={ctrl.value ?? ""} onChange={ctrl.onChange}>
+      {(field.options || []).map((opt) => (
         <FormControlLabel
-          control={
-            <Switch
-              color="primary"
-              name={name}
-              checked={Boolean(ctrl.value)}
-              onChange={ctrl.onChange}
-              disabled={disabled}
-            />
-          }
-          label={<Typography sx={{ fontSize: "0.875rem" }}>{field.label}</Typography>}
+          key={opt.value}
+          value={opt.value}
+          control={<Radio size="small" />}
+          label={opt.label}
         />
-      );
+      ))}
+    </RadioGroup>
+    {ctrl.helperText && <FormHelperText>{ctrl.helperText}</FormHelperText>}
+  </FormControl>
+);
 
-    case "radio":
-      return (
-        <FormControl error={Boolean(ctrl.error)} disabled={disabled} component="fieldset">
-          {field.label && <FormLabel component="legend" sx={labelSx}>{field.label}</FormLabel>}
-          <RadioGroup
-            row={field.row}
-            name={name}
-            value={ctrl.value ?? ""}
-            onChange={ctrl.onChange}
-          >
-            {options.map((opt) => (
-              <FormControlLabel
-                key={opt.value}
-                value={opt.value}
-                control={<Radio size="small" />}
-                label={opt.label}
-              />
-            ))}
-          </RadioGroup>
-          {ctrl.helperText && <FormHelperText>{ctrl.helperText}</FormHelperText>}
-        </FormControl>
-      );
-
-    case "email":
-      return <TextField {...common} type="email" InputProps={trailingIcon(Icon)} />;
-
-    case "phone":
-    case "tel":
-    case "code":
-    case "text":
-    default:
-      return <TextField {...common} type="text" InputProps={trailingIcon(Icon)} />;
-  }
+/* ------------------------------------------------------------------ *
+ *  Field-type registry — the extension point. `field.type` looks up a
+ *  renderer here; unknown types fall back to text.
+ * ------------------------------------------------------------------ */
+const FIELD_TYPES = {
+  text: TextInput,
+  email: EmailInput,
+  phone: TextInput,
+  tel: TextInput,
+  code: TextInput,
+  number: NumberInput,
+  password: PasswordInput,
+  textarea: TextareaInput,
+  multiline: TextareaInput,
+  select: SelectInput,
+  dropdown: SelectInput,
+  checkbox: CheckboxInput,
+  switch: SwitchInput,
+  radio: RadioInput,
 };
 
 // Field types that render their own label inline — skip the standalone label.
 const SELF_LABELLED = new Set(["checkbox", "switch", "radio"]);
 
 /**
- * formikControl — derive a field's full control object from a Formik bag, so
- * onChange, onBlur (touch), error, helperText and the password toggle are ALL
- * wired dynamically. Nothing per-field is hand-written on the page.
- *
- *   showValues — map of `visibilityKey` -> boolean (password shown?)
- *   toggles    — map of `visibilityKey` -> toggle handler
+ * Register (or override) a field type app-wide. e.g.
+ *   registerFieldType("color", ColorInput)
+ * then any config can use `{ type: "color", ... }`.
  */
-export const formikControl = (formik, { showValues = {}, toggles = {} } = {}) => (field) => {
-  const { name, helperText, visibilityKey } = field;
+export const registerFieldType = (type, component) => {
+  FIELD_TYPES[type] = component;
+};
+
+/**
+ * RenderInput — dispatch a single field to its renderer. `field.render` lets a
+ * config supply a one-off custom component without touching the registry.
+ */
+export const RenderInput = ({ field, ctrl }) => {
+  const Renderer = field.render || FIELD_TYPES[field.type] || FIELD_TYPES.text;
+  return <Renderer field={field} ctrl={ctrl} />;
+};
+
+/* ------------------------------------------------------------------ *
+ *  Adapters — turn a form library's state into the `control(field)`
+ *  contract: { value, onChange, onBlur, error, helperText, onEnter, setValue }
+ * ------------------------------------------------------------------ */
+
+/**
+ * formikControl — derive every field's control object from a Formik bag, so
+ * onChange, onBlur (touch), error and helperText are ALL wired dynamically.
+ * Password visibility is handled inside the field itself, so nothing extra is
+ * threaded from the page.
+ */
+export const formikControl = (formik) => (field) => {
+  const { name, helperText } = field;
   const touched = formik.touched[name];
   const error = formik.errors[name];
   const showError = Boolean(touched && error);
   return {
     value: formik.values[name],
     onChange: formik.handleChange,
-    onBlur: formik.handleBlur, // marks the field touched → drives onError display
+    onBlur: formik.handleBlur,
     error: showError,
     helperText: (showError && error) || helperText,
     onEnter: field.submitOnEnter ? formik.submitForm : undefined,
-    password: visibilityKey
-      ? {
-          visible: showValues[visibilityKey],
-          onToggle: toggles[visibilityKey],
-          onMouseDown: (e) => e.preventDefault(),
-        }
-      : undefined,
+    setValue: (v) => formik.setFieldValue(name, v),
   };
 };
 
 /**
- * RenderForm — lay out any list of fields on a responsive grid. Each field's
- * `grid` config (e.g. `{ xs: 12, sm: 6 }`) sets how many columns it spans, so
- * the layout is fully data-driven: two fields side-by-side on wide screens,
- * stacked on mobile, all without touching JSX.
+ * controlledControl — adapter for plain useState forms. Pass a map of
+ *   name -> { value, set, error, onEnter }
+ * and it produces the same control contract.
+ */
+export const controlledControl = (map) => (field) => {
+  const entry = map[field.name] || {};
+  return {
+    value: entry.value,
+    onChange: (e) =>
+      entry.set?.(e?.target?.type === "checkbox" ? e.target.checked : e?.target?.value ?? e),
+    onBlur: entry.onBlur,
+    error: Boolean(entry.error),
+    helperText: entry.error || field.helperText,
+    onEnter: field.submitOnEnter ? entry.onEnter : undefined,
+    setValue: entry.set,
+  };
+};
+
+/* ------------------------------------------------------------------ *
+ *  RenderForm — the responsive, data-driven layout
+ * ------------------------------------------------------------------ */
+
+// Normalize a field's column config into a responsive `gridColumn` value for a
+// 12-column CSS grid. Accepts a `span` shorthand or a full `grid` breakpoint
+// object ({ xs: 12, sm: 6 }). CSS grid has no negative margins, so fields stay
+// flush-left with the rest of the form (no spacing-induced shift).
+const columnFor = (field) => {
+  const toSpan = (n) => `span ${n}`;
+  if (field.grid) {
+    return Object.fromEntries(
+      Object.entries(field.grid).map(([bp, n]) => [bp, toSpan(n)])
+    );
+  }
+  if (field.span) return { xs: "span 12", sm: toSpan(field.span) };
+  return { xs: "span 12" };
+};
+
+/**
+ * RenderForm — lay out a list of fields on a responsive grid, fully data-driven.
  *
- * Pass EITHER:
- *   formik  — a Formik bag; change / touch / error / helperText are auto-wired
- *             (use `showValues` + `toggles` for password fields), OR
- *   control — `control(field)` returns a custom normalized control object
- *             (for forms not backed by Formik).
+ * Source (pick one):
+ *   formik  — a Formik bag (change / touch / error / helperText auto-wired), OR
+ *   control — a `control(field)` adapter (e.g. from `controlledControl`).
  *
- * Set `animate={false}` to drop the per-field entrance motion.
+ * Dynamic per-field config:
+ *   span | grid   — column width  ({ xs:12, sm:6 } or span:6)
+ *   showIf(vals)  — render only when it returns true
+ *   disabled(vals)/required — static or `(values) => boolean`
+ *   render        — custom one-off component
+ *
+ * `animate={false}` drops the entrance motion. `values` overrides the value
+ * source used for showIf/disabled (defaults to formik.values).
  */
 export const RenderForm = ({
   fields,
   formik,
   control,
-  showValues,
-  toggles,
+  values,
   spacing = 2.5,
   animate = true,
 }) => {
-  const resolve = control || formikControl(formik, { showValues, toggles });
+  const resolve = control || formikControl(formik);
+  const formValues = values || formik?.values || {};
   const Item = animate ? MotionBox : Box;
+
   return (
-    <Grid container spacing={spacing}>
-      {fields.map((field) => {
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(12, 1fr)",
+        gap: spacing,
+        width: "100%",
+      }}
+    >
+      {fields.map((raw) => {
+        // Conditional visibility.
+        if (raw.showIf && !raw.showIf(formValues)) return null;
+
+        // Resolve dynamic per-field flags against current form values.
+        const field = {
+          ...raw,
+          disabled: resolveDynamic(raw.disabled, formValues),
+          required: resolveDynamic(raw.required, formValues),
+        };
+
         const showLabel = field.label && !SELF_LABELLED.has(field.type);
         return (
-          <Grid item key={field.name} xs={12} {...field.grid}>
-            <Item variants={animate ? fieldItem : undefined}>
-              {showLabel && <Typography sx={labelSx}>{field.label}</Typography>}
-              {RenderInput(field, resolve(field))}
-            </Item>
-          </Grid>
+          <Item
+            key={field.name}
+            variants={animate ? fieldItem : undefined}
+            sx={{ gridColumn: columnFor(field), minWidth: 0 }}
+          >
+            {showLabel && (
+              <Typography sx={labelSx}>
+                {field.label}
+                {field.required && <Box component="span" sx={{ color: "error.main", ml: 0.25 }}>*</Box>}
+              </Typography>
+            )}
+            <RenderInput field={field} ctrl={resolve(field)} />
+          </Item>
         );
       })}
-    </Grid>
+    </Box>
   );
 };
 

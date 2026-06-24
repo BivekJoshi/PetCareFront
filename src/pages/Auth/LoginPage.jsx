@@ -18,7 +18,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import OtpForm from "../../components/auth/OtpForm";
-import { RenderForm } from "../../components/common/RenderInput";
+import { RenderForm, controlledControl } from "../../components/common/RenderInput";
 import {
   loginFields,
   signupFields,
@@ -97,7 +97,7 @@ const formVariants = {
 
 /* ----------------------------- Login form ----------------------------- */
 const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
-  const { formik, showValues, loading, handleClickShowPassword } = useLoginForm();
+  const { formik, loading } = useLoginForm();
 
   return (
     <MotionBox variants={container} initial="hidden" animate="show">
@@ -111,12 +111,7 @@ const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <RenderForm
-          fields={loginFields}
-          formik={formik}
-          showValues={showValues}
-          toggles={{ showPassword: handleClickShowPassword }}
-        />
+        <RenderForm fields={loginFields} formik={formik} />
 
         <MotionBox
           variants={item}
@@ -184,7 +179,6 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
   const {
     formik,
     loading,
-    showValues,
     step,
     channel,
     destination,
@@ -194,8 +188,6 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
     verifyLater,
     verifying,
     resending,
-    handleClickShowPassword,
-    handleClickShowConfirmPassword,
   } = useSignupForm();
 
   // Step 2 — OTP verification (one step per enabled channel).
@@ -241,15 +233,7 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <RenderForm
-          fields={signupFields}
-          formik={formik}
-          showValues={showValues}
-          toggles={{
-            showPassword: handleClickShowPassword,
-            showConfirmPassword: handleClickShowConfirmPassword,
-          }}
-        />
+        <RenderForm fields={signupFields} formik={formik} />
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
           <LoadingButton
@@ -306,8 +290,6 @@ const ForgotPasswordForm = ({ onBack }) => {
     confirm,
     setConfirm,
     errors,
-    showPw,
-    toggleShowPw,
     sendCode,
     resend,
     submitReset,
@@ -315,35 +297,21 @@ const ForgotPasswordForm = ({ onBack }) => {
     resetting,
   } = useForgotPasswordForm({ onDone: onBack });
 
-  // This flow drives plain useState (not Formik), so adapt each step's state
-  // into the normalized control object `RenderInput` expects.
-  const requestControl = (field) => ({
-    value: email,
-    onChange: (e) => setEmail(e.target.value),
-    error: Boolean(errors.email),
-    helperText: errors.email || field.helperText,
-    onEnter: field.submitOnEnter ? sendCode : undefined,
+  // This flow drives plain useState (not Formik) — `controlledControl` maps each
+  // field's state into the same control contract the Formik forms use.
+  const requestControl = controlledControl({
+    email: { value: email, set: setEmail, error: errors.email, onEnter: sendCode },
   });
 
-  const resetState = {
-    code: { value: code, onChange: (e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6)) },
-    password: { value: password, onChange: (e) => setPassword(e.target.value) },
-    confirmPassword: { value: confirm, onChange: (e) => setConfirm(e.target.value), errorKey: "confirm" },
-  };
-  const resetControl = (field) => {
-    const entry = resetState[field.name] || {};
-    const errKey = entry.errorKey || field.name;
-    return {
-      value: entry.value,
-      onChange: entry.onChange,
-      error: Boolean(errors[errKey]),
-      helperText: errors[errKey] || field.helperText,
-      onEnter: field.submitOnEnter ? submitReset : undefined,
-      password: field.visibilityKey
-        ? { visible: showPw, onToggle: toggleShowPw, onMouseDown: (e) => e.preventDefault() }
-        : undefined,
-    };
-  };
+  const resetControl = controlledControl({
+    code: {
+      value: code,
+      set: (v) => setCode(String(v).replace(/\D/g, "").slice(0, 6)),
+      error: errors.code,
+    },
+    password: { value: password, set: setPassword, error: errors.password },
+    confirmPassword: { value: confirm, set: setConfirm, error: errors.confirm, onEnter: submitReset },
+  });
 
   // Step 1 — request a reset code by email.
   if (step === "request") {
