@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import {
   Alert,
@@ -9,12 +9,18 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
 } from "@mui/material";
 import ErrorOutlineRoundedIcon from "@mui/icons-material/ErrorOutlineRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import { getAuthConfig, otpApi } from "../../api/auth/auth-api";
 import OtpForm from "./OtpForm";
+
+// How long a dismissed banner stays hidden before it reappears on its own.
+// Dismissal is in-memory only, so a page refresh also brings it straight back.
+const REAPPEAR_MS = 5 * 60 * 1000; // 5 minutes
 
 const errorMessage = (error, fallback) =>
   error?.response?.data?.message || error?.message || fallback;
@@ -43,6 +49,14 @@ const ChannelBanner = ({ channel, destination, onVerified }) => {
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  // Bring the banner back automatically a while after it was dismissed.
+  useEffect(() => {
+    if (!dismissed) return undefined;
+    const timer = setTimeout(() => setDismissed(false), REAPPEAR_MS);
+    return () => clearTimeout(timer);
+  }, [dismissed]);
 
   const start = async () => {
     setOpen(true);
@@ -83,25 +97,37 @@ const ChannelBanner = ({ channel, destination, onVerified }) => {
 
   return (
     <>
-      <Alert
-        severity="warning"
-        icon={<ErrorOutlineRoundedIcon />}
-        action={
-          <Button color="inherit" size="small" onClick={start} disabled={sending}>
-            Verify now
-          </Button>
-        }
-        sx={{ borderRadius: 0, alignItems: "center" }}
-      >
-        Your {META[channel].label} isn&apos;t verified.
-        <Chip
-          label="Unverified"
-          size="small"
-          color="warning"
-          variant="outlined"
-          sx={{ ml: 1, height: 20, fontWeight: 700 }}
-        />
-      </Alert>
+      {!dismissed && (
+        <Alert
+          severity="warning"
+          icon={<ErrorOutlineRoundedIcon />}
+          action={
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Button color="inherit" size="small" onClick={start} disabled={sending}>
+                Verify now
+              </Button>
+              <IconButton
+                color="inherit"
+                size="small"
+                aria-label="Dismiss"
+                onClick={() => setDismissed(true)}
+              >
+                <CloseRoundedIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          }
+          sx={{ borderRadius: 0, alignItems: "center" }}
+        >
+          Your {META[channel].label} isn&apos;t verified.
+          <Chip
+            label="Unverified"
+            size="small"
+            color="warning"
+            variant="outlined"
+            sx={{ ml: 1, height: 20, fontWeight: 700 }}
+          />
+        </Alert>
+      )}
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ fontWeight: 700 }}>

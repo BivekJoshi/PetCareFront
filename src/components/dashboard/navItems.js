@@ -23,6 +23,9 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import AutoDeleteOutlinedIcon from "@mui/icons-material/AutoDeleteOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { ROLES } from "../../constants/domain";
 
 const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
@@ -86,6 +89,13 @@ export const NAV_SECTIONS = [
         to: "/app/chat",
         icon: ChatOutlinedIcon,
       },
+      {
+        label: "Request Role Change",
+        to: "/app/account/role-request",
+        icon: BadgeOutlinedIcon,
+        // Vets/staff can apply to become an admin; admins don't need this.
+        roles: [VET],
+      },
     ],
   },
   {
@@ -117,6 +127,16 @@ export const NAV_SECTIONS = [
         icon: AdminPanelSettingsOutlinedIcon,
         roles: [ADMIN, SUPER_ADMIN],
         children: [
+          {
+            label: "User Management",
+            to: "/app/admin/users",
+            icon: ManageAccountsOutlinedIcon,
+          },
+          {
+            label: "Role Requests",
+            to: "/app/admin/role-requests",
+            icon: HowToRegOutlinedIcon,
+          },
           {
             label: "Chat Retention",
             to: "/app/admin/chat-retention",

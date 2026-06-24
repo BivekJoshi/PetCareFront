@@ -353,6 +353,60 @@ export const themeSettings = (mode = "light") => {
           },
         },
       },
+      // Global form-field styling — every TextField / Select across the app
+      // (auth, dashboard, dialogs) inherits this, so inputs stay consistent:
+      // rounded, compact, with a clear teal focus ring. Adapts to light/dark.
+      MuiTextField: {
+        defaultProps: {
+          size: "small", // a touch shorter than the default for a tighter form
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: 12,
+            backgroundColor: isDark
+              ? "rgba(255,255,255,0.04)"
+              : "rgba(255,255,255,0.9)",
+            transition:
+              "box-shadow .2s ease, border-color .2s ease, background-color .2s ease",
+            "& .MuiOutlinedInput-notchedOutline": {
+              borderColor: divider,
+              transition: "border-color .2s ease",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+              borderColor: alpha(primaryMain, 0.6),
+            },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: primaryMain,
+              borderWidth: 1.5,
+            },
+            "&.Mui-focused": {
+              backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "#fff",
+              boxShadow: `0 0 0 4px ${alpha(primaryMain, 0.14)}`,
+            },
+            "&.Mui-error.Mui-focused": {
+              boxShadow: `0 0 0 4px ${alpha(palette.error.red, 0.14)}`,
+            },
+          },
+          input: {
+            // Slightly reduced height for a more compact field.
+            paddingTop: 11,
+            paddingBottom: 11,
+            fontSize: "0.95rem",
+            "&::placeholder": { opacity: 0.65 },
+          },
+        },
+      },
+      MuiFormHelperText: {
+        styleOverrides: {
+          root: {
+            marginLeft: 2,
+            marginTop: 4,
+            fontSize: "0.78rem",
+          },
+        },
+      },
       MuiPaper: {
         styleOverrides: {
           rounded: { borderRadius: 16 },

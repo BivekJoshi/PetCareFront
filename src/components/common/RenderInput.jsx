@@ -61,7 +61,7 @@ const baseProps = (field, ctrl) => ({
   required: field.required,
   disabled: field.disabled,
   autoFocus: field.autoFocus,
-  size: field.size || "medium",
+  size: field.size, // undefined → inherits the theme's global default (small)
   fullWidth: true,
   variant: field.variant || "outlined",
   placeholder: field.placeholder,

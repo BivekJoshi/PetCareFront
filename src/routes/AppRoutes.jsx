@@ -5,7 +5,7 @@ import Loadable from "../components/loader/Loadable";
 import AppLayout from "../components/Layout/AppLayout";
 import ProtectedRoute from "../components/routing/ProtectedRoute";
 import LightThemeScope from "../theme/LightThemeScope";
-import { AuthProvider } from "../context/AuthContext";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 import ScrollToTop from "../utility/ScrollToTop";
 import { ROLES } from "../constants/domain";
 
@@ -16,13 +16,22 @@ const LandingPage = Loadable(
   lazy(() => import("../pages/LandingPage/LandingPage"))
 );
 
-// Dashboard (protected) area
-const DashboardLayout = Loadable(
-  lazy(() => import("../components/dashboard/DashboardLayout"))
-);
+// Dashboard (protected) area — AppShell picks the owner vs staff shell by role.
+const AppShell = Loadable(lazy(() => import("../components/owner/AppShell")));
 const DashboardHome = Loadable(
   lazy(() => import("../pages/Dashboard/DashboardHome"))
 );
+
+// Pet-owner mobile experience (rendered for PET_OWNER inside OwnerLayout).
+const OwnerHome = Loadable(lazy(() => import("../pages/Owner/OwnerHome")));
+const OwnerPets = Loadable(lazy(() => import("../pages/Owner/OwnerPets")));
+const OwnerAppointments = Loadable(
+  lazy(() => import("../pages/Owner/OwnerAppointments"))
+);
+const OwnerReminders = Loadable(
+  lazy(() => import("../pages/Owner/OwnerReminders"))
+);
+const OwnerProfile = Loadable(lazy(() => import("../pages/Owner/OwnerProfile")));
 const PetsPage = Loadable(lazy(() => import("../pages/Pets/PetsPage")));
 const AppointmentsPage = Loadable(
   lazy(() => import("../pages/Appointments/AppointmentsPage"))
@@ -53,13 +62,31 @@ const AuthSettingsPage = Loadable(
 const EmailTemplatesPage = Loadable(
   lazy(() => import("../pages/Admin/EmailTemplatesPage"))
 );
+const UserManagementPage = Loadable(
+  lazy(() => import("../pages/Admin/UserManagementPage"))
+);
+const RoleRequestsPage = Loadable(
+  lazy(() => import("../pages/Admin/RoleRequestsPage"))
+);
+const RoleRequestPage = Loadable(
+  lazy(() => import("../pages/Account/RoleRequestPage"))
+);
 
 const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
 const UnauthorizedPage = Loadable(
   lazy(() => import("../pages/Error/UnauthorizedPage"))
 );
 
-const { SUPER_ADMIN, ADMIN, VET } = ROLES;
+const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
+
+// Render the owner-tailored page for pet owners, the staff page otherwise.
+const byRole = (OwnerEl, StaffEl) => {
+  const RoleRoute = () => {
+    const { role } = useAuth();
+    return role === PET_OWNER ? <OwnerEl /> : <StaffEl />;
+  };
+  return <RoleRoute />;
+};
 
 const AppRoutes = () => {
   return (
@@ -100,15 +127,23 @@ const AppRoutes = () => {
 
           {/* Protected dashboard */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/app" element={<DashboardLayout />}>
-              <Route index element={<DashboardHome />} />
-              <Route path="pets" element={<PetsPage />} />
-              <Route path="reminders" element={<RemindersPage />} />
-              <Route path="appointments" element={<AppointmentsPage />} />
+            <Route path="/app" element={<AppShell />}>
+              <Route index element={byRole(OwnerHome, DashboardHome)} />
+              <Route path="pets" element={byRole(OwnerPets, PetsPage)} />
+              <Route
+                path="reminders"
+                element={byRole(OwnerReminders, RemindersPage)}
+              />
+              <Route
+                path="appointments"
+                element={byRole(OwnerAppointments, AppointmentsPage)}
+              />
               <Route path="services" element={<ServicesPage />} />
               <Route path="vets" element={<VetsPage />} />
               <Route path="chat" element={<ChatPage />} />
+              <Route path="profile" element={<OwnerProfile />} />
               <Route path="account/security" element={<SecurityPage />} />
+              <Route path="account/role-request" element={<RoleRequestPage />} />
 
               {/* Vet + admin only */}
               <Route element={<ProtectedRoute roles={[VET, ADMIN, SUPER_ADMIN]} />}>
@@ -118,6 +153,8 @@ const AppRoutes = () => {
               {/* Government / admin only */}
               <Route element={<ProtectedRoute roles={[ADMIN, SUPER_ADMIN]} />}>
                 <Route path="insights" element={<InsightsPage />} />
+                <Route path="admin/users" element={<UserManagementPage />} />
+                <Route path="admin/role-requests" element={<RoleRequestsPage />} />
                 <Route path="admin/chat-retention" element={<ChatRetentionPage />} />
               </Route>
 

@@ -75,6 +75,26 @@ export const ROLES = {
   PET_OWNER: "PET_OWNER",
 };
 
+// Roles a user may request for themselves (mirrors REQUESTABLE_ROLES on the API).
+export const REQUESTABLE_ROLES = ["VET", "ADMIN"];
+
+// Every assignable role — used by the admin "change role" picker.
+export const ASSIGNABLE_ROLES = ["SUPER_ADMIN", "ADMIN", "VET", "PET_OWNER"];
+
+export const ROLE_REQUEST_STATUSES = [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+];
+
+export const ROLE_REQUEST_STATUS_COLORS = {
+  PENDING: "warning",
+  APPROVED: "success",
+  REJECTED: "error",
+  CANCELLED: "default",
+};
+
 export const isAdmin = (role) =>
   role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN;
 
