@@ -536,6 +536,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
           >
             <Box sx={{ position: "relative", display: "inline-flex" }}>
               <Avatar
+                src={user?.avatarUrl || undefined}
                 sx={{
                   bgcolor: "primary.main",
                   width: 30,

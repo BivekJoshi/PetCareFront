@@ -46,6 +46,7 @@ const OwnerProfile = () => {
       {/* Identity card */}
       <Card variant="outlined" sx={{ borderRadius: 4, p: 2.5, textAlign: "center", mb: 2 }}>
         <Avatar
+          src={user?.avatarUrl || undefined}
           sx={{
             width: 76,
             height: 76,

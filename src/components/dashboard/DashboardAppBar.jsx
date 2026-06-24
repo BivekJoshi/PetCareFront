@@ -231,7 +231,7 @@ const DashboardAppBar = ({
         </Tooltip>
 
         <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size="small">
-          <Avatar sx={{ bgcolor: "primary.main", width: 38, height: 38 }}>
+          <Avatar src={user?.avatarUrl || undefined} sx={{ bgcolor: "primary.alt", width: 38, height: 38 }}>
             {initials || "U"}
           </Avatar>
         </IconButton>

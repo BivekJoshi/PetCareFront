@@ -148,6 +148,7 @@ const OwnerLayout = () => {
                 onClick={() => navigate("/app/profile")}
               >
                 <Avatar
+                  src={user?.avatarUrl || undefined}
                   sx={{
                     width: 40,
                     height: 40,
