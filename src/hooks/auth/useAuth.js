@@ -5,6 +5,7 @@ import {
   loginRequest,
   registerRequest,
   logoutRequest,
+  uploadAvatarRequest,
 } from "../../api/auth/auth-api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -42,6 +43,20 @@ export const useSignup = () => {
       navigate(homeFor(data?.userType), { replace: true });
     },
     onError: (error) => toast.error(errorMessage(error, "Registration failed")),
+  });
+};
+
+/*________________________AVATAR____________________________________*/
+export const useUploadAvatar = () => {
+  const { updateUser } = useAuth();
+
+  return useMutation((file) => uploadAvatarRequest(file), {
+    onSuccess: (user) => {
+      // Server returns the updated user; sync the new photo into the session.
+      if (user?.avatarUrl) updateUser({ avatarUrl: user.avatarUrl });
+      toast.success("Profile photo updated");
+    },
+    onError: (error) => toast.error(errorMessage(error, "Could not update photo")),
   });
 };
 

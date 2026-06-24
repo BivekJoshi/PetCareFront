@@ -56,6 +56,7 @@ const ClickLayer = ({ value, onChange }) => {
 const LocationPicker = ({ value, onChange, height = 300, label }) => {
   const [map, setMap] = useState(null);
   const [locating, setLocating] = useState(false);
+  const [accuracy, setAccuracy] = useState(null);
   const [error, setError] = useState("");
 
   // Manual lat/lng fields (strings so partial typing isn't clobbered).
@@ -84,20 +85,47 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
     }
     setError("");
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
+    setAccuracy(null);
+
+    // A single getCurrentPosition often returns the coarse network fix that
+    // arrives before the GPS lock settles. Watch for a few seconds and keep
+    // the most accurate reading; stop early once it's good enough.
+    let best = null;
+    const GOOD_ENOUGH_M = 25; // metres — accept and stop watching
+    const MAX_WATCH_MS = 12000;
+
+    const finish = () => {
+      navigator.geolocation.clearWatch(watchId);
+      clearTimeout(timer);
+      setLocating(false);
+      if (best) {
+        onChange({ latitude: best.latitude, longitude: best.longitude });
+        setAccuracy(best.accuracy);
+        flyTo(best.latitude, best.longitude);
+      } else {
+        setError("Could not get your location.");
+      }
+    };
+
+    const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        const latitude = pos.coords.latitude;
-        const longitude = pos.coords.longitude;
-        onChange({ latitude, longitude });
-        flyTo(latitude, longitude);
-        setLocating(false);
+        const { latitude, longitude, accuracy } = pos.coords;
+        if (!best || accuracy < best.accuracy) {
+          best = { latitude, longitude, accuracy };
+        }
+        if (best.accuracy <= GOOD_ENOUGH_M) finish();
       },
       (err) => {
-        setError(err.message || "Could not get your location.");
+        navigator.geolocation.clearWatch(watchId);
+        clearTimeout(timer);
         setLocating(false);
+        setError(err.message || "Could not get your location.");
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      // maximumAge: 0 forces a fresh fix instead of a stale cached one.
+      { enableHighAccuracy: true, timeout: MAX_WATCH_MS, maximumAge: 0 }
     );
+
+    const timer = setTimeout(finish, MAX_WATCH_MS);
   };
 
   // Apply the manually-typed coordinates (called on blur / Enter).
@@ -120,6 +148,7 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
       return;
     }
     setError("");
+    setAccuracy(null);
     onChange({ latitude, longitude });
     flyTo(latitude, longitude);
   };
@@ -129,6 +158,7 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
     setError("");
     resolveLink.mutate(link.trim(), {
       onSuccess: (coords) => {
+        setAccuracy(null);
         onChange(coords);
         flyTo(coords.latitude, coords.longitude);
         setLink("");
@@ -172,7 +202,11 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
           </Button>
         )}
         <Typography variant="caption" color="text.secondary">
-          {hasValue ? "Drag the pin to fine-tune." : "Tip: click the map to drop a pin."}
+          {accuracy != null
+            ? `Accurate to ~${Math.round(accuracy)} m — drag the pin to fine-tune.`
+            : hasValue
+            ? "Drag the pin to fine-tune."
+            : "Tip: click the map to drop a pin."}
         </Typography>
       </Stack>
 

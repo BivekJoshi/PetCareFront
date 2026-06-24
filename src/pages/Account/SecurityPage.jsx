@@ -14,8 +14,11 @@ import { LoadingButton } from "@mui/lab";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import PageHeader from "../../components/common/PageHeader";
+import AvatarUploader from "../../components/common/AvatarUploader";
 import { useAuth } from "../../context/AuthContext";
 import { usePassword } from "../../hooks/auth/usePassword";
+import { fullName } from "../../utility/format";
+import { humanize } from "../../constants/domain";
 
 // Reusable password input with a show/hide toggle.
 const PasswordField = ({ label, value, onChange, error, onEnter, autoFocus }) => {
@@ -56,7 +59,7 @@ const PasswordField = ({ label, value, onChange, error, onEnter, autoFocus }) =>
  * Which form shows is driven by the stored user's `hasPassword` flag.
  */
 const SecurityPage = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const { setPassword, changePassword } = usePassword();
   const hasPassword = Boolean(user?.hasPassword);
   const busy = setPassword.isLoading || changePassword.isLoading;
@@ -107,6 +110,26 @@ const SecurityPage = () => {
             : "Add a password so you can sign in with your email and password too."
         }
       />
+
+      {/* Profile identity + photo */}
+      <Card variant="outlined" sx={{ borderRadius: 3, maxWidth: 520, mb: 2 }}>
+        <CardContent>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <AvatarUploader size={64} fallback="U" />
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700 }} noWrap>
+                {fullName(user) || "Your account"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" noWrap>
+                {user?.email}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {humanize(role || "")} · Tap the photo to change it
+              </Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
 
       <Card variant="outlined" sx={{ borderRadius: 3, maxWidth: 520 }}>
         <CardContent>

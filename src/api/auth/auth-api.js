@@ -17,6 +17,18 @@ export const googleAuthRequest = ({ accessToken }) =>
 
 export const getMe = () => axiosInstance.get("/auth/me").then(unwrap);
 
+// Upload / change the signed-in user's profile photo. Sends the image as
+// multipart `avatar` and returns the updated user (with the new avatarUrl).
+export const uploadAvatarRequest = (file) => {
+  const form = new FormData();
+  form.append("avatar", file);
+  return axiosInstance
+    .post("/auth/avatar", form, {
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+    .then(unwrap);
+};
+
 // Public auth config (e.g. whether phone OTP verification is required).
 export const getAuthConfig = () => axiosInstance.get("/auth/config").then(unwrap);
 

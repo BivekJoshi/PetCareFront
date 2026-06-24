@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import {
-  Avatar,
   Box,
   Card,
   Divider,
@@ -21,6 +20,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 
+import AvatarUploader from "../../components/common/AvatarUploader";
 import { useAuth } from "../../context/AuthContext";
 import { useColorMode } from "../../context/ColorModeContext";
 import { useLogout } from "../../hooks/auth/useAuth";
@@ -33,32 +33,11 @@ const OwnerProfile = () => {
   const { mode, toggleMode } = useColorMode();
   const { mutate: logout } = useLogout();
 
-  const initials = fullName(user)
-    .split(" ")
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
   return (
     <Box>
       {/* Identity card */}
       <Card variant="outlined" sx={{ borderRadius: 4, p: 2.5, textAlign: "center", mb: 2 }}>
-        <Avatar
-          src={user?.avatarUrl || undefined}
-          sx={{
-            width: 76,
-            height: 76,
-            fontSize: "1.6rem",
-            fontWeight: 800,
-            bgcolor: "primary.main",
-            mx: "auto",
-            mb: 1.25,
-          }}
-        >
-          {initials || "🐾"}
-        </Avatar>
+        <AvatarUploader size={76} fallback="🐾" sx={{ mb: 1.25 }} />
         <Typography sx={{ fontWeight: 800, fontSize: "1.2rem" }}>
           {fullName(user) || "Pet parent"}
         </Typography>
