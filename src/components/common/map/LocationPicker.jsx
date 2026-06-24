@@ -1,13 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Marker, useMap, useMapEvents } from "react-leaflet";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, CircularProgress, Stack, Typography } from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import ClearIcon from "@mui/icons-material/Clear";
 import MapView from "./MapView";
@@ -17,7 +10,9 @@ import { DEFAULT_CENTER } from "./leafletSetup";
 // "use current location" button can pan/zoom to a new point.
 const MapReady = ({ onReady }) => {
   const map = useMap();
-  onReady(map);
+  useEffect(() => {
+    onReady(map);
+  }, [map, onReady]);
   return null;
 };
 

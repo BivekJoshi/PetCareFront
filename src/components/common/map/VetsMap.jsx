@@ -4,12 +4,8 @@ import { Box, Chip, Link, Stack, Typography } from "@mui/material";
 import PhoneIcon from "@mui/icons-material/Phone";
 import PlaceIcon from "@mui/icons-material/Place";
 import MapView from "./MapView";
-import L, { DEFAULT_CENTER } from "./leafletSetup";
+import L, { DEFAULT_CENTER, vetsWithLocation } from "./leafletSetup";
 import { fullName } from "../../../utility/format";
-
-// Keep only vets that actually have coordinates to plot.
-export const vetsWithLocation = (vets = []) =>
-  vets.filter((v) => v.latitude != null && v.longitude != null);
 
 // Pans/zooms the map so every plotted vet fits in view.
 const FitBounds = ({ points }) => {

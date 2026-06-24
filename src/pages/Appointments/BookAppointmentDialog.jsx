@@ -12,6 +12,7 @@ import {
 import { usePets } from "../../hooks/pets/usePets";
 import { useServices } from "../../hooks/services/useServices";
 import { useVets } from "../../hooks/vets/useVets";
+import LocationPicker from "../../components/common/map/LocationPicker";
 import { toDateTimeLocal, fullName } from "../../utility/format";
 
 const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
@@ -26,6 +27,7 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
     scheduledAt: toDateTimeLocal(),
     reason: "",
   });
+  const [location, setLocation] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -37,6 +39,7 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
         scheduledAt: toDateTimeLocal(),
         reason: "",
       });
+      setLocation(null);
       setError("");
     }
   }, [open]);
@@ -59,11 +62,14 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
       ...(values.serviceId ? { serviceId: values.serviceId } : {}),
       ...(values.vetId ? { vetId: values.vetId } : {}),
       ...(values.reason.trim() ? { reason: values.reason.trim() } : {}),
+      ...(location
+        ? { latitude: location.latitude, longitude: location.longitude }
+        : {}),
     });
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Book an appointment</DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ mt: 1 }}>
@@ -132,6 +138,13 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
             fullWidth
             multiline
             minRows={2}
+          />
+
+          <LocationPicker
+            label="Your location (optional) — helps the vet reach you"
+            value={location}
+            onChange={setLocation}
+            height={260}
           />
         </Stack>
       </DialogContent>

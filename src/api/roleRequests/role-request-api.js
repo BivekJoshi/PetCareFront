@@ -5,10 +5,20 @@ const unwrap = (res) => res.data?.data;
 // ── User: submit + manage your own requests ──
 
 // Submit a role-change request with optional supporting documents (File[]).
-export const createRoleRequest = ({ requestedRole, reason, documents = [] }) => {
+export const createRoleRequest = ({
+  requestedRole,
+  reason,
+  documents = [],
+  latitude,
+  longitude,
+}) => {
   const form = new FormData();
   form.append("requestedRole", requestedRole);
   if (reason) form.append("reason", reason);
+  if (latitude != null && longitude != null) {
+    form.append("latitude", latitude);
+    form.append("longitude", longitude);
+  }
   documents.forEach((file) => form.append("documents", file));
   return axiosInstance
     .post("/role-requests", form, {

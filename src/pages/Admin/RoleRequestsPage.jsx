@@ -27,8 +27,10 @@ import {
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import PageHeader from "../../components/common/PageHeader";
 import QueryState from "../../components/common/QueryState";
+import VetsMap from "../../components/common/map/VetsMap";
 import {
   useRoleRequests,
   useReviewRoleRequest,
@@ -165,7 +167,7 @@ const RoleRequestsPage = () => {
       </QueryState>
 
       {/* Review dialog */}
-      <Dialog open={Boolean(selected)} onClose={closeReview} maxWidth="sm" fullWidth>
+      <Dialog open={Boolean(selected)} onClose={closeReview} maxWidth="md" fullWidth>
         {selected && (
           <>
             <DialogTitle sx={{ fontWeight: 700 }}>
@@ -234,6 +236,45 @@ const RoleRequestsPage = () => {
                   ) : (
                     <Typography variant="body2" color="text.secondary">
                       No documents attached.
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                    Requested location
+                  </Typography>
+                  {selected.latitude != null && selected.longitude != null ? (
+                    <Stack spacing={1}>
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        icon={<PlaceOutlinedIcon />}
+                        label={`${selected.latitude.toFixed(5)}, ${selected.longitude.toFixed(5)}`}
+                        component={Link}
+                        href={`https://www.openstreetmap.org/?mlat=${selected.latitude}&mlon=${selected.longitude}#map=15/${selected.latitude}/${selected.longitude}`}
+                        target="_blank"
+                        rel="noopener"
+                        clickable
+                        sx={{ alignSelf: "flex-start" }}
+                      />
+                      <VetsMap
+                        height={240}
+                        vets={[
+                          {
+                            id: selected.id,
+                            latitude: selected.latitude,
+                            longitude: selected.longitude,
+                            specialization: "Applicant",
+                            isAvailable: true,
+                            user: selected.user,
+                          },
+                        ]}
+                      />
+                    </Stack>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      No location provided.
                     </Typography>
                   )}
                 </Box>

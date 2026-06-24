@@ -19,4 +19,8 @@ L.Icon.Default.mergeOptions({
 export const DEFAULT_CENTER = [27.7172, 85.324];
 export const DEFAULT_ZOOM = 12;
 
+// Keep only records that actually have coordinates to plot.
+export const vetsWithLocation = (vets = []) =>
+  vets.filter((v) => v.latitude != null && v.longitude != null);
+
 export default L;

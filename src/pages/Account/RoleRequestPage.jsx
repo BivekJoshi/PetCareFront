@@ -18,8 +18,10 @@ import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import UploadFileOutlinedIcon from "@mui/icons-material/UploadFileOutlined";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import PageHeader from "../../components/common/PageHeader";
 import QueryState from "../../components/common/QueryState";
+import LocationPicker from "../../components/common/map/LocationPicker";
 import { useAuth } from "../../context/AuthContext";
 import {
   useMyRoleRequests,
@@ -49,6 +51,7 @@ const RoleRequestPage = () => {
   const [requestedRole, setRequestedRole] = useState("");
   const [reason, setReason] = useState("");
   const [files, setFiles] = useState([]);
+  const [location, setLocation] = useState(null);
 
   const requests = query.data || [];
   const hasPending = requests.some((r) => r.status === "PENDING");
@@ -75,12 +78,20 @@ const RoleRequestPage = () => {
   const handleSubmit = () => {
     if (!canSubmit) return;
     submit.mutate(
-      { requestedRole, reason: reason.trim(), documents: files },
+      {
+        requestedRole,
+        reason: reason.trim(),
+        documents: files,
+        ...(location
+          ? { latitude: location.latitude, longitude: location.longitude }
+          : {}),
+      },
       {
         onSuccess: () => {
           setRequestedRole("");
           setReason("");
           setFiles([]);
+          setLocation(null);
         },
       }
     );
@@ -134,6 +145,17 @@ const RoleRequestPage = () => {
                 multiline
                 minRows={3}
                 inputProps={{ maxLength: 2000 }}
+              />
+
+              <LocationPicker
+                label={
+                  requestedRole === "VET"
+                    ? "Your practice location (recommended for vets — this becomes your pin on the vet map)"
+                    : "Your location (optional)"
+                }
+                value={location}
+                onChange={setLocation}
+                height={260}
               />
 
               <Box>
@@ -265,6 +287,21 @@ const RoleRequestPage = () => {
                       >
                         {req.reason}
                       </Typography>
+                    )}
+
+                    {req.latitude != null && req.longitude != null && (
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        icon={<PlaceOutlinedIcon />}
+                        label={`${req.latitude.toFixed(5)}, ${req.longitude.toFixed(5)}`}
+                        component={Link}
+                        href={`https://www.openstreetmap.org/?mlat=${req.latitude}&mlon=${req.longitude}#map=15/${req.latitude}/${req.longitude}`}
+                        target="_blank"
+                        rel="noopener"
+                        clickable
+                        sx={{ mt: 1.5 }}
+                      />
                     )}
 
                     {req.documents?.length > 0 && (
