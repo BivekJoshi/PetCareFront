@@ -4,7 +4,6 @@ import ImageMobile from "../../assets/ImageMobile.png";
 import googleIcon from "../../assets/devicon_google.png";
 
 import "../../app.css";
-import TextField from "@mui/material/TextField";
 import { useLoginForm } from "../../form/auth/Login/useLoginForm";
 import { useSignupForm } from "../../form/auth/Signup/useSignupForm";
 import { useForgotPasswordForm } from "../../form/auth/Forgot/useForgotPasswordForm";
@@ -13,18 +12,19 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
-  IconButton,
-  InputAdornment,
   Link,
   Stack,
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 import OtpForm from "../../components/auth/OtpForm";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { RenderForm } from "../../components/common/RenderInput";
+import {
+  loginFields,
+  signupFields,
+  forgotRequestFields,
+  forgotResetFields,
+} from "../../form/auth/fieldConfigs";
 import { LoadingButton } from "@mui/lab";
 import {
   motion,
@@ -95,22 +95,38 @@ const formVariants = {
   }),
 };
 
-const labelSx = {
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  color: "text.primary",
-  mb: 0.75,
+/**
+ * Adapt a Formik bag into the normalized control object `RenderInput` expects.
+ * `toggles` maps a field's `visibilityKey` to its show/hide password handler.
+ */
+const formikControl = (formik, { showValues = {}, toggles = {} } = {}) => (field) => {
+  const touched = formik.touched[field.name];
+  const error = formik.errors[field.name];
+  return {
+    value: formik.values[field.name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: touched && Boolean(error),
+    helperText: (touched && error) || field.helperText,
+    onEnter: field.submitOnEnter ? formik.submitForm : undefined,
+    password: field.visibilityKey
+      ? {
+          visible: showValues[field.visibilityKey],
+          onToggle: toggles[field.visibilityKey],
+          onMouseDown: (e) => e.preventDefault(),
+        }
+      : undefined,
+  };
 };
 
 /* ----------------------------- Login form ----------------------------- */
 const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
-  const {
-    formik,
+  const { formik, showValues, loading, handleClickShowPassword } = useLoginForm();
+
+  const control = formikControl(formik, {
     showValues,
-    loading,
-    handleClickShowPassword,
-    handleMouseDownPassword,
-  } = useLoginForm();
+    toggles: { showPassword: handleClickShowPassword },
+  });
 
   return (
     <MotionBox variants={container} initial="hidden" animate="show">
@@ -124,69 +140,7 @@ const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Email</Typography>
-          <TextField
-            required
-            name="email"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-            placeholder="you@example.com"
-            fullWidth
-            variant="outlined"
-            type="text"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <MailOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Password</Typography>
-          <TextField
-            required
-            name="password"
-            variant="outlined"
-            placeholder="Enter your password"
-            fullWidth
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                formik.handleSubmit();
-                ev.preventDefault();
-              }
-            }}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
-            type={showValues.showPassword ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="small"
-                  >
-                    {showValues.showPassword ? (
-                      <VisibilityOff fontSize="small" />
-                    ) : (
-                      <Visibility fontSize="small" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
+        <RenderForm fields={loginFields} control={control} />
 
         <MotionBox
           variants={item}
@@ -266,8 +220,15 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
     resending,
     handleClickShowPassword,
     handleClickShowConfirmPassword,
-    handleMouseDownPassword,
   } = useSignupForm();
+
+  const control = formikControl(formik, {
+    showValues,
+    toggles: {
+      showPassword: handleClickShowPassword,
+      showConfirmPassword: handleClickShowConfirmPassword,
+    },
+  });
 
   // Step 2 — OTP verification (one step per enabled channel).
   if (step === "otp") {
@@ -312,148 +273,7 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Full name</Typography>
-          <TextField
-            required
-            name="fullName"
-            value={formik.values.fullName}
-            onChange={formik.handleChange}
-            error={formik.touched.fullName && Boolean(formik.errors.fullName)}
-            helperText={formik.touched.fullName && formik.errors.fullName}
-            placeholder="Jane Doe"
-            fullWidth
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <PersonOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Email</Typography>
-          <TextField
-            required
-            name="email"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            error={formik.touched.email && Boolean(formik.errors.email)}
-            helperText={formik.touched.email && formik.errors.email}
-            placeholder="you@example.com"
-            fullWidth
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <MailOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>WhatsApp number</Typography>
-          <TextField
-            required
-            name="phone"
-            value={formik.values.phone}
-            onChange={formik.handleChange}
-            error={formik.touched.phone && Boolean(formik.errors.phone)}
-            helperText={
-              (formik.touched.phone && formik.errors.phone) ||
-              "Include country code — we'll send a verification code here"
-            }
-            placeholder="+9779812345678"
-            fullWidth
-            variant="outlined"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <PhoneIphoneIcon fontSize="small" sx={{ color: "text.disabled" }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Password</Typography>
-          <TextField
-            required
-            name="password"
-            placeholder="Create a password"
-            fullWidth
-            variant="outlined"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            error={formik.touched.password && Boolean(formik.errors.password)}
-            helperText={formik.touched.password && formik.errors.password}
-            type={showValues.showPassword ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="small"
-                  >
-                    {showValues.showPassword ? (
-                      <VisibilityOff fontSize="small" />
-                    ) : (
-                      <Visibility fontSize="small" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Confirm password</Typography>
-          <TextField
-            required
-            name="confirmPassword"
-            placeholder="Re-enter your password"
-            fullWidth
-            variant="outlined"
-            value={formik.values.confirmPassword}
-            onChange={formik.handleChange}
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                formik.handleSubmit();
-                ev.preventDefault();
-              }
-            }}
-            error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
-            helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
-            type={showValues.showConfirmPassword ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleClickShowConfirmPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                    size="small"
-                  >
-                    {showValues.showConfirmPassword ? (
-                      <VisibilityOff fontSize="small" />
-                    ) : (
-                      <Visibility fontSize="small" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
+        <RenderForm fields={signupFields} control={control} />
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
           <LoadingButton
@@ -519,6 +339,36 @@ const ForgotPasswordForm = ({ onBack }) => {
     resetting,
   } = useForgotPasswordForm({ onDone: onBack });
 
+  // This flow drives plain useState (not Formik), so adapt each step's state
+  // into the normalized control object `renderInput` expects.
+  const requestControl = (field) => ({
+    value: email,
+    onChange: (e) => setEmail(e.target.value),
+    error: Boolean(errors.email),
+    helperText: errors.email || field.helperText,
+    onEnter: field.submitOnEnter ? sendCode : undefined,
+  });
+
+  const resetState = {
+    code: { value: code, onChange: (e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6)) },
+    password: { value: password, onChange: (e) => setPassword(e.target.value) },
+    confirmPassword: { value: confirm, onChange: (e) => setConfirm(e.target.value), errorKey: "confirm" },
+  };
+  const resetControl = (field) => {
+    const entry = resetState[field.name] || {};
+    const errKey = entry.errorKey || field.name;
+    return {
+      value: entry.value,
+      onChange: entry.onChange,
+      error: Boolean(errors[errKey]),
+      helperText: errors[errKey] || field.helperText,
+      onEnter: field.submitOnEnter ? submitReset : undefined,
+      password: field.visibilityKey
+        ? { visible: showPw, onToggle: toggleShowPw, onMouseDown: (e) => e.preventDefault() }
+        : undefined,
+    };
+  };
+
   // Step 1 — request a reset code by email.
   if (step === "request") {
     return (
@@ -533,28 +383,7 @@ const ForgotPasswordForm = ({ onBack }) => {
         </MotionBox>
 
         <Stack spacing={2.5} component="form" noValidate>
-          <MotionBox variants={item}>
-            <Typography sx={labelSx}>Email</Typography>
-            <TextField
-              autoFocus
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), sendCode())}
-              error={Boolean(errors.email)}
-              helperText={errors.email}
-              placeholder="you@example.com"
-              fullWidth
-              variant="outlined"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <MailOutlineIcon fontSize="small" sx={{ color: "text.disabled" }} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </MotionBox>
+          <RenderForm fields={forgotRequestFields} control={requestControl} />
 
           <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
             <LoadingButton
@@ -605,65 +434,7 @@ const ForgotPasswordForm = ({ onBack }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Reset code</Typography>
-          <TextField
-            autoFocus
-            name="code"
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            error={Boolean(errors.code)}
-            helperText={errors.code}
-            placeholder="••••••"
-            fullWidth
-            variant="outlined"
-            inputProps={{
-              inputMode: "numeric",
-              maxLength: 6,
-              style: { letterSpacing: "0.4em", fontWeight: 700 },
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>New password</Typography>
-          <TextField
-            name="password"
-            placeholder="Create a new password"
-            fullWidth
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            error={Boolean(errors.password)}
-            helperText={errors.password}
-            type={showPw ? "text" : "password"}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={toggleShowPw} onMouseDown={(e) => e.preventDefault()} edge="end" size="small">
-                    {showPw ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </MotionBox>
-
-        <MotionBox variants={item}>
-          <Typography sx={labelSx}>Confirm password</Typography>
-          <TextField
-            name="confirmPassword"
-            placeholder="Re-enter your new password"
-            fullWidth
-            variant="outlined"
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), submitReset())}
-            error={Boolean(errors.confirm)}
-            helperText={errors.confirm}
-            type={showPw ? "text" : "password"}
-          />
-        </MotionBox>
+        <RenderForm fields={forgotResetFields} control={resetControl} />
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
           <LoadingButton
