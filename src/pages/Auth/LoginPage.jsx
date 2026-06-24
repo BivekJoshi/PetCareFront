@@ -95,38 +95,9 @@ const formVariants = {
   }),
 };
 
-/**
- * Adapt a Formik bag into the normalized control object `RenderInput` expects.
- * `toggles` maps a field's `visibilityKey` to its show/hide password handler.
- */
-const formikControl = (formik, { showValues = {}, toggles = {} } = {}) => (field) => {
-  const touched = formik.touched[field.name];
-  const error = formik.errors[field.name];
-  return {
-    value: formik.values[field.name],
-    onChange: formik.handleChange,
-    onBlur: formik.handleBlur,
-    error: touched && Boolean(error),
-    helperText: (touched && error) || field.helperText,
-    onEnter: field.submitOnEnter ? formik.submitForm : undefined,
-    password: field.visibilityKey
-      ? {
-          visible: showValues[field.visibilityKey],
-          onToggle: toggles[field.visibilityKey],
-          onMouseDown: (e) => e.preventDefault(),
-        }
-      : undefined,
-  };
-};
-
 /* ----------------------------- Login form ----------------------------- */
 const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
   const { formik, showValues, loading, handleClickShowPassword } = useLoginForm();
-
-  const control = formikControl(formik, {
-    showValues,
-    toggles: { showPassword: handleClickShowPassword },
-  });
 
   return (
     <MotionBox variants={container} initial="hidden" animate="show">
@@ -140,7 +111,12 @@ const LoginForm = ({ onSwitch, onForgot, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <RenderForm fields={loginFields} control={control} />
+        <RenderForm
+          fields={loginFields}
+          formik={formik}
+          showValues={showValues}
+          toggles={{ showPassword: handleClickShowPassword }}
+        />
 
         <MotionBox
           variants={item}
@@ -222,14 +198,6 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
     handleClickShowConfirmPassword,
   } = useSignupForm();
 
-  const control = formikControl(formik, {
-    showValues,
-    toggles: {
-      showPassword: handleClickShowPassword,
-      showConfirmPassword: handleClickShowConfirmPassword,
-    },
-  });
-
   // Step 2 — OTP verification (one step per enabled channel).
   if (step === "otp") {
     const multi = stepInfo.total > 1;
@@ -273,7 +241,15 @@ const SignupForm = ({ onSwitch, onGoogle, googleLoading }) => {
       </MotionBox>
 
       <Stack spacing={2.5} component="form" noValidate>
-        <RenderForm fields={signupFields} control={control} />
+        <RenderForm
+          fields={signupFields}
+          formik={formik}
+          showValues={showValues}
+          toggles={{
+            showPassword: handleClickShowPassword,
+            showConfirmPassword: handleClickShowConfirmPassword,
+          }}
+        />
 
         <MotionBox variants={item} whileHover={{ scale: 1.015 }} whileTap={{ scale: 0.985 }}>
           <LoadingButton
@@ -340,7 +316,7 @@ const ForgotPasswordForm = ({ onBack }) => {
   } = useForgotPasswordForm({ onDone: onBack });
 
   // This flow drives plain useState (not Formik), so adapt each step's state
-  // into the normalized control object `renderInput` expects.
+  // into the normalized control object `RenderInput` expects.
   const requestControl = (field) => ({
     value: email,
     onChange: (e) => setEmail(e.target.value),

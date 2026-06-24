@@ -4,7 +4,7 @@ import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 
 /**
  * Declarative field definitions for every auth form. Each entry is consumed by
- * `renderInput` / `AuthFields`, so adding or reordering a field is a data edit —
+ * `RenderInput` / `RenderForm`, so adding or reordering a field is a data edit —
  * no JSX duplication. `grid` spans columns; `visibilityKey` maps a password
  * field to its show/hide toggle; `submitOnEnter` submits the form on Enter.
  */

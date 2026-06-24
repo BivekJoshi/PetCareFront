@@ -223,15 +223,59 @@ export const RenderInput = (field, ctrl = {}) => {
 const SELF_LABELLED = new Set(["checkbox", "switch", "radio"]);
 
 /**
+ * formikControl — derive a field's full control object from a Formik bag, so
+ * onChange, onBlur (touch), error, helperText and the password toggle are ALL
+ * wired dynamically. Nothing per-field is hand-written on the page.
+ *
+ *   showValues — map of `visibilityKey` -> boolean (password shown?)
+ *   toggles    — map of `visibilityKey` -> toggle handler
+ */
+export const formikControl = (formik, { showValues = {}, toggles = {} } = {}) => (field) => {
+  const { name, helperText, visibilityKey } = field;
+  const touched = formik.touched[name];
+  const error = formik.errors[name];
+  const showError = Boolean(touched && error);
+  return {
+    value: formik.values[name],
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur, // marks the field touched → drives onError display
+    error: showError,
+    helperText: (showError && error) || helperText,
+    onEnter: field.submitOnEnter ? formik.submitForm : undefined,
+    password: visibilityKey
+      ? {
+          visible: showValues[visibilityKey],
+          onToggle: toggles[visibilityKey],
+          onMouseDown: (e) => e.preventDefault(),
+        }
+      : undefined,
+  };
+};
+
+/**
  * RenderForm — lay out any list of fields on a responsive grid. Each field's
  * `grid` config (e.g. `{ xs: 12, sm: 6 }`) sets how many columns it spans, so
  * the layout is fully data-driven: two fields side-by-side on wide screens,
  * stacked on mobile, all without touching JSX.
  *
- * `control(field)` returns the normalized control object for `RenderInput`.
+ * Pass EITHER:
+ *   formik  — a Formik bag; change / touch / error / helperText are auto-wired
+ *             (use `showValues` + `toggles` for password fields), OR
+ *   control — `control(field)` returns a custom normalized control object
+ *             (for forms not backed by Formik).
+ *
  * Set `animate={false}` to drop the per-field entrance motion.
  */
-export const RenderForm = ({ fields, control, spacing = 2.5, animate = true }) => {
+export const RenderForm = ({
+  fields,
+  formik,
+  control,
+  showValues,
+  toggles,
+  spacing = 2.5,
+  animate = true,
+}) => {
+  const resolve = control || formikControl(formik, { showValues, toggles });
   const Item = animate ? MotionBox : Box;
   return (
     <Grid container spacing={spacing}>
@@ -241,7 +285,7 @@ export const RenderForm = ({ fields, control, spacing = 2.5, animate = true }) =
           <Grid item key={field.name} xs={12} {...field.grid}>
             <Item variants={animate ? fieldItem : undefined}>
               {showLabel && <Typography sx={labelSx}>{field.label}</Typography>}
-              {RenderInput(field, control(field))}
+              {RenderInput(field, resolve(field))}
             </Item>
           </Grid>
         );
