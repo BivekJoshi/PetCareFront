@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -27,6 +27,7 @@ import {
   useMyRoleRequests,
   useRoleRequestMutations,
 } from "../../hooks/roleRequests/useRoleRequests";
+import { useRoleRequestFields } from "../../hooks/roleRequestFields/useRoleRequestFields";
 import {
   REQUESTABLE_ROLES,
   ROLE_REQUEST_STATUS_COLORS,
@@ -52,12 +53,32 @@ const RoleRequestPage = () => {
   const [reason, setReason] = useState("");
   const [files, setFiles] = useState([]);
   const [location, setLocation] = useState(null);
+  const [fieldValues, setFieldValues] = useState({});
 
   const requests = query.data || [];
   const hasPending = requests.some((r) => r.status === "PENDING");
 
   // A user can't request the role they already hold.
   const roleOptions = REQUESTABLE_ROLES.filter((r) => r !== role);
+
+  // Admin-defined extra fields for the chosen role.
+  const fieldsQuery = useRoleRequestFields(
+    { role: requestedRole },
+    { enabled: Boolean(requestedRole) }
+  );
+  const dynamicFields = requestedRole ? fieldsQuery.data ?? [] : [];
+
+  // Reset answers whenever the requested role changes.
+  useEffect(() => {
+    setFieldValues({});
+  }, [requestedRole]);
+
+  const setField = (key) => (e) =>
+    setFieldValues((v) => ({ ...v, [key]: e.target.value }));
+
+  const missingRequired = dynamicFields.filter(
+    (f) => f.required && !String(fieldValues[f.key] ?? "").trim()
+  );
 
   const handlePickFiles = (event) => {
     const picked = Array.from(event.target.files || []);
@@ -73,10 +94,21 @@ const RoleRequestPage = () => {
   const removeFile = (index) =>
     setFiles((prev) => prev.filter((_, i) => i !== index));
 
-  const canSubmit = requestedRole && !hasPending && !submit.isLoading;
+  const canSubmit =
+    requestedRole &&
+    !hasPending &&
+    !submit.isLoading &&
+    !fieldsQuery.isLoading &&
+    missingRequired.length === 0;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
+    // Only send answers for fields that belong to this role.
+    const fields = {};
+    dynamicFields.forEach((f) => {
+      const v = String(fieldValues[f.key] ?? "").trim();
+      if (v) fields[f.key] = v;
+    });
     submit.mutate(
       {
         requestedRole,
@@ -85,6 +117,7 @@ const RoleRequestPage = () => {
         ...(location
           ? { latitude: location.latitude, longitude: location.longitude }
           : {}),
+        fields,
       },
       {
         onSuccess: () => {
@@ -92,6 +125,7 @@ const RoleRequestPage = () => {
           setReason("");
           setFiles([]);
           setLocation(null);
+          setFieldValues({});
         },
       }
     );
@@ -135,6 +169,47 @@ const RoleRequestPage = () => {
                   </MenuItem>
                 ))}
               </TextField>
+
+              {/* Admin-configured required fields for the chosen role */}
+              {requestedRole &&
+                dynamicFields.map((field) =>
+                  field.type === "SELECT" ? (
+                    <TextField
+                      key={field.id}
+                      select
+                      label={field.label}
+                      value={fieldValues[field.key] ?? ""}
+                      onChange={setField(field.key)}
+                      disabled={hasPending}
+                      required={field.required}
+                      helperText={field.placeholder || ""}
+                    >
+                      {(field.options ?? []).map((opt) => (
+                        <MenuItem key={opt} value={opt}>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  ) : (
+                    <TextField
+                      key={field.id}
+                      label={field.label}
+                      type={
+                        field.type === "NUMBER"
+                          ? "number"
+                          : field.type === "DATE"
+                            ? "date"
+                            : "text"
+                      }
+                      value={fieldValues[field.key] ?? ""}
+                      onChange={setField(field.key)}
+                      disabled={hasPending}
+                      required={field.required}
+                      placeholder={field.placeholder || ""}
+                      InputLabelProps={field.type === "DATE" ? { shrink: true } : undefined}
+                    />
+                  )
+                )}
 
               <TextField
                 label="Additional information"
@@ -287,6 +362,19 @@ const RoleRequestPage = () => {
                       >
                         {req.reason}
                       </Typography>
+                    )}
+
+                    {Array.isArray(req.fieldValues) && req.fieldValues.length > 0 && (
+                      <Stack spacing={0.5} sx={{ mt: 1.5 }}>
+                        {req.fieldValues.map((fv) => (
+                          <Typography key={fv.key} variant="body2">
+                            <Box component="span" color="text.secondary">
+                              {fv.label}:{" "}
+                            </Box>
+                            <strong>{fv.value}</strong>
+                          </Typography>
+                        ))}
+                      </Stack>
                     )}
 
                     {req.latitude != null && req.longitude != null && (

@@ -11,6 +11,7 @@ export const createRoleRequest = ({
   documents = [],
   latitude,
   longitude,
+  fields,
 }) => {
   const form = new FormData();
   form.append("requestedRole", requestedRole);
@@ -18,6 +19,9 @@ export const createRoleRequest = ({
   if (latitude != null && longitude != null) {
     form.append("latitude", latitude);
     form.append("longitude", longitude);
+  }
+  if (fields && Object.keys(fields).length > 0) {
+    form.append("fields", JSON.stringify(fields));
   }
   documents.forEach((file) => form.append("documents", file));
   return axiosInstance

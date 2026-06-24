@@ -240,6 +240,25 @@ const RoleRequestsPage = () => {
                   )}
                 </Box>
 
+                {Array.isArray(selected.fieldValues) &&
+                  selected.fieldValues.length > 0 && (
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+                        Submitted details
+                      </Typography>
+                      <Stack spacing={0.5}>
+                        {selected.fieldValues.map((fv) => (
+                          <Typography key={fv.key} variant="body2">
+                            <Box component="span" color="text.secondary">
+                              {fv.label}:{" "}
+                            </Box>
+                            <strong>{fv.value}</strong>
+                          </Typography>
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
+
                 <Box>
                   <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                     Requested location

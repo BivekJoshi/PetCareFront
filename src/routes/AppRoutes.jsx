@@ -68,6 +68,9 @@ const UserManagementPage = Loadable(
 const RoleRequestsPage = Loadable(
   lazy(() => import("../pages/Admin/RoleRequestsPage"))
 );
+const RoleRequestFieldsPage = Loadable(
+  lazy(() => import("../pages/Admin/RoleRequestFieldsPage"))
+);
 const RoleRequestPage = Loadable(
   lazy(() => import("../pages/Account/RoleRequestPage"))
 );
@@ -158,6 +161,7 @@ const AppRoutes = () => {
                 <Route path="insights" element={<InsightsPage />} />
                 <Route path="admin/users" element={<UserManagementPage />} />
                 <Route path="admin/role-requests" element={<RoleRequestsPage />} />
+                <Route path="admin/role-request-fields" element={<RoleRequestFieldsPage />} />
                 <Route path="admin/species" element={<SpeciesPage />} />
                 <Route path="admin/chat-retention" element={<ChatRetentionPage />} />
               </Route>

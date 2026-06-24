@@ -139,6 +139,11 @@ export const NAV_SECTIONS = [
             icon: HowToRegOutlinedIcon,
           },
           {
+            label: "Role Request Fields",
+            to: "/app/admin/role-request-fields",
+            icon: BadgeOutlinedIcon,
+          },
+          {
             label: "Species",
             to: "/app/admin/species",
             icon: CategoryOutlinedIcon,

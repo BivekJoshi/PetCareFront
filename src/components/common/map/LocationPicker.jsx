@@ -1,10 +1,19 @@
 import { useEffect, useState } from "react";
 import { Marker, useMap, useMapEvents } from "react-leaflet";
-import { Button, CircularProgress, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
 import ClearIcon from "@mui/icons-material/Clear";
+import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import MapView from "./MapView";
 import { DEFAULT_CENTER } from "./leafletSetup";
+import { useResolveMapLink } from "../../../hooks/geo/useResolveMapLink";
 
 // Grabs the Leaflet map instance and hands it to the parent so the
 // "use current location" button can pan/zoom to a new point.
@@ -39,17 +48,34 @@ const ClickLayer = ({ value, onChange }) => {
 };
 
 /**
- * Lets a user set a location either by tapping "Use current location" or by
- * clicking / dragging a pin on the map. Reports the chosen point upward via
- * onChange({ latitude, longitude }). A null value means "no location set".
+ * Lets a user set a location any of four ways: tap "Use current location",
+ * click / drag a pin on the map, type latitude & longitude manually, or paste a
+ * Google Maps link (resolved to coordinates by the backend). Reports the chosen
+ * point upward via onChange({ latitude, longitude }); null means "not set".
  */
 const LocationPicker = ({ value, onChange, height = 300, label }) => {
   const [map, setMap] = useState(null);
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
 
+  // Manual lat/lng fields (strings so partial typing isn't clobbered).
+  const [latInput, setLatInput] = useState("");
+  const [lngInput, setLngInput] = useState("");
+  const [link, setLink] = useState("");
+  const resolveLink = useResolveMapLink();
+
   const hasValue = value?.latitude != null && value?.longitude != null;
   const center = hasValue ? [value.latitude, value.longitude] : DEFAULT_CENTER;
+
+  // Keep the manual fields in sync whenever the value changes elsewhere.
+  useEffect(() => {
+    setLatInput(value?.latitude != null ? String(value.latitude) : "");
+    setLngInput(value?.longitude != null ? String(value.longitude) : "");
+  }, [value]);
+
+  const flyTo = (latitude, longitude) => {
+    if (map) map.flyTo([latitude, longitude], 15);
+  };
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -63,7 +89,7 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
         const latitude = pos.coords.latitude;
         const longitude = pos.coords.longitude;
         onChange({ latitude, longitude });
-        if (map) map.flyTo([latitude, longitude], 15);
+        flyTo(latitude, longitude);
         setLocating(false);
       },
       (err) => {
@@ -72,6 +98,47 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
+  };
+
+  // Apply the manually-typed coordinates (called on blur / Enter).
+  const commitManual = () => {
+    const latitude = Number(latInput);
+    const longitude = Number(lngInput);
+    if (latInput.trim() === "" && lngInput.trim() === "") {
+      onChange(null);
+      return;
+    }
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      setError("Enter a valid latitude (-90..90) and longitude (-180..180).");
+      return;
+    }
+    setError("");
+    onChange({ latitude, longitude });
+    flyTo(latitude, longitude);
+  };
+
+  const handleResolveLink = () => {
+    if (!link.trim()) return;
+    setError("");
+    resolveLink.mutate(link.trim(), {
+      onSuccess: (coords) => {
+        onChange(coords);
+        flyTo(coords.latitude, coords.longitude);
+        setLink("");
+      },
+      onError: (err) =>
+        setError(
+          err?.response?.data?.message ||
+            "Could not read that link. Paste a Google Maps link or enter values manually."
+        ),
+    });
   };
 
   return (
@@ -105,16 +172,70 @@ const LocationPicker = ({ value, onChange, height = 300, label }) => {
           </Button>
         )}
         <Typography variant="caption" color="text.secondary">
-          {hasValue
-            ? `${value.latitude.toFixed(5)}, ${value.longitude.toFixed(5)}`
-            : "Tip: click the map to drop a pin"}
+          {hasValue ? "Drag the pin to fine-tune." : "Tip: click the map to drop a pin."}
         </Typography>
       </Stack>
 
-      <MapView center={center} zoom={hasValue ? 15 : 12} height={height}>
-        <MapReady onReady={setMap} />
-        <ClickLayer value={value} onChange={onChange} />
-      </MapView>
+      {/* Manual entry */}
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+        <TextField
+          label="Latitude"
+          size="small"
+          type="number"
+          value={latInput}
+          onChange={(e) => setLatInput(e.target.value)}
+          onBlur={commitManual}
+          onKeyDown={(e) => e.key === "Enter" && commitManual()}
+          inputProps={{ step: "any", min: -90, max: 90 }}
+          fullWidth
+        />
+        <TextField
+          label="Longitude"
+          size="small"
+          type="number"
+          value={lngInput}
+          onChange={(e) => setLngInput(e.target.value)}
+          onBlur={commitManual}
+          onKeyDown={(e) => e.key === "Enter" && commitManual()}
+          inputProps={{ step: "any", min: -180, max: 180 }}
+          fullWidth
+        />
+      </Stack>
+
+      {/* Paste a Google Maps link */}
+      <Stack direction="row" spacing={1} alignItems="flex-start">
+        <TextField
+          label="Paste a Google Maps link"
+          size="small"
+          placeholder="https://maps.app.goo.gl/…"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleResolveLink()}
+          fullWidth
+        />
+        <Button
+          variant="outlined"
+          onClick={handleResolveLink}
+          disabled={resolveLink.isLoading || !link.trim()}
+          startIcon={
+            resolveLink.isLoading ? (
+              <CircularProgress size={16} />
+            ) : (
+              <TravelExploreIcon />
+            )
+          }
+          sx={{ whiteSpace: "nowrap", mt: 0.25 }}
+        >
+          Extract
+        </Button>
+      </Stack>
+
+      <Box>
+        <MapView center={center} zoom={hasValue ? 15 : 12} height={height}>
+          <MapReady onReady={setMap} />
+          <ClickLayer value={value} onChange={onChange} />
+        </MapView>
+      </Box>
 
       {error && (
         <Typography variant="caption" color="error">
