@@ -17,7 +17,6 @@ import { toDateTimeLocal, fullName } from "../../utility/format";
 
 const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
   const pets = usePets({ limit: 100 });
-  const services = useServices({ limit: 100, isActive: true });
   const vets = useVets({ limit: 100 });
 
   const [values, setValues] = useState({
@@ -29,6 +28,12 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
   });
   const [location, setLocation] = useState(null);
   const [error, setError] = useState("");
+
+  // Services are vet-owned, so only load them once a vet is chosen.
+  const services = useServices(
+    { vetId: values.vetId, isActive: true, limit: 100 },
+    { enabled: Boolean(values.vetId) }
+  );
 
   useEffect(() => {
     if (open) {
@@ -92,24 +97,12 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
 
           <TextField
             select
-            label="Service (optional)"
-            value={values.serviceId}
-            onChange={handleChange("serviceId")}
-            fullWidth
-          >
-            <MenuItem value="">— None —</MenuItem>
-            {(services.data?.items ?? []).map((s) => (
-              <MenuItem key={s.id} value={s.id}>
-                {s.name}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            select
             label="Preferred vet (optional)"
             value={values.vetId}
-            onChange={handleChange("vetId")}
+            onChange={(e) =>
+              // Changing the vet invalidates any service picked for the old vet.
+              setValues((v) => ({ ...v, vetId: e.target.value, serviceId: "" }))
+            }
             fullWidth
           >
             <MenuItem value="">— Any —</MenuItem>
@@ -117,6 +110,29 @@ const BookAppointmentDialog = ({ open, onClose, onSubmit, submitting }) => {
               <MenuItem key={v.id} value={v.id}>
                 {fullName(v.user)}
                 {v.specialization ? ` · ${v.specialization}` : ""}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            label="Service (optional)"
+            value={values.serviceId}
+            onChange={handleChange("serviceId")}
+            fullWidth
+            disabled={!values.vetId}
+            helperText={
+              !values.vetId
+                ? "Choose a vet first to see their services"
+                : services.data?.items?.length === 0
+                  ? "This vet hasn't listed any services"
+                  : ""
+            }
+          >
+            <MenuItem value="">— None —</MenuItem>
+            {(services.data?.items ?? []).map((s) => (
+              <MenuItem key={s.id} value={s.id}>
+                {s.name}
               </MenuItem>
             ))}
           </TextField>

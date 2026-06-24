@@ -16,9 +16,6 @@ import FolderSharedOutlinedIcon from "@mui/icons-material/FolderSharedOutlined";
 import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import EditCalendarOutlinedIcon from "@mui/icons-material/EditCalendarOutlined";
-import ContentCutOutlinedIcon from "@mui/icons-material/ContentCutOutlined";
-import HotelOutlinedIcon from "@mui/icons-material/HotelOutlined";
-import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import AutoDeleteOutlinedIcon from "@mui/icons-material/AutoDeleteOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
@@ -109,13 +106,10 @@ export const NAV_SECTIONS = [
         roles: [VET, ADMIN, SUPER_ADMIN],
       },
       {
+        // Vets manage their own services here; everyone else browses them.
         label: "Services",
+        to: "/app/services",
         icon: MedicalServicesOutlinedIcon,
-        children: [
-          { label: "Grooming", to: "/app/services/grooming", icon: ContentCutOutlinedIcon },
-          { label: "Boarding", to: "/app/services/boarding", icon: HotelOutlinedIcon },
-          { label: "Vet Visit", to: "/app/services/vet", icon: VaccinesOutlinedIcon },
-        ],
       },
       { label: "Vets", to: "/app/vets", icon: LocalHospitalOutlinedIcon },
     ],

@@ -9,9 +9,10 @@ import {
 
 const KEY = "services";
 
-export const useServices = (params = {}) =>
+export const useServices = (params = {}, options = {}) =>
   useQuery([KEY, params], () => fetchServices(params), {
     keepPreviousData: true,
+    ...options,
   });
 
 export const useServiceMutations = () => {
