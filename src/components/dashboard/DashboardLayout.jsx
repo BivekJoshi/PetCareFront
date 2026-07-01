@@ -43,154 +43,114 @@ const DashboardLayout = () => {
     {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.standard,
-    }
+    },
   );
 
   // active leaf → drives the app-bar page title
   const activeItem = NAV_LEAVES.find((i) =>
-    i.end ? location.pathname === i.to : location.pathname.startsWith(i.to)
+    i.end ? location.pathname === i.to : location.pathname.startsWith(i.to),
   );
 
   return (
     <ChatProvider>
-    <CallProvider>
-    <CommandPaletteProvider>
-    <Box
-      sx={{
-        display: "flex",
-        minHeight: "100vh",
-        position: "relative",
-        bgcolor: "background.default",
-      }}
-    >
-      {/* Ambient Three.js backdrop */}
-      <DashboardBackground />
-
-      <DashboardAppBar
-        sidebarWidth={sidebarWidth}
-        widthTransition={widthTransition}
-        collapsed={collapsed}
-        onToggleCollapse={() => setCollapsed((c) => !c)}
-        onToggleMobile={() => setMobileOpen((o) => !o)}
-        title={activeItem?.label || "Dashboard"}
-      />
-
-      {/* Sidebar — permanent on desktop, temporary drawer on mobile */}
-      <Box
-        component="nav"
-        sx={{
-          width: { md: sidebarWidth },
-          flexShrink: { md: 0 },
-          transition: widthTransition,
-          position: "relative",
-        }}
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": { width: DRAWER_WIDTH, border: "none" },
-          }}
-        >
-          <Sidebar mini={false} onNavigate={() => setMobileOpen(false)} />
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          open
-          sx={{
-            display: { xs: "none", md: "block" },
-            "& .MuiDrawer-paper": {
-              width: sidebarWidth,
-              overflowX: "hidden",
-              transition: widthTransition,
-              borderRight: 1,
-              borderColor: "divider",
-              backgroundColor: theme.palette.sidebar.bg,
-            },
-          }}
-        >
-          <Sidebar mini={collapsed} />
-        </Drawer>
-      </Box>
-
-      {/* Main content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          width: { md: `calc(100% - ${sidebarWidth}px)` },
-          minHeight: "100vh",
-          position: "relative",
-          zIndex: 1,
-          transition: widthTransition,
-        }}
-      >
-        <Toolbar sx={{ minHeight: 62 }} />
-        <VerificationBanners />
-        <Box sx={{ p: { xs: 1.5, md: 3 } }}>
-          {/* Frosted-glass panel — lets the animated waves backdrop diffuse
-              softly behind the page content (glassmorphism). */}
+      <CallProvider>
+        <CommandPaletteProvider>
           <Box
             sx={{
+              display: "flex",
+              minHeight: "100vh",
               position: "relative",
-              p: { xs: 2, md: 3.5 },
-              borderRadius: { xs: 3, md: 4 },
-              minHeight: "calc(100vh - 62px - 48px)",
-              backgroundColor: alpha(
-                theme.palette.background.paper,
-                theme.palette.mode === "dark" ? 0.7 : 0.86,
-              ),
-              backdropFilter: "blur(18px) saturate(150%)",
-              WebkitBackdropFilter: "blur(18px) saturate(150%)",
-              border: 1,
-              borderColor: alpha(theme.palette.common.white, 0.12),
-              boxShadow:
-                theme.palette.mode === "dark"
-                  ? `0 24px 60px -28px ${alpha("#000", 0.7)}, inset 0 1px 0 ${alpha(
-                      theme.palette.common.white,
-                      0.06,
-                    )}`
-                  : `0 24px 60px -32px ${alpha(
-                      theme.palette.primary.main,
-                      0.4,
-                    )}, inset 0 1px 0 ${alpha(theme.palette.common.white, 0.5)}`,
-              // a faint top highlight sweep for that polished glass edge
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                borderRadius: "inherit",
-                pointerEvents: "none",
-                background: `linear-gradient(180deg, ${alpha(
-                  theme.palette.common.white,
-                  theme.palette.mode === "dark" ? 0.05 : 0.35,
-                )} 0%, transparent 18%)`,
-              },
+              bgcolor: "background.default",
             }}
           >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.32, ease: "easeOut" }}
-              >
-                <Outlet />
-              </motion.div>
-            </AnimatePresence>
-          </Box>
-        </Box>
-      </Box>
+            {/* Ambient Three.js backdrop */}
+            <DashboardBackground />
 
-      {/* Floating "back to top" — appears once the page is scrolled down */}
-      <ScrollTopFab />
-    </Box>
-    </CommandPaletteProvider>
-    </CallProvider>
+            <DashboardAppBar
+              sidebarWidth={sidebarWidth}
+              widthTransition={widthTransition}
+              collapsed={collapsed}
+              onToggleCollapse={() => setCollapsed((c) => !c)}
+              onToggleMobile={() => setMobileOpen((o) => !o)}
+              title={activeItem?.label || "Dashboard"}
+            />
+
+            {/* Sidebar — permanent on desktop, temporary drawer on mobile */}
+            <Box
+              component="nav"
+              sx={{
+                width: { md: sidebarWidth },
+                flexShrink: { md: 0 },
+                transition: widthTransition,
+                position: "relative",
+              }}
+            >
+              <Drawer
+                variant="temporary"
+                open={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                ModalProps={{ keepMounted: true }}
+                sx={{
+                  display: { xs: "block", md: "none" },
+                  "& .MuiDrawer-paper": { width: DRAWER_WIDTH, border: "none" },
+                }}
+              >
+                <Sidebar mini={false} onNavigate={() => setMobileOpen(false)} />
+              </Drawer>
+              <Drawer
+                variant="permanent"
+                open
+                sx={{
+                  display: { xs: "none", md: "block" },
+                  "& .MuiDrawer-paper": {
+                    width: sidebarWidth,
+                    overflowX: "hidden",
+                    transition: widthTransition,
+                    borderRight: 1,
+                    borderColor: "divider",
+                    backgroundColor: theme.palette.sidebar.bg,
+                  },
+                }}
+              >
+                <Sidebar mini={collapsed} />
+              </Drawer>
+            </Box>
+
+            {/* Main content */}
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                width: { md: `calc(100% - ${sidebarWidth}px)` },
+                minHeight: "100vh",
+                position: "relative",
+                zIndex: 1,
+                transition: widthTransition,
+              }}
+            >
+              <Toolbar sx={{ minHeight: 62 }} />
+              <VerificationBanners />
+              <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+                {/* Frosted-glass panel — lets the animated waves backdrop diffuse
+              softly behind the page content (glassmorphism). */}
+                <Box
+                  sx={{
+                    position: "relative",
+                    minHeight: "calc(100vh - 62px - 48px)",
+                  }}
+                >
+                  <AnimatePresence mode="wait">
+                    <Outlet />
+                  </AnimatePresence>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Floating "back to top" — appears once the page is scrolled down */}
+            <ScrollTopFab />
+          </Box>
+        </CommandPaletteProvider>
+      </CallProvider>
     </ChatProvider>
   );
 };

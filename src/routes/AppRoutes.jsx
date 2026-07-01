@@ -8,79 +8,82 @@ import LightThemeScope from "../theme/LightThemeScope";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import ScrollToTop from "../utility/ScrollToTop";
 import { ROLES } from "../constants/domain";
+import Loader from "../components/loader/Loader";
 
 const LoginPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
 const SignupPage = Loadable(lazy(() => import("../pages/Auth/LoginPage")));
 
 const LandingPage = Loadable(
-  lazy(() => import("../pages/LandingPage/LandingPage"))
+  lazy(() => import("../pages/LandingPage/LandingPage")),
 );
 
 // Dashboard (protected) area — AppShell picks the owner vs staff shell by role.
 const AppShell = Loadable(lazy(() => import("../components/owner/AppShell")));
 const DashboardHome = Loadable(
-  lazy(() => import("../pages/Dashboard/DashboardHome"))
+  lazy(() => import("../pages/Dashboard/DashboardHome")),
 );
 
 // Pet-owner mobile experience (rendered for PET_OWNER inside OwnerLayout).
 const OwnerHome = Loadable(lazy(() => import("../pages/Owner/OwnerHome")));
 const OwnerPets = Loadable(lazy(() => import("../pages/Owner/OwnerPets")));
 const OwnerAppointments = Loadable(
-  lazy(() => import("../pages/Owner/OwnerAppointments"))
+  lazy(() => import("../pages/Owner/OwnerAppointments")),
 );
 const OwnerReminders = Loadable(
-  lazy(() => import("../pages/Owner/OwnerReminders"))
+  lazy(() => import("../pages/Owner/OwnerReminders")),
 );
-const OwnerProfile = Loadable(lazy(() => import("../pages/Owner/OwnerProfile")));
+const OwnerProfile = Loadable(
+  lazy(() => import("../pages/Owner/OwnerProfile")),
+);
 const PetsPage = Loadable(lazy(() => import("../pages/Pets/PetsPage")));
 const AppointmentsPage = Loadable(
-  lazy(() => import("../pages/Appointments/AppointmentsPage"))
+  lazy(() => import("../pages/Appointments/AppointmentsPage")),
 );
 const ServicesPage = Loadable(
-  lazy(() => import("../pages/Services/ServicesPage"))
+  lazy(() => import("../pages/Services/ServicesPage")),
 );
 const VetsPage = Loadable(lazy(() => import("../pages/Vets/VetsPage")));
 const VetConsolePage = Loadable(
-  lazy(() => import("../pages/VetConsole/VetConsolePage"))
+  lazy(() => import("../pages/VetConsole/VetConsolePage")),
 );
 const InsightsPage = Loadable(
-  lazy(() => import("../pages/Insights/InsightsPage"))
+  lazy(() => import("../pages/Insights/InsightsPage")),
 );
 const RemindersPage = Loadable(
-  lazy(() => import("../pages/Reminders/RemindersPage"))
+  lazy(() => import("../pages/Reminders/RemindersPage")),
 );
 const ChatPage = Loadable(lazy(() => import("../pages/Chat/ChatPage")));
 const SecurityPage = Loadable(
-  lazy(() => import("../pages/Account/SecurityPage"))
+  lazy(() => import("../pages/Account/SecurityPage")),
 );
 const ChatRetentionPage = Loadable(
-  lazy(() => import("../pages/Admin/ChatRetentionPage"))
+  lazy(() => import("../pages/Admin/ChatRetentionPage")),
 );
 const AuthSettingsPage = Loadable(
-  lazy(() => import("../pages/Admin/AuthSettingsPage"))
+  lazy(() => import("../pages/Admin/AuthSettingsPage")),
 );
 const EmailTemplatesPage = Loadable(
-  lazy(() => import("../pages/Admin/EmailTemplatesPage"))
+  lazy(() => import("../pages/Admin/EmailTemplatesPage")),
 );
 const UserManagementPage = Loadable(
-  lazy(() => import("../pages/Admin/UserManagementPage"))
+  lazy(() => import("../pages/Admin/UserManagementPage")),
 );
 const RoleRequestsPage = Loadable(
-  lazy(() => import("../pages/Admin/RoleRequestsPage"))
+  lazy(() => import("../pages/Admin/RoleRequestsPage")),
 );
 const RoleRequestFieldsPage = Loadable(
-  lazy(() => import("../pages/Admin/RoleRequestFieldsPage"))
+  lazy(() => import("../pages/Admin/RoleRequestFieldsPage")),
 );
 const RoleRequestPage = Loadable(
-  lazy(() => import("../pages/Account/RoleRequestPage"))
+  lazy(() => import("../pages/Account/RoleRequestPage")),
 );
-const SpeciesPage = Loadable(
-  lazy(() => import("../pages/Admin/SpeciesPage"))
-);
+const SpeciesPage = Loadable(lazy(() => import("../pages/Admin/SpeciesPage")));
 
-const NotFoundPage = Loadable(lazy(() => import("../pages/Error/NotFoundPage")));
+const NotFoundPage = Loadable(
+  lazy(() => import("../pages/Error/NotFoundPage")),
+);
 const UnauthorizedPage = Loadable(
-  lazy(() => import("../pages/Error/UnauthorizedPage"))
+  lazy(() => import("../pages/Error/UnauthorizedPage")),
 );
 
 const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
@@ -102,6 +105,8 @@ const AppRoutes = () => {
         <ScrollToTop />
         <Routes>
           {/* Public — pinned to light mode (not affected by the dark toggle) */}
+          <Route path="/loader" element={<Loader />} />
+
           <Route
             path="/login"
             element={
@@ -149,10 +154,15 @@ const AppRoutes = () => {
               <Route path="chat" element={<ChatPage />} />
               <Route path="profile" element={<OwnerProfile />} />
               <Route path="account/security" element={<SecurityPage />} />
-              <Route path="account/role-request" element={<RoleRequestPage />} />
+              <Route
+                path="account/role-request"
+                element={<RoleRequestPage />}
+              />
 
               {/* Vet + admin only */}
-              <Route element={<ProtectedRoute roles={[VET, ADMIN, SUPER_ADMIN]} />}>
+              <Route
+                element={<ProtectedRoute roles={[VET, ADMIN, SUPER_ADMIN]} />}
+              >
                 <Route path="vet-console" element={<VetConsolePage />} />
               </Route>
 
@@ -160,16 +170,31 @@ const AppRoutes = () => {
               <Route element={<ProtectedRoute roles={[ADMIN, SUPER_ADMIN]} />}>
                 <Route path="insights" element={<InsightsPage />} />
                 <Route path="admin/users" element={<UserManagementPage />} />
-                <Route path="admin/role-requests" element={<RoleRequestsPage />} />
-                <Route path="admin/role-request-fields" element={<RoleRequestFieldsPage />} />
+                <Route
+                  path="admin/role-requests"
+                  element={<RoleRequestsPage />}
+                />
+                <Route
+                  path="admin/role-request-fields"
+                  element={<RoleRequestFieldsPage />}
+                />
                 <Route path="admin/species" element={<SpeciesPage />} />
-                <Route path="admin/chat-retention" element={<ChatRetentionPage />} />
+                <Route
+                  path="admin/chat-retention"
+                  element={<ChatRetentionPage />}
+                />
               </Route>
 
               {/* Super admin only */}
               <Route element={<ProtectedRoute roles={[SUPER_ADMIN]} />}>
-                <Route path="admin/auth-settings" element={<AuthSettingsPage />} />
-                <Route path="admin/email-templates" element={<EmailTemplatesPage />} />
+                <Route
+                  path="admin/auth-settings"
+                  element={<AuthSettingsPage />}
+                />
+                <Route
+                  path="admin/email-templates"
+                  element={<EmailTemplatesPage />}
+                />
               </Route>
             </Route>
           </Route>

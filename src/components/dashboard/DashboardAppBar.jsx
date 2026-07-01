@@ -71,6 +71,16 @@ const DashboardAppBar = ({
     .join("")
     .toUpperCase();
 
+  // Shared hover treatment so every action icon in the bar feels like one set.
+  const actionIconSx = {
+    color: "text.secondary",
+    transition: "color .2s ease, background-color .2s ease",
+    "&:hover": {
+      color: "primary.main",
+      bgcolor: alpha(theme.palette.primary.main, 0.08),
+    },
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -106,12 +116,12 @@ const DashboardAppBar = ({
           : `0 2px 8px -6px ${alpha(tint, 0.5)}`,
       }}
     >
-      <Toolbar sx={{ gap: 1, minHeight: 62 }}>
+      <Toolbar sx={{ gap: 0.5, minHeight: 64, px: { xs: 1.5, sm: 2 } }}>
         {/* Mobile drawer toggle */}
         <IconButton
           edge="start"
           onClick={onToggleMobile}
-          sx={{ display: { md: "none" } }}
+          sx={{ ...actionIconSx, display: { md: "none" } }}
         >
           <MenuIcon />
         </IconButton>
@@ -121,7 +131,7 @@ const DashboardAppBar = ({
           <IconButton
             edge="start"
             onClick={onToggleCollapse}
-            sx={{ display: { xs: "none", md: "inline-flex" }, mr: 0.5 }}
+            sx={{ ...actionIconSx, display: { xs: "none", md: "inline-flex" }, mr: 0.5 }}
           >
             {collapsed ? <MenuIcon /> : <MenuOpenIcon />}
           </IconButton>
@@ -197,7 +207,7 @@ const DashboardAppBar = ({
           <IconButton
             onClick={openPalette}
             size="small"
-            sx={{ display: { xs: "inline-flex", md: "none" } }}
+            sx={{ ...actionIconSx, display: { xs: "inline-flex", md: "none" } }}
           >
             <SearchRoundedIcon />
           </IconButton>
@@ -208,46 +218,119 @@ const DashboardAppBar = ({
           size="small"
           sx={{
             display: { xs: "none", sm: "inline-flex" },
+            ml: 0.5,
             fontWeight: 700,
-            bgcolor: alpha(theme.palette.primary.main, 0.12),
+            letterSpacing: 0.2,
+            border: 1,
+            borderColor: alpha(theme.palette.primary.main, 0.2),
+            bgcolor: alpha(theme.palette.primary.main, 0.1),
             color: "primary.main",
           }}
         />
 
-        <Tooltip title="Messages">
-          <IconButton onClick={() => navigate("/app/chat")} size="small">
-            <Badge badgeContent={unread} color="error" max={99}>
-              <ChatBubbleOutlineRoundedIcon />
-            </Badge>
+        {/* Action cluster: messages / theme / back-to-site, grouped together
+            and separated from the avatar by a hairline divider. */}
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.25,
+            ml: { xs: 0, sm: 0.5 },
+          }}
+        >
+          <Tooltip title="Messages">
+            <IconButton onClick={() => navigate("/app/chat")} size="small" sx={actionIconSx}>
+              <Badge badgeContent={unread} color="error" max={99}>
+                <ChatBubbleOutlineRoundedIcon />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+
+          <ThemeToggle />
+
+          <Tooltip title="Back to site">
+            <IconButton onClick={() => navigate("/")} size="small" sx={actionIconSx}>
+              <HomeOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{ mx: 0.75, my: 1.5, borderColor: "divider" }}
+        />
+
+        <Tooltip title="Account">
+          <IconButton
+            onClick={(e) => setAnchorEl(e.currentTarget)}
+            size="small"
+            sx={{
+              p: 0.5,
+              borderRadius: 999,
+              transition: "background-color .2s ease",
+              "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.08) },
+            }}
+          >
+            <Avatar
+              src={user?.avatarUrl || undefined}
+              sx={{
+                bgcolor: "primary.alt",
+                color: "primary.main",
+                fontWeight: 700,
+                fontSize: 15,
+                width: 36,
+                height: 36,
+                border: 2,
+                borderColor: alpha(theme.palette.primary.main, 0.25),
+              }}
+            >
+              {initials || "U"}
+            </Avatar>
           </IconButton>
         </Tooltip>
-
-        <ThemeToggle />
-
-        <Tooltip title="Back to site">
-          <IconButton onClick={() => navigate("/")} size="small">
-            <HomeOutlinedIcon />
-          </IconButton>
-        </Tooltip>
-
-        <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} size="small">
-          <Avatar src={user?.avatarUrl || undefined} sx={{ bgcolor: "primary.alt", width: 38, height: 38 }}>
-            {initials || "U"}
-          </Avatar>
-        </IconButton>
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
-          slotProps={{ paper: { sx: { mt: 1, minWidth: 224, borderRadius: 2 } } }}
+          slotProps={{
+            paper: {
+              elevation: 0,
+              sx: {
+                mt: 1,
+                minWidth: 248,
+                borderRadius: 2.5,
+                border: 1,
+                borderColor: "divider",
+                overflow: "hidden",
+                boxShadow: `0 12px 32px -12px ${alpha(theme.palette.common.black, 0.35)}`,
+              },
+            },
+          }}
         >
-          <Box sx={{ px: 2, py: 1.25 }}>
-            <Typography sx={{ fontWeight: 700 }}>{fullName(user)}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {user?.email}
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, px: 2, py: 1.5 }}>
+            <Avatar
+              src={user?.avatarUrl || undefined}
+              sx={{
+                bgcolor: "primary.alt",
+                color: "primary.main",
+                fontWeight: 700,
+                width: 40,
+                height: 40,
+              }}
+            >
+              {initials || "U"}
+            </Avatar>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontWeight: 700 }} noWrap>
+                {fullName(user)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" noWrap>
+                {user?.email}
+              </Typography>
+            </Box>
           </Box>
           <Divider />
           <MenuItem

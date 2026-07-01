@@ -261,7 +261,6 @@ const Hero = () => {
                   backgroundSize: "200% auto",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
                   color: "#FB9C43",
                   filter: "drop-shadow(0 2px 6px rgba(255,122,0,0.15))",
                 }}
