@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Avatar,
   Box,
@@ -12,12 +12,6 @@ import {
   IconButton,
   Stack,
   Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   TextField,
   Tooltip,
   Typography,
@@ -26,7 +20,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import PageHeader from "../../components/common/PageHeader";
-import QueryState from "../../components/common/QueryState";
+import DataTable from "../../components/common/DataTable";
 import {
   useAllSpecies,
   useSpeciesMutations,
@@ -88,8 +82,55 @@ const SpeciesPage = () => {
     }
   };
 
-  const toggleActive = (s) =>
-    update.mutate({ id: s.id, isActive: !s.isActive });
+  const toggleActive = useCallback(
+    (s) => update.mutate({ id: s.id, isActive: !s.isActive }),
+    [update],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Species",
+        Cell: ({ row }) => (
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar
+              sx={{ bgcolor: `${row.original.tint}22`, width: 38, height: 38, fontSize: 20 }}
+            >
+              {row.original.emoji}
+            </Avatar>
+            <Typography sx={{ fontWeight: 600 }}>{row.original.name}</Typography>
+          </Stack>
+        ),
+      },
+      {
+        accessorKey: "key",
+        header: "Key",
+        Cell: ({ cell }) => <Chip size="small" variant="outlined" label={cell.getValue()} />,
+      },
+      {
+        accessorKey: "petCount",
+        header: "Pets",
+        muiTableHeadCellProps: { align: "right" },
+        muiTableBodyCellProps: { align: "right" },
+      },
+      {
+        accessorKey: "isActive",
+        header: "Active",
+        enableSorting: false,
+        muiTableHeadCellProps: { align: "center" },
+        muiTableBodyCellProps: { align: "center" },
+        Cell: ({ row }) => (
+          <Switch
+            checked={row.original.isActive}
+            onChange={() => toggleActive(row.original)}
+            disabled={saving}
+          />
+        ),
+      },
+    ],
+    [saving, toggleActive],
+  );
 
   return (
     <Box>
@@ -107,80 +148,34 @@ const SpeciesPage = () => {
         }
       />
 
-      <QueryState
+      <DataTable
+        columns={columns}
+        data={items}
         query={query}
-        isEmpty={items.length === 0}
         emptyMessage="No species yet. Add your first one."
-      >
-        <TableContainer
-          component={Box}
-          sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3 }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Species</TableCell>
-                <TableCell>Key</TableCell>
-                <TableCell align="right">Pets</TableCell>
-                <TableCell align="center">Active</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items.map((s) => (
-                <TableRow key={s.id} hover>
-                  <TableCell>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar
-                        sx={{ bgcolor: `${s.tint}22`, width: 38, height: 38, fontSize: 20 }}
-                      >
-                        {s.emoji}
-                      </Avatar>
-                      <Typography sx={{ fontWeight: 600 }}>{s.name}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <Chip size="small" variant="outlined" label={s.key} />
-                  </TableCell>
-                  <TableCell align="right">{s.petCount}</TableCell>
-                  <TableCell align="center">
-                    <Switch
-                      checked={s.isActive}
-                      onChange={() => toggleActive(s)}
-                      disabled={saving}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Edit">
-                      <IconButton size="small" onClick={() => openEdit(s)}>
-                        <EditOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip
-                      title={
-                        s.petCount > 0
-                          ? "In use — deactivate instead"
-                          : "Delete"
-                      }
-                    >
-                      <span>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          disabled={s.petCount > 0}
-                          onClick={() => setConfirmDelete(s)}
-                        >
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </QueryState>
+        enableSearch
+        rowActions={(s) => (
+          <>
+            <Tooltip title="Edit">
+              <IconButton size="small" onClick={() => openEdit(s)}>
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={s.petCount > 0 ? "In use — deactivate instead" : "Delete"}>
+              <span>
+                <IconButton
+                  size="small"
+                  color="error"
+                  disabled={s.petCount > 0}
+                  onClick={() => setConfirmDelete(s)}
+                >
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
+          </>
+        )}
+      />
 
       {/* Create / edit dialog */}
       <Dialog open={Boolean(dialog)} onClose={close} maxWidth="xs" fullWidth>

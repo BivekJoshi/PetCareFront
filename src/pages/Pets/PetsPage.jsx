@@ -1,25 +1,12 @@
-import { useState } from "react";
-import {
-  Box,
-  Button,
-  Chip,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-} from "@mui/material";
+import { useMemo, useState } from "react";
+import { Box, Button, Chip, IconButton, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import HealthAndSafetyOutlinedIcon from "@mui/icons-material/HealthAndSafetyOutlined";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
 import PageHeader from "../../components/common/PageHeader";
-import QueryState from "../../components/common/QueryState";
+import DataTable from "../../components/common/DataTable";
 import PetFormDialog from "./PetFormDialog";
 import PetHealthDialog from "./PetHealthDialog";
 import { usePets, usePetMutations } from "../../hooks/pets/usePets";
@@ -45,6 +32,47 @@ const PetsPage = () => {
     }
   };
 
+  const columns = useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+        Cell: ({ cell }) => (
+          <Box sx={{ fontWeight: 600 }}>{cell.getValue()}</Box>
+        ),
+      },
+      {
+        accessorKey: "code",
+        header: "Code",
+        Cell: ({ cell }) => (
+          <Chip
+            size="small"
+            variant="outlined"
+            icon={<QrCode2Icon />}
+            label={cell.getValue() || "—"}
+            sx={{ fontFamily: "monospace" }}
+          />
+        ),
+      },
+      {
+        accessorKey: "species",
+        header: "Species",
+        Cell: ({ cell }) => <Chip size="small" label={humanize(cell.getValue())} />,
+      },
+      {
+        accessorKey: "breed",
+        header: "Breed",
+        Cell: ({ cell }) => cell.getValue() || "—",
+      },
+      {
+        id: "area",
+        header: "Area",
+        accessorFn: (row) => row.area?.name || "—",
+      },
+    ],
+    [],
+  );
+
   return (
     <Box>
       <PageHeader
@@ -61,60 +89,33 @@ const PetsPage = () => {
         }
       />
 
-      <QueryState query={query} isEmpty={pets.length === 0} emptyMessage="No pets yet — register your first one.">
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Code</TableCell>
-                <TableCell>Species</TableCell>
-                <TableCell>Breed</TableCell>
-                <TableCell>Area</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {pets.map((pet) => (
-                <TableRow key={pet.id} hover>
-                  <TableCell sx={{ fontWeight: 600 }}>{pet.name}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      icon={<QrCode2Icon />}
-                      label={pet.code || "—"}
-                      sx={{ fontFamily: "monospace" }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Chip size="small" label={humanize(pet.species)} />
-                  </TableCell>
-                  <TableCell>{pet.breed || "—"}</TableCell>
-                  <TableCell>{pet.area?.name || "—"}</TableCell>
-                  <TableCell align="right">
-                    <Tooltip title="Health record">
-                      <IconButton onClick={() => setHealth({ open: true, pet })} color="primary">
-                        <HealthAndSafetyOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit">
-                      <IconButton onClick={() => setDialog({ open: true, pet })}>
-                        <EditOutlinedIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Remove">
-                      <IconButton onClick={() => handleDelete(pet)} color="error">
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </QueryState>
+      <DataTable
+        columns={columns}
+        data={pets}
+        query={query}
+        emptyMessage="No pets yet — register your first one."
+        enableSearch
+        enablePagination
+        rowActions={(pet) => (
+          <>
+            <Tooltip title="Health record">
+              <IconButton onClick={() => setHealth({ open: true, pet })} color="primary">
+                <HealthAndSafetyOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton onClick={() => setDialog({ open: true, pet })}>
+                <EditOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Remove">
+              <IconButton onClick={() => handleDelete(pet)} color="error">
+                <DeleteOutlineIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </>
+        )}
+      />
 
       <PetFormDialog
         open={dialog.open}

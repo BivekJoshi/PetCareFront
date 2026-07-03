@@ -65,8 +65,14 @@ const AuthSettingsPage = Loadable(
 const EmailTemplatesPage = Loadable(
   lazy(() => import("../pages/Admin/EmailTemplatesPage")),
 );
-const UserManagementPage = Loadable(
-  lazy(() => import("../pages/Admin/UserManagementPage")),
+const VetUsersPage = Loadable(
+  lazy(() => import("../pages/Admin/VetUsersPage")),
+);
+const CustomerUsersPage = Loadable(
+  lazy(() => import("../pages/Admin/CustomerUsersPage")),
+);
+const AdminUsersPage = Loadable(
+  lazy(() => import("../pages/Admin/AdminUsersPage")),
 );
 const RoleRequestsPage = Loadable(
   lazy(() => import("../pages/Admin/RoleRequestsPage")),
@@ -169,7 +175,9 @@ const AppRoutes = () => {
               {/* Government / admin only */}
               <Route element={<ProtectedRoute roles={[ADMIN, SUPER_ADMIN]} />}>
                 <Route path="insights" element={<InsightsPage />} />
-                <Route path="admin/users" element={<UserManagementPage />} />
+                <Route path="admin/vets" element={<VetUsersPage />} />
+                <Route path="admin/customers" element={<CustomerUsersPage />} />
+                <Route path="admin/admins" element={<AdminUsersPage />} />
                 <Route
                   path="admin/role-requests"
                   element={<RoleRequestsPage />}

@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import toast from "react-hot-toast";
-import { fetchUsers, updateUser, deleteUser } from "../../api/users/user-api";
+import {
+  fetchUsers,
+  searchUsers,
+  updateUser,
+  deleteUser,
+} from "../../api/users/user-api";
 
 const KEY = "users";
 
@@ -9,6 +14,14 @@ const onError = (error) =>
 
 export const useUsers = (params, options = {}) =>
   useQuery([KEY, params], () => fetchUsers(params), {
+    keepPreviousData: true,
+    ...options,
+  });
+
+// Body-driven paginated directory (POST /users/list). Powers the admin
+// Vets / Customers / Admins pages.
+export const useUserSearch = (payload, options = {}) =>
+  useQuery([KEY, "search", payload], () => searchUsers(payload), {
     keepPreviousData: true,
     ...options,
   });

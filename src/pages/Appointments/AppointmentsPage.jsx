@@ -1,22 +1,9 @@
-import { useState } from "react";
-import {
-  Box,
-  Button,
-  Chip,
-  IconButton,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-} from "@mui/material";
+import { useMemo, useState } from "react";
+import { Box, Button, Chip, IconButton, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import PageHeader from "../../components/common/PageHeader";
-import QueryState from "../../components/common/QueryState";
+import DataTable from "../../components/common/DataTable";
 import BookAppointmentDialog from "./BookAppointmentDialog";
 import {
   useAppointments,
@@ -41,6 +28,44 @@ const AppointmentsPage = () => {
     }
   };
 
+  const columns = useMemo(
+    () => [
+      {
+        id: "pet",
+        header: "Pet",
+        accessorFn: (row) => row.pet?.name || "—",
+        Cell: ({ cell }) => <Box sx={{ fontWeight: 600 }}>{cell.getValue()}</Box>,
+      },
+      {
+        id: "service",
+        header: "Service",
+        accessorFn: (row) => row.service?.name || "—",
+      },
+      {
+        id: "vet",
+        header: "Vet",
+        accessorFn: (row) => (row.vet ? fullName(row.vet.user) : "—"),
+      },
+      {
+        accessorKey: "scheduledAt",
+        header: "When",
+        Cell: ({ cell }) => formatDateTime(cell.getValue()),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        Cell: ({ cell }) => (
+          <Chip
+            size="small"
+            label={humanize(cell.getValue())}
+            color={STATUS_COLORS[cell.getValue()] || "default"}
+          />
+        ),
+      },
+    ],
+    [],
+  );
+
   return (
     <Box>
       <PageHeader
@@ -53,52 +78,23 @@ const AppointmentsPage = () => {
         }
       />
 
-      <QueryState
+      <DataTable
+        columns={columns}
+        data={appointments}
         query={query}
-        isEmpty={appointments.length === 0}
         emptyMessage="No appointments yet — book your first visit."
-      >
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Pet</TableCell>
-                <TableCell>Service</TableCell>
-                <TableCell>Vet</TableCell>
-                <TableCell>When</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {appointments.map((a) => (
-                <TableRow key={a.id} hover>
-                  <TableCell sx={{ fontWeight: 600 }}>{a.pet?.name || "—"}</TableCell>
-                  <TableCell>{a.service?.name || "—"}</TableCell>
-                  <TableCell>{a.vet ? fullName(a.vet.user) : "—"}</TableCell>
-                  <TableCell>{formatDateTime(a.scheduledAt)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={humanize(a.status)}
-                      color={STATUS_COLORS[a.status] || "default"}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    {["PENDING", "CONFIRMED"].includes(a.status) && (
-                      <Tooltip title="Cancel">
-                        <IconButton color="error" onClick={() => handleCancel(a)}>
-                          <CancelOutlinedIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </QueryState>
+        enableSearch
+        enablePagination
+        rowActions={(appt) =>
+          ["PENDING", "CONFIRMED"].includes(appt.status) ? (
+            <Tooltip title="Cancel">
+              <IconButton color="error" onClick={() => handleCancel(appt)}>
+                <CancelOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          ) : null
+        }
+      />
 
       <BookAppointmentDialog
         open={open}

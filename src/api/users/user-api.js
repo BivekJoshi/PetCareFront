@@ -6,6 +6,11 @@ const unwrap = (res) => res.data?.data;
 export const fetchUsers = (params) =>
   axiosInstance.get("/users", { params }).then(unwrap);
 
+// Paginated + filtered directory. POST body carries pageNumber / pageSize plus
+// filters (roles, search, isActive, sortBy, sortOrder).
+export const searchUsers = (payload) =>
+  axiosInstance.post("/users/list", payload).then(unwrap);
+
 export const fetchUser = (id) =>
   axiosInstance.get(`/users/${id}`).then(unwrap);
 

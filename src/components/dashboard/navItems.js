@@ -21,6 +21,7 @@ import AutoDeleteOutlinedIcon from "@mui/icons-material/AutoDeleteOutlined";
 import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
 import MarkEmailReadOutlinedIcon from "@mui/icons-material/MarkEmailReadOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
@@ -123,8 +124,18 @@ export const NAV_SECTIONS = [
         roles: [ADMIN, SUPER_ADMIN],
         children: [
           {
-            label: "User Management",
-            to: "/app/admin/users",
+            label: "Vets",
+            to: "/app/admin/vets",
+            icon: LocalHospitalOutlinedIcon,
+          },
+          {
+            label: "Pet Owners",
+            to: "/app/admin/customers",
+            icon: PeopleAltOutlinedIcon,
+          },
+          {
+            label: "Admins",
+            to: "/app/admin/admins",
             icon: ManageAccountsOutlinedIcon,
           },
           {

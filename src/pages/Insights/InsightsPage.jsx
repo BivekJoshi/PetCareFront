@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Box,
   Card,
@@ -7,12 +8,6 @@ import {
   LinearProgress,
   Paper,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
 } from "@mui/material";
 import PetsOutlinedIcon from "@mui/icons-material/PetsOutlined";
@@ -23,6 +18,7 @@ import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivism
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
 import PageHeader from "../../components/common/PageHeader";
 import QueryState from "../../components/common/QueryState";
+import DataTable from "../../components/common/DataTable";
 import { useOverview, useByArea } from "../../hooks/stats/useStats";
 import { humanize } from "../../constants/domain";
 
@@ -70,6 +66,45 @@ const InsightsPage = () => {
   const o = overview.data;
   const rows = byArea.data?.areas ?? [];
   const maxPets = Math.max(1, ...rows.map((r) => r.petCount));
+
+  const areaColumns = useMemo(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Ward",
+        Cell: ({ cell }) => <Box sx={{ fontWeight: 600 }}>{cell.getValue()}</Box>,
+      },
+      {
+        accessorKey: "petCount",
+        header: "Pets",
+        muiTableHeadCellProps: { align: "right" },
+        muiTableBodyCellProps: { align: "right" },
+      },
+      {
+        id: "distribution",
+        header: "Distribution",
+        enableSorting: false,
+        size: 260,
+        Cell: ({ row }) => (
+          <LinearProgress
+            variant="determinate"
+            value={(row.original.petCount / maxPets) * 100}
+            sx={{ height: 8, borderRadius: 4 }}
+          />
+        ),
+      },
+      {
+        accessorKey: "coverage",
+        header: "Vaccine coverage",
+        muiTableHeadCellProps: { align: "right" },
+        muiTableBodyCellProps: { align: "right" },
+        Cell: ({ cell }) => (
+          <Chip size="small" color={coverageColor(cell.getValue())} label={`${cell.getValue()}%`} />
+        ),
+      },
+    ],
+    [maxPets],
+  );
 
   return (
     <Box>
@@ -122,38 +157,15 @@ const InsightsPage = () => {
                   Where to focus the next campaign — most populous wards first.
                 </Typography>
               </Box>
-              <QueryState query={byArea} isEmpty={rows.length === 0} emptyMessage="No ward data yet.">
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Ward</TableCell>
-                        <TableCell align="right">Pets</TableCell>
-                        <TableCell sx={{ width: "35%" }}>Distribution</TableCell>
-                        <TableCell align="right">Vaccine coverage</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((r) => (
-                        <TableRow key={r.id} hover>
-                          <TableCell sx={{ fontWeight: 600 }}>{r.name}</TableCell>
-                          <TableCell align="right">{r.petCount}</TableCell>
-                          <TableCell>
-                            <LinearProgress
-                              variant="determinate"
-                              value={(r.petCount / maxPets) * 100}
-                              sx={{ height: 8, borderRadius: 4 }}
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Chip size="small" color={coverageColor(r.coverage)} label={`${r.coverage}%`} />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </QueryState>
+              <DataTable
+                columns={areaColumns}
+                data={rows}
+                query={byArea}
+                emptyMessage="No ward data yet."
+                flush
+                maxHeight="none"
+                initialState={{ density: "compact" }}
+              />
             </Paper>
           </Grid>
 

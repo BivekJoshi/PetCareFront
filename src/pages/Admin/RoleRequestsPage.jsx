@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   Avatar,
@@ -14,12 +14,6 @@ import {
   MenuItem,
   Stack,
   Tab,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Tabs,
   TextField,
   Typography,
@@ -29,7 +23,7 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import PageHeader from "../../components/common/PageHeader";
-import QueryState from "../../components/common/QueryState";
+import DataTable from "../../components/common/DataTable";
 import VetsMap from "../../components/common/map/VetsMap";
 import {
   useRoleRequests,
@@ -63,6 +57,64 @@ const RoleRequestsPage = () => {
     setOverrideRole(req.requestedRole);
   };
   const closeReview = () => setSelected(null);
+
+  const columns = useMemo(
+    () => [
+      {
+        id: "requester",
+        header: "Requester",
+        accessorFn: (row) => fullName(row.user),
+        Cell: ({ row }) => (
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar src={row.original.user?.avatarUrl} sx={{ width: 36, height: 36 }}>
+              {row.original.user?.firstName?.[0]}
+            </Avatar>
+            <Box>
+              <Typography sx={{ fontWeight: 600 }}>
+                {fullName(row.original.user)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {row.original.user?.email}
+              </Typography>
+            </Box>
+          </Stack>
+        ),
+      },
+      {
+        id: "change",
+        header: "Change",
+        accessorFn: (row) => humanize(row.requestedRole),
+        Cell: ({ row }) => (
+          <>
+            {humanize(row.original.currentRole)} →{" "}
+            <strong>{humanize(row.original.requestedRole)}</strong>
+          </>
+        ),
+      },
+      {
+        id: "documents",
+        header: "Documents",
+        accessorFn: (row) => row.documents?.length || 0,
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Submitted",
+        Cell: ({ cell }) => formatDateTime(cell.getValue()),
+      },
+      {
+        accessorKey: "status",
+        header: "Status",
+        Cell: ({ cell }) => (
+          <Chip
+            size="small"
+            label={humanize(cell.getValue())}
+            color={ROLE_REQUEST_STATUS_COLORS[cell.getValue()]}
+          />
+        ),
+      },
+    ],
+    [],
+  );
 
   const decide = (status) => {
     review.mutate(
@@ -103,68 +155,23 @@ const RoleRequestsPage = () => {
         ))}
       </Tabs>
 
-      <QueryState
+      <DataTable
+        columns={columns}
+        data={items}
         query={query}
-        isEmpty={items.length === 0}
         emptyMessage="No requests in this view."
-      >
-        <TableContainer component={Box} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Requester</TableCell>
-                <TableCell>Change</TableCell>
-                <TableCell>Documents</TableCell>
-                <TableCell>Submitted</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="right">Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items.map((req) => (
-                <TableRow key={req.id} hover>
-                  <TableCell>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar src={req.user?.avatarUrl} sx={{ width: 36, height: 36 }}>
-                        {req.user?.firstName?.[0]}
-                      </Avatar>
-                      <Box>
-                        <Typography sx={{ fontWeight: 600 }}>
-                          {fullName(req.user)}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {req.user?.email}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </TableCell>
-                  <TableCell>
-                    {humanize(req.currentRole)} → <strong>{humanize(req.requestedRole)}</strong>
-                  </TableCell>
-                  <TableCell>{req.documents?.length || 0}</TableCell>
-                  <TableCell>{formatDateTime(req.createdAt)}</TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={humanize(req.status)}
-                      color={ROLE_REQUEST_STATUS_COLORS[req.status]}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <Button
-                      size="small"
-                      variant={req.status === "PENDING" ? "contained" : "text"}
-                      onClick={() => openReview(req)}
-                    >
-                      {req.status === "PENDING" ? "Review" : "View"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </QueryState>
+        enableSearch
+        actionsHeader="Action"
+        rowActions={(req) => (
+          <Button
+            size="small"
+            variant={req.status === "PENDING" ? "contained" : "text"}
+            onClick={() => openReview(req)}
+          >
+            {req.status === "PENDING" ? "Review" : "View"}
+          </Button>
+        )}
+      />
 
       {/* Review dialog */}
       <Dialog open={Boolean(selected)} onClose={closeReview} maxWidth="md" fullWidth>
