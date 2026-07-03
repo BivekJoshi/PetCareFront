@@ -11,6 +11,11 @@ export const fetchPet = (id) => axiosInstance.get(`/pets/${id}`).then(unwrap);
 export const lookupPetByCode = (code) =>
   axiosInstance.get(`/pets/lookup/${encodeURIComponent(code)}`).then(unwrap);
 
+// Staff-facing: pull up a pet owner (all their pets + appointment history) by
+// the owner's shareable code.
+export const lookupOwnerByCode = (code) =>
+  axiosInstance.get(`/pets/owner-lookup/${encodeURIComponent(code)}`).then(unwrap);
+
 export const createPet = (payload) =>
   axiosInstance.post("/pets", payload).then(unwrap);
 

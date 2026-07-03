@@ -1,16 +1,22 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
   Divider,
+  IconButton,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Stack,
   Switch,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import QrCode2Icon from "@mui/icons-material/QrCode2";
+import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
@@ -32,6 +38,14 @@ const OwnerProfile = () => {
   const { user, role } = useAuth();
   const { mode, toggleMode } = useColorMode();
   const { mutate: logout } = useLogout();
+  const [copied, setCopied] = useState(false);
+
+  const copyCode = () => {
+    if (!user?.ownerCode) return;
+    navigator.clipboard?.writeText(user.ownerCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   return (
     <Box>
@@ -60,6 +74,34 @@ const OwnerProfile = () => {
           )}
         </Stack>
       </Card>
+
+      {/* PetCare code — share with a vet/clinic so they can pull up your pets */}
+      {user?.ownerCode && (
+        <Card variant="outlined" sx={{ borderRadius: 4, p: 2, mb: 2 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <QrCode2Icon color="primary" />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="caption" color="text.secondary">
+                Your PetCare code
+              </Typography>
+              <Typography
+                sx={{ fontWeight: 800, fontFamily: "monospace", letterSpacing: 1 }}
+              >
+                {user.ownerCode}
+              </Typography>
+            </Box>
+            <Tooltip title={copied ? "Copied!" : "Copy code"}>
+              <IconButton onClick={copyCode} color={copied ? "success" : "default"}>
+                {copied ? <CheckRoundedIcon /> : <ContentCopyRoundedIcon />}
+              </IconButton>
+            </Tooltip>
+          </Stack>
+          <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+            Share this with your vet or clinic to let them view your pets and their
+            appointment history.
+          </Typography>
+        </Card>
+      )}
 
       {/* Settings list */}
       <Card variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
