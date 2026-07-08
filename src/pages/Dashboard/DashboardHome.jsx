@@ -264,7 +264,7 @@ const HeroBanner = ({ name, role, petCount, upcoming, unread }) => {
           px: { xs: 3, md: 5 },
           py: { xs: 3.5, md: 4.5 },
           mb: 3,
-          boxShadow: "0 24px 48px -24px rgba(48, 111, 107, 0.65)",
+          boxShadow: "0 10px 15px -3px rgba(48, 111, 107, 0.3), 0 4px 6px -4px rgba(48, 111, 107, 0.25)",
         }}
       >
         {/* decorative blobs */}

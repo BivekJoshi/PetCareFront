@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
+import QrCodeScannerRoundedIcon from "@mui/icons-material/QrCodeScannerRounded";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
 import NoteAddOutlinedIcon from "@mui/icons-material/NoteAddOutlined";
@@ -30,6 +31,7 @@ import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import FolderSharedOutlinedIcon from "@mui/icons-material/FolderSharedOutlined";
 import PageHeader from "../../components/common/PageHeader";
+import QrScannerDialog from "../../components/common/qr/QrScannerDialog";
 import AddVaccinationDialog from "./AddVaccinationDialog";
 import AddRecordDialog from "./AddRecordDialog";
 import { usePetLookup, useOwnerLookup } from "../../hooks/pets/usePetLookup";
@@ -40,6 +42,12 @@ import { formatDate, formatDateTime, fullName } from "../../utility/format";
 
 // Owner codes start with this prefix; anything else is treated as a pet code.
 const OWNER_PREFIX = "NP-OWN";
+
+// A scanned QR may hold the raw code or a URL that embeds it — pull the code out.
+const extractCode = (text) => {
+  const match = (text || "").toUpperCase().match(/NP-(?:OWN|PET)-[A-Z0-9]+/);
+  return match ? match[0] : (text || "").trim();
+};
 
 const InfoRow = ({ icon: Icon, label, value }) => (
   <Stack direction="row" spacing={1.5} alignItems="center">
@@ -159,6 +167,7 @@ const VetConsolePage = () => {
   const [owner, setOwner] = useState(null); // { owner, pets } from an owner-code lookup
   const [mode, setMode] = useState(null); // 'pet' | 'owner' — which lookup last ran
   const [dialog, setDialog] = useState(null); // 'vaccine' | 'record' | null
+  const [scanOpen, setScanOpen] = useState(false);
 
   const petLookup = usePetLookup({
     onSuccess: (data) => {
@@ -200,6 +209,14 @@ const VetConsolePage = () => {
   const runLookup = (e) => {
     e?.preventDefault();
     lookupCode(code);
+  };
+
+  // A QR was scanned — pull the code out, drop it in the box and look it up.
+  const handleScanned = (text) => {
+    const parsed = extractCode(text);
+    setScanOpen(false);
+    setCode(parsed);
+    lookupCode(parsed);
   };
 
   // From an owner's pet, jump straight into that pet's clinical record.
@@ -252,19 +269,38 @@ const VetConsolePage = () => {
                 ),
               }}
             />
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              startIcon={isLoading ? <CircularProgress size={18} color="inherit" /> : <SearchIcon />}
-              disabled={isLoading || !code.trim()}
-              sx={{ minWidth: 140 }}
-            >
-              Look up
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<QrCodeScannerRoundedIcon />}
+                onClick={() => setScanOpen(true)}
+                sx={{ minWidth: 120 }}
+              >
+                Scan
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                startIcon={isLoading ? <CircularProgress size={18} color="inherit" /> : <SearchIcon />}
+                disabled={isLoading || !code.trim()}
+                sx={{ minWidth: 140 }}
+              >
+                Look up
+              </Button>
+            </Stack>
           </Stack>
         </Box>
       </Paper>
+
+      <QrScannerDialog
+        open={scanOpen}
+        onClose={() => setScanOpen(false)}
+        onResult={handleScanned}
+        title="Scan PetCare code"
+        hint="Point the camera at the owner's QR code (or a pet's registration QR)."
+      />
 
       {notFound && (
         <Alert severity="warning" sx={{ mb: 3 }}>

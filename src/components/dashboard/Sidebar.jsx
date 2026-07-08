@@ -431,7 +431,7 @@ const Sidebar = ({ mini = false, onNavigate }) => {
               borderRadius: 2,
               overflow: "hidden",
               border: `1px solid ${alpha(primary, 0.18)}`,
-              boxShadow: `0 16px 40px -12px ${alpha("#000", 0.5)}`,
+              boxShadow: `0 10px 15px -3px ${alpha("#000", 0.35)}, 0 4px 6px -4px ${alpha("#000", 0.3)}`,
             },
           },
         }}

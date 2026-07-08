@@ -305,7 +305,7 @@ const DashboardAppBar = ({
                 border: 1,
                 borderColor: "divider",
                 overflow: "hidden",
-                boxShadow: `0 12px 32px -12px ${alpha(theme.palette.common.black, 0.35)}`,
+                boxShadow: `0 10px 15px -3px ${alpha(theme.palette.common.black, 0.12)}, 0 4px 6px -4px ${alpha(theme.palette.common.black, 0.1)}`,
               },
             },
           }}

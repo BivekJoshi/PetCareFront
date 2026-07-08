@@ -223,7 +223,8 @@ const CommandPalette = ({ open, onClose }) => {
             overflow: "hidden",
             border: 1,
             borderColor: "divider",
-            boxShadow: "0 24px 64px -16px rgba(16, 24, 40, 0.45)",
+            boxShadow:
+              "0 20px 25px -5px rgba(16, 24, 40, 0.18), 0 8px 10px -6px rgba(16, 24, 40, 0.14)",
           },
         },
       }}

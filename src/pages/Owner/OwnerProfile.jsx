@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
+  Button,
   Card,
   Divider,
   IconButton,
@@ -15,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import QrCode2Icon from "@mui/icons-material/QrCode2";
+import QrCodeScannerRoundedIcon from "@mui/icons-material/QrCodeScannerRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
@@ -27,6 +29,7 @@ import MailOutlineRoundedIcon from "@mui/icons-material/MailOutlineRounded";
 import PhoneIphoneRoundedIcon from "@mui/icons-material/PhoneIphoneRounded";
 
 import AvatarUploader from "../../components/common/AvatarUploader";
+import OwnerQrDialog from "../../components/common/qr/OwnerQrDialog";
 import { useAuth } from "../../context/AuthContext";
 import { useColorMode } from "../../context/ColorModeContext";
 import { useLogout } from "../../hooks/auth/useAuth";
@@ -39,6 +42,7 @@ const OwnerProfile = () => {
   const { mode, toggleMode } = useColorMode();
   const { mutate: logout } = useLogout();
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
 
   const copyCode = () => {
     if (!user?.ownerCode) return;
@@ -96,12 +100,28 @@ const OwnerProfile = () => {
               </IconButton>
             </Tooltip>
           </Stack>
+          <Button
+            fullWidth
+            variant="contained"
+            startIcon={<QrCodeScannerRoundedIcon />}
+            onClick={() => setQrOpen(true)}
+            sx={{ mt: 1.5, borderRadius: 2 }}
+          >
+            Show QR code
+          </Button>
           <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
-            Share this with your vet or clinic to let them view your pets and their
-            appointment history.
+            Show the QR (or share this code) so your vet or clinic can scan it to view
+            your pets and their appointment history.
           </Typography>
         </Card>
       )}
+
+      <OwnerQrDialog
+        open={qrOpen}
+        onClose={() => setQrOpen(false)}
+        code={user?.ownerCode}
+        name={fullName(user)}
+      />
 
       {/* Settings list */}
       <Card variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>

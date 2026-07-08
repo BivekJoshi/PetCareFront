@@ -183,8 +183,39 @@ export const themeSettings = (mode = "light") => {
         crest: [0.02, 0.05, 0.05],
       };
 
+  // Clean, Tailwind-inspired elevation ramp that replaces MUI's default heavy
+  // material shadows. Six tiers (sm → 2xl) expanded across MUI's 25 elevation
+  // slots so every elevation-based surface (Paper, Card, Menu, Popover, AppBar)
+  // reads with the same soft, neutral depth. Cool-neutral tint in light mode,
+  // deeper alpha in dark mode where subtle shadows would otherwise vanish.
+  const shadowTiers = isDark
+    ? [
+        "0 1px 2px 0 rgba(0,0,0,0.4)",
+        "0 1px 3px 0 rgba(0,0,0,0.5),0 1px 2px -1px rgba(0,0,0,0.5)",
+        "0 4px 6px -1px rgba(0,0,0,0.5),0 2px 4px -2px rgba(0,0,0,0.5)",
+        "0 10px 15px -3px rgba(0,0,0,0.55),0 4px 6px -4px rgba(0,0,0,0.5)",
+        "0 20px 25px -5px rgba(0,0,0,0.55),0 8px 10px -6px rgba(0,0,0,0.5)",
+        "0 25px 50px -12px rgba(0,0,0,0.7)",
+      ]
+    : [
+        "0 1px 2px 0 rgba(16,24,40,0.05)",
+        "0 1px 3px 0 rgba(16,24,40,0.1),0 1px 2px -1px rgba(16,24,40,0.1)",
+        "0 4px 6px -1px rgba(16,24,40,0.1),0 2px 4px -2px rgba(16,24,40,0.1)",
+        "0 10px 15px -3px rgba(16,24,40,0.1),0 4px 6px -4px rgba(16,24,40,0.08)",
+        "0 20px 25px -5px rgba(16,24,40,0.1),0 8px 10px -6px rgba(16,24,40,0.08)",
+        "0 25px 50px -12px rgba(16,24,40,0.25)",
+      ];
+  const shadows = ["none"];
+  [1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6].forEach(
+    (tier) => shadows.push(shadowTiers[tier - 1]),
+  );
+
   return {
-    shape: { borderRadius: 14 },
+    // Compact base radius (MUI/Tailwind default). Numeric `sx` borderRadius
+    // values multiply this, so `borderRadius: 3` → 12px (rounded-xl),
+    // `2` → 8px (rounded-lg), `1` → 4px — a clean Tailwind radius scale.
+    shape: { borderRadius: 4 },
+    shadows,
     typography: {
       fontFamily: ["DM Sans", "sans-serif"].join(","),
       button: {
@@ -194,35 +225,42 @@ export const themeSettings = (mode = "light") => {
       },
       h1: {
         fontSize: "2.225rem",
-        lineHeight: "1",
+        fontWeight: 800,
+        lineHeight: "1.05",
         letterSpacing: "-0.0625rem",
       },
       h2: {
         fontSize: "1.875rem",
+        fontWeight: 800,
         lineHeight: "1.067",
         letterSpacing: "-0.05rem",
       },
       h3: {
         fontSize: "1.5rem",
+        fontWeight: 700,
         lineHeight: "1.083",
         letterSpacing: "-0.0375rem",
       },
       h4: {
         fontSize: "1.25rem",
+        fontWeight: 700,
         lineHeight: "1.1",
         letterSpacing: "-0.025rem",
       },
       h5: {
         fontSize: "1.125rem",
+        fontWeight: 600,
         lineHeight: "1.111",
         letterSpacing: "-0.0125rem",
       },
       h6: {
         fontSize: "1rem",
+        fontWeight: 600,
         letterSpacing: "-0.00625rem",
       },
       h7: {
         fontSize: "0.8rem",
+        fontWeight: 600,
         letterSpacing: "-0.00525rem",
       },
       "@media (max-width:600px)": {
@@ -305,7 +343,35 @@ export const themeSettings = (mode = "light") => {
         styleOverrides: {
           body: {
             transition: "background-color .3s ease, color .3s ease",
+            // Crisper text rendering — the single cheapest "clean" upgrade.
+            WebkitFontSmoothing: "antialiased",
+            MozOsxFontSmoothing: "grayscale",
+            textRendering: "optimizeLegibility",
           },
+          // Thin, unobtrusive, theme-aware scrollbars app-wide (WebKit + Firefox).
+          // Components with their own scrollbar rules (Sidebar, CommandPalette)
+          // are more specific and keep their bespoke styling.
+          "*": {
+            scrollbarWidth: "thin",
+            scrollbarColor: `${
+              isDark ? "rgba(226,232,240,0.22)" : "rgba(16,24,40,0.22)"
+            } transparent`,
+          },
+          "*::-webkit-scrollbar": { width: 10, height: 10 },
+          "*::-webkit-scrollbar-thumb": {
+            backgroundColor: isDark
+              ? "rgba(226,232,240,0.18)"
+              : "rgba(16,24,40,0.18)",
+            borderRadius: 999,
+            border: "2px solid transparent",
+            backgroundClip: "content-box",
+          },
+          "*::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: isDark
+              ? "rgba(226,232,240,0.32)"
+              : "rgba(16,24,40,0.3)",
+          },
+          "*::-webkit-scrollbar-corner": { backgroundColor: "transparent" },
         },
       },
       MuiButton: {
@@ -314,23 +380,23 @@ export const themeSettings = (mode = "light") => {
         },
         styleOverrides: {
           root: {
-            borderRadius: 999,
+            borderRadius: 8,
             paddingInline: "1.5rem",
             paddingBlock: "0.55rem",
             transition:
-              "transform .25s ease, box-shadow .25s ease, filter .25s ease, background .25s ease",
+              "transform .2s ease, box-shadow .2s ease, filter .2s ease, background .2s ease",
             "&:hover": {
-              transform: "translateY(-2px)",
+              transform: "translateY(-1px)",
             },
           },
           contained: {
             background: gradient,
             color: "#ffffff",
             backgroundSize: "150% 150%",
-            boxShadow: "0 8px 22px -8px rgba(33, 75, 72, 0.7)",
+            boxShadow: "0 1px 2px 0 rgba(33, 75, 72, 0.25)",
             "&:hover": {
               background: gradientHover,
-              boxShadow: "0 14px 28px -8px rgba(217, 112, 27, 0.6)",
+              boxShadow: "0 4px 8px -2px rgba(33, 75, 72, 0.35)",
             },
           },
           outlined: {
@@ -376,7 +442,7 @@ export const themeSettings = (mode = "light") => {
       MuiOutlinedInput: {
         styleOverrides: {
           root: {
-            borderRadius: 12,
+            borderRadius: 8,
             backgroundColor: isDark
               ? "rgba(255,255,255,0.04)"
               : "rgba(255,255,255,0.9)",
@@ -419,14 +485,116 @@ export const themeSettings = (mode = "light") => {
           },
         },
       },
-      MuiPaper: {
-        styleOverrides: {
-          rounded: { borderRadius: 16 },
-        },
-      },
       MuiChip: {
         styleOverrides: {
           root: { fontWeight: 600 },
+          outlined: { borderColor: divider },
+        },
+      },
+      // Flat, clean surfaces: drop MUI's dark-mode elevation tint so paper reads
+      // as a true surface colour; depth comes from the shadow ramp / borders.
+      MuiPaper: {
+        styleOverrides: {
+          root: { backgroundImage: "none" },
+          rounded: { borderRadius: 12 },
+        },
+      },
+      // Cards default to a clean bordered panel rather than a floating shadow —
+      // the modern dashboard look. Explicit elevation still wins where set.
+      MuiCard: {
+        defaultProps: { elevation: 0 },
+        styleOverrides: {
+          root: {
+            border: `1px solid ${divider}`,
+            backgroundImage: "none",
+          },
+        },
+      },
+      // Menus / popovers: rounded, hairline-bordered, soft-shadowed, with
+      // gently rounded item hover targets.
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 12,
+            border: `1px solid ${divider}`,
+            marginTop: 4,
+          },
+          list: { padding: 6 },
+        },
+      },
+      MuiMenuItem: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            marginInline: 2,
+            transition: "background-color .15s ease, color .15s ease",
+          },
+        },
+      },
+      MuiPopover: {
+        styleOverrides: {
+          paper: {
+            borderRadius: 12,
+            border: `1px solid ${divider}`,
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            transition: "background-color .15s ease, color .15s ease",
+          },
+        },
+      },
+      // Legible, padded, subtly rounded tooltips instead of the cramped default.
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            backgroundColor: isDark
+              ? "rgba(20,27,45,0.96)"
+              : "rgba(17,24,39,0.92)",
+            backdropFilter: "blur(6px)",
+            borderRadius: 8,
+            paddingInline: 10,
+            paddingBlock: 6,
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            boxShadow: shadows[4],
+          },
+          arrow: {
+            color: isDark ? "rgba(20,27,45,0.96)" : "rgba(17,24,39,0.92)",
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: { backgroundImage: "none" },
+        },
+      },
+      // Soft-blurred scrim so a modal reads as focused. Guarded on `invisible`
+      // so menu/select/popover backdrops stay transparent (no screen dimming).
+      MuiBackdrop: {
+        styleOverrides: {
+          root: ({ ownerState }) => ({
+            ...(!ownerState?.invisible && {
+              backgroundColor: isDark
+                ? "rgba(3,7,18,0.6)"
+                : "rgba(16,24,40,0.35)",
+              backdropFilter: "blur(2px)",
+            }),
+          }),
+        },
+      },
+      MuiLink: {
+        defaultProps: { underline: "hover" },
+        styleOverrides: {
+          root: { fontWeight: 600, textUnderlineOffset: 3 },
+        },
+      },
+      MuiDivider: {
+        styleOverrides: {
+          root: { borderColor: divider },
         },
       },
     },

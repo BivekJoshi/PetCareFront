@@ -57,9 +57,9 @@ const ScrollTopFab = ({ threshold = 320 }) => {
               borderRadius: "50%",
               color: "#fff",
               background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              boxShadow: `0 12px 28px -8px ${alpha(
+              boxShadow: `0 6px 12px -4px ${alpha(
                 theme.palette.primary.main,
-                0.7
+                0.5
               )}`,
             }}
           >
