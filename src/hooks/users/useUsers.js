@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import {
   fetchUsers,
   searchUsers,
+  queryUsers,
   updateUser,
   deleteUser,
 } from "../../api/users/user-api";
@@ -22,6 +23,15 @@ export const useUsers = (params, options = {}) =>
 // Vets / Customers / Admins pages.
 export const useUserSearch = (payload, options = {}) =>
   useQuery([KEY, "search", payload], () => searchUsers(payload), {
+    keepPreviousData: true,
+    ...options,
+  });
+
+// Same directory via the HTTP QUERY method (QUERY /users) — a safe, idempotent
+// read whose filters ride in the body. Drop-in replacement for useUserSearch;
+// swap the admin pages onto this to prefer QUERY over POST /list.
+export const useUserQuery = (payload, options = {}) =>
+  useQuery([KEY, "query", payload], () => queryUsers(payload), {
     keepPreviousData: true,
     ...options,
   });

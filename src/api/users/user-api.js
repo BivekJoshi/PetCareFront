@@ -11,6 +11,15 @@ export const fetchUsers = (params) =>
 export const searchUsers = (payload) =>
   axiosInstance.post("/users/list", payload).then(unwrap);
 
+// Same paginated + filtered directory as `searchUsers`, but via the HTTP QUERY
+// method (draft-ietf-httpbis-safe-method-w-body): a safe, idempotent read that
+// carries its filters in the body. Semantically a *query*, not a POST write —
+// the preferred method for reading the directory. Maps to QUERY /users.
+export const queryUsers = (payload) =>
+  axiosInstance
+    .request({ url: "/users", method: "QUERY", data: payload })
+    .then(unwrap);
+
 export const fetchUser = (id) =>
   axiosInstance.get(`/users/${id}`).then(unwrap);
 

@@ -25,9 +25,15 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import HowToRegOutlinedIcon from "@mui/icons-material/HowToRegOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
+import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
+import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
+import ReviewsOutlinedIcon from "@mui/icons-material/ReviewsOutlined";
+import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
 import { ROLES } from "../../constants/domain";
 
-const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
+const { SUPER_ADMIN, ADMIN, VET, PARTNER, PET_OWNER } = ROLES;
 
 /**
  * Grouped sidebar navigation.
@@ -98,6 +104,28 @@ export const NAV_SECTIONS = [
     ],
   },
   {
+    heading: "Marketplace",
+    items: [
+      { label: "Explore", to: "/app/marketplace", icon: StorefrontOutlinedIcon, end: true },
+      {
+        label: "My Collection",
+        to: "/app/marketplace/saved",
+        icon: BookmarkBorderOutlinedIcon,
+      },
+      {
+        label: "Partner",
+        icon: DashboardCustomizeOutlinedIcon,
+        roles: [PARTNER, ADMIN, SUPER_ADMIN],
+        children: [
+          { label: "My Storefront", to: "/app/partner", icon: StorefrontOutlinedIcon, end: true },
+          { label: "Offers", to: "/app/partner/offers", icon: LocalOfferOutlinedIcon },
+          { label: "Reviews", to: "/app/partner/reviews", icon: ReviewsOutlinedIcon },
+          { label: "Inbox", to: "/app/partner/inbox", icon: ForumOutlinedIcon },
+        ],
+      },
+    ],
+  },
+  {
     heading: "Clinic",
     items: [
       {
@@ -152,6 +180,16 @@ export const NAV_SECTIONS = [
             label: "Species",
             to: "/app/admin/species",
             icon: CategoryOutlinedIcon,
+          },
+          {
+            label: "MP · Listings",
+            to: "/app/admin/marketplace/listings",
+            icon: StorefrontOutlinedIcon,
+          },
+          {
+            label: "MP · Categories",
+            to: "/app/admin/marketplace/categories",
+            icon: DashboardCustomizeOutlinedIcon,
           },
           {
             label: "Chat Retention",

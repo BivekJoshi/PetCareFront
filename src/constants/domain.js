@@ -72,14 +72,15 @@ export const ROLES = {
   SUPER_ADMIN: "SUPER_ADMIN",
   ADMIN: "ADMIN",
   VET: "VET",
+  PARTNER: "PARTNER",
   PET_OWNER: "PET_OWNER",
 };
 
 // Roles a user may request for themselves (mirrors REQUESTABLE_ROLES on the API).
-export const REQUESTABLE_ROLES = ["VET", "ADMIN"];
+export const REQUESTABLE_ROLES = ["VET", "PARTNER", "ADMIN"];
 
 // Every assignable role — used by the admin "change role" picker.
-export const ASSIGNABLE_ROLES = ["SUPER_ADMIN", "ADMIN", "VET", "PET_OWNER"];
+export const ASSIGNABLE_ROLES = ["SUPER_ADMIN", "ADMIN", "VET", "PARTNER", "PET_OWNER"];
 
 export const ROLE_REQUEST_STATUSES = [
   "PENDING",
@@ -99,6 +100,8 @@ export const isAdmin = (role) =>
   role === ROLES.ADMIN || role === ROLES.SUPER_ADMIN;
 
 export const isVet = (role) => role === ROLES.VET;
+
+export const isPartner = (role) => role === ROLES.PARTNER;
 
 export const isStaff = (role) => isAdmin(role) || isVet(role);
 

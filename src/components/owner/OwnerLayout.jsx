@@ -16,6 +16,7 @@ import PetsRoundedIcon from "@mui/icons-material/PetsRounded";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import NotificationsRoundedIcon from "@mui/icons-material/NotificationsRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
 import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
 
 import { ChatProvider } from "../../context/ChatContext";
@@ -42,6 +43,7 @@ import VerificationBanners from "../auth/VerificationBanners";
 const TABS = [
   { value: "pets", label: "Pets", to: "/app/pets", icon: PetsRoundedIcon, match: (p) => p.startsWith("/app/pets") },
   { value: "appointments", label: "Visits", to: "/app/appointments", icon: EventRoundedIcon, match: (p) => p.startsWith("/app/appointments") },
+  { value: "marketplace", label: "Market", to: "/app/marketplace", icon: StorefrontRoundedIcon, match: (p) => p.startsWith("/app/marketplace") },
   { value: "home", label: "Home", to: "/app", icon: HomeRoundedIcon, match: () => true },
   { value: "reminders", label: "Alerts", to: "/app/reminders", icon: NotificationsRoundedIcon, match: (p) => p.startsWith("/app/reminders") },
   { value: "profile", label: "Profile", to: "/app/profile", icon: PersonRoundedIcon, match: (p) => p.startsWith("/app/profile") || p.startsWith("/app/account") },

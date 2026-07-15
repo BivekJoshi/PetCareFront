@@ -80,10 +80,49 @@ const RoleRequestsPage = Loadable(
 const RoleRequestFieldsPage = Loadable(
   lazy(() => import("../pages/Admin/RoleRequestFieldsPage")),
 );
+const MarketplaceListingsPage = Loadable(
+  lazy(() => import("../pages/Admin/MarketplaceListingsPage")),
+);
+const MarketplaceCategoriesPage = Loadable(
+  lazy(() => import("../pages/Admin/MarketplaceCategoriesPage")),
+);
 const RoleRequestPage = Loadable(
   lazy(() => import("../pages/Account/RoleRequestPage")),
 );
 const SpeciesPage = Loadable(lazy(() => import("../pages/Admin/SpeciesPage")));
+
+// Marketplace — customer discovery (all authenticated roles) + public share page.
+const MarketplaceScopeLayout = Loadable(
+  lazy(() => import("../pages/Marketplace/MarketplaceScopeLayout")),
+);
+const MarketplaceHome = Loadable(
+  lazy(() => import("../pages/Marketplace/MarketplaceHome")),
+);
+const CategoryListing = Loadable(
+  lazy(() => import("../pages/Marketplace/CategoryListing")),
+);
+const BusinessDetail = Loadable(
+  lazy(() => import("../pages/Marketplace/BusinessDetail")),
+);
+const OfferDetail = Loadable(lazy(() => import("../pages/Marketplace/OfferDetail")));
+const MarketplaceSearch = Loadable(
+  lazy(() => import("../pages/Marketplace/MarketplaceSearch")),
+);
+const MyCollection = Loadable(
+  lazy(() => import("../pages/Marketplace/MyCollection")),
+);
+const PublicBusinessPage = Loadable(
+  lazy(() => import("../pages/Marketplace/PublicBusinessPage")),
+);
+
+// Partner dashboard (PARTNER role — KYB-gated storefront management).
+const PartnerScopeLayout = Loadable(
+  lazy(() => import("../pages/Partner/PartnerScopeLayout")),
+);
+const ListingEditor = Loadable(lazy(() => import("../pages/Partner/ListingEditor")));
+const OffersManager = Loadable(lazy(() => import("../pages/Partner/OffersManager")));
+const ReviewsManager = Loadable(lazy(() => import("../pages/Partner/ReviewsManager")));
+const PartnerInbox = Loadable(lazy(() => import("../pages/Partner/PartnerInbox")));
 
 const NotFoundPage = Loadable(
   lazy(() => import("../pages/Error/NotFoundPage")),
@@ -92,7 +131,7 @@ const UnauthorizedPage = Loadable(
   lazy(() => import("../pages/Error/UnauthorizedPage")),
 );
 
-const { SUPER_ADMIN, ADMIN, VET, PET_OWNER } = ROLES;
+const { SUPER_ADMIN, ADMIN, VET, PARTNER, PET_OWNER } = ROLES;
 
 // Render the owner-tailored page for pet owners, the staff page otherwise.
 const byRole = (OwnerEl, StaffEl) => {
@@ -142,6 +181,9 @@ const AppRoutes = () => {
             <Route path="home" element={<LandingPage />} />
           </Route>
 
+          {/* Public, shareable business page (marketplace share links) */}
+          <Route path="/m/:slug" element={<PublicBusinessPage />} />
+
           {/* Protected dashboard */}
           <Route element={<ProtectedRoute />}>
             <Route path="/app" element={<AppShell />}>
@@ -159,6 +201,26 @@ const AppRoutes = () => {
               <Route path="vets" element={<VetsPage />} />
               <Route path="chat" element={<ChatPage />} />
               <Route path="profile" element={<OwnerProfile />} />
+
+              {/* Marketplace — customer discovery, any signed-in role */}
+              <Route path="marketplace" element={<MarketplaceScopeLayout />}>
+                <Route index element={<MarketplaceHome />} />
+                <Route path="search" element={<MarketplaceSearch />} />
+                <Route path="saved" element={<MyCollection />} />
+                <Route path="category/:slug" element={<CategoryListing />} />
+                <Route path="business/:slug" element={<BusinessDetail />} />
+                <Route path="offer/:id" element={<OfferDetail />} />
+              </Route>
+
+              {/* Partner dashboard — PARTNER (admins allowed for support) */}
+              <Route element={<ProtectedRoute roles={[PARTNER, ADMIN, SUPER_ADMIN]} />}>
+                <Route path="partner" element={<PartnerScopeLayout />}>
+                  <Route index element={<ListingEditor />} />
+                  <Route path="offers" element={<OffersManager />} />
+                  <Route path="reviews" element={<ReviewsManager />} />
+                  <Route path="inbox" element={<PartnerInbox />} />
+                </Route>
+              </Route>
               <Route path="account/security" element={<SecurityPage />} />
               <Route
                 path="account/role-request"
@@ -187,6 +249,14 @@ const AppRoutes = () => {
                   element={<RoleRequestFieldsPage />}
                 />
                 <Route path="admin/species" element={<SpeciesPage />} />
+                <Route
+                  path="admin/marketplace/listings"
+                  element={<MarketplaceListingsPage />}
+                />
+                <Route
+                  path="admin/marketplace/categories"
+                  element={<MarketplaceCategoriesPage />}
+                />
                 <Route
                   path="admin/chat-retention"
                   element={<ChatRetentionPage />}
