@@ -14,6 +14,7 @@ import PageHeader from "../../components/common/PageHeader";
 import QueryState from "../../components/common/QueryState";
 import { useMyReviews, useReviewMutations } from "../../hooks/marketplace/useMarketplace";
 import { MK } from "../../theme/marketplaceTokens";
+import NoStorefront, { isNoStorefront } from "./NoStorefront";
 
 const ReviewRow = ({ review, onReply, submitting }) => {
   const [reply, setReply] = useState("");
@@ -79,7 +80,7 @@ const ReviewsManager = () => {
   const query = useMyReviews();
   const { reply } = useReviewMutations();
   const reviews = query.data?.items ?? [];
-  const noBusiness = query.isError && query.error?.response?.status === 403;
+  const noBusiness = isNoStorefront(query);
 
   const onReply = (id, text, done) => {
     reply.mutate({ id, reply: text }, { onSuccess: done });
@@ -89,7 +90,7 @@ const ReviewsManager = () => {
     <Box>
       <PageHeader title="Reviews" subtitle="Respond to customer feedback on your storefront." />
       {noBusiness ? (
-        <Typography color="text.secondary">Set up your storefront first to receive reviews.</Typography>
+        <NoStorefront />
       ) : (
         <QueryState query={query} isEmpty={reviews.length === 0} emptyMessage="No reviews yet.">
           <Stack spacing={1.5}>

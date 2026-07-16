@@ -17,6 +17,7 @@ import QueryState from "../../components/common/QueryState";
 import { useMyOffers, useOfferMutations } from "../../hooks/marketplace/useMarketplace";
 import { OFFER_STATUS } from "../../theme/marketplaceTokens";
 import OfferFormDialog from "./OfferFormDialog";
+import NoStorefront, { isNoStorefront } from "./NoStorefront";
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "No expiry");
 
@@ -26,7 +27,7 @@ const OffersManager = () => {
   const [dialog, setDialog] = useState({ open: false, offer: null });
 
   const offers = query.data?.items ?? [];
-  const noBusiness = query.isError && query.error?.response?.status === 403;
+  const noBusiness = isNoStorefront(query);
 
   const handleSubmit = (payload) => {
     const mutation = dialog.offer ? update : create;
@@ -51,7 +52,7 @@ const OffersManager = () => {
       />
 
       {noBusiness ? (
-        <Typography color="text.secondary">Set up your storefront first to create offers.</Typography>
+        <NoStorefront />
       ) : (
         <QueryState query={query} isEmpty={offers.length === 0} emptyMessage="No offers yet. Create your first promo code.">
           <Stack spacing={1}>

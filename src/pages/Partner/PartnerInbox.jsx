@@ -20,6 +20,7 @@ import {
   useEnquiryMutations,
   useEnquirySocket,
 } from "../../hooks/marketplace/useEnquiries";
+import NoStorefront, { isNoStorefront } from "./NoStorefront";
 
 const timeAgo = (d) => {
   const diff = (Date.now() - new Date(d).getTime()) / 1000;
@@ -165,13 +166,13 @@ const PartnerInbox = () => {
     if (!activeId && items.length) setActiveId(items[0].id);
   }, [items, activeId]);
 
-  const noBusiness = query.isError && query.error?.response?.status === 403;
+  const noBusiness = isNoStorefront(query);
 
   return (
     <Box>
       <PageHeader title="Inbox" subtitle="Customer enquiries about your storefront." />
       {noBusiness ? (
-        <Typography color="text.secondary">Set up your storefront first to receive enquiries.</Typography>
+        <NoStorefront />
       ) : items.length === 0 ? (
         <Typography color="text.secondary">No enquiries yet.</Typography>
       ) : (

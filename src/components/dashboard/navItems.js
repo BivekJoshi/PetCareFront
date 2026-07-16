@@ -31,6 +31,7 @@ import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlin
 import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import ReviewsOutlinedIcon from "@mui/icons-material/ReviewsOutlined";
 import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import AddBusinessOutlinedIcon from "@mui/icons-material/AddBusinessOutlined";
 import { ROLES } from "../../constants/domain";
 
 const { SUPER_ADMIN, ADMIN, VET, PARTNER, PET_OWNER } = ROLES;
@@ -113,6 +114,13 @@ export const NAV_SECTIONS = [
         icon: BookmarkBorderOutlinedIcon,
       },
       {
+        // Non-partners see the seller onboarding; partners get the group below.
+        label: "Become a Seller",
+        to: "/app/marketplace/sell",
+        icon: AddBusinessOutlinedIcon,
+        roles: [PET_OWNER, VET, ADMIN, SUPER_ADMIN],
+      },
+      {
         label: "Partner",
         icon: DashboardCustomizeOutlinedIcon,
         roles: [PARTNER, ADMIN, SUPER_ADMIN],
@@ -182,16 +190,6 @@ export const NAV_SECTIONS = [
             icon: CategoryOutlinedIcon,
           },
           {
-            label: "MP · Listings",
-            to: "/app/admin/marketplace/listings",
-            icon: StorefrontOutlinedIcon,
-          },
-          {
-            label: "MP · Categories",
-            to: "/app/admin/marketplace/categories",
-            icon: DashboardCustomizeOutlinedIcon,
-          },
-          {
             label: "Chat Retention",
             to: "/app/admin/chat-retention",
             icon: AutoDeleteOutlinedIcon,
@@ -207,6 +205,25 @@ export const NAV_SECTIONS = [
             to: "/app/admin/email-templates",
             icon: MarkEmailReadOutlinedIcon,
             roles: [SUPER_ADMIN],
+          },
+        ],
+      },
+      // Marketplace is a distinct service — kept out of the Control Panel and
+      // given its own group so its administration is managed separately.
+      {
+        label: "Marketplace",
+        icon: StorefrontOutlinedIcon,
+        roles: [ADMIN, SUPER_ADMIN],
+        children: [
+          {
+            label: "Listings",
+            to: "/app/admin/marketplace/listings",
+            icon: StorefrontOutlinedIcon,
+          },
+          {
+            label: "Categories",
+            to: "/app/admin/marketplace/categories",
+            icon: DashboardCustomizeOutlinedIcon,
           },
         ],
       },

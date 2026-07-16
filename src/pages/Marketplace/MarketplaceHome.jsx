@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import {
   Box,
+  Button,
   Grid,
   InputBase,
   Paper,
@@ -9,32 +10,102 @@ import {
   Typography,
 } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import { useCategories, useOffers, useBusinesses } from "../../hooks/marketplace/useMarketplace";
-import { CategoryIcon, BusinessCard, OfferCard } from "./marketplaceUi";
+import { useAuth } from "../../context/AuthContext";
+import { ROLES } from "../../constants/domain";
+import {
+  CategoryIcon,
+  BusinessCard,
+  OfferCard,
+  SectionHeader,
+  SkeletonRows,
+  MarketplaceEmpty,
+  SponsoredChip,
+  BusinessLogo,
+} from "./marketplaceUi";
 import { MK } from "../../theme/marketplaceTokens";
 
-const SectionTitle = ({ title, actionLabel, onAction }) => (
-  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.25, mt: 3 }}>
-    <Typography variant="h6" sx={{ fontWeight: 700 }}>
-      {title}
-    </Typography>
-    {actionLabel && (
-      <Typography
-        variant="body2"
-        onClick={onAction}
-        sx={{ color: "primary.main", fontWeight: 600, cursor: "pointer" }}
-      >
-        {actionLabel}
-      </Typography>
-    )}
+// Horizontally-scrolling sponsored deals — the design's top-of-home carousel.
+const SponsoredCarousel = ({ offers, onOpen }) => (
+  <Box sx={{ mt: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+      <SponsoredChip />
+    </Box>
+    <Box
+      sx={{
+        display: "flex",
+        gap: 1.5,
+        overflowX: "auto",
+        pb: 1,
+        mx: -0.5,
+        px: 0.5,
+        scrollSnapType: "x mandatory",
+        "&::-webkit-scrollbar": { display: "none" },
+      }}
+    >
+      {offers.map((o) => (
+        <Paper
+          key={o.id}
+          elevation={0}
+          onClick={() => onOpen(o)}
+          sx={{
+            flex: "0 0 84%",
+            maxWidth: 300,
+            scrollSnapAlign: "start",
+            p: 2,
+            borderRadius: 3,
+            cursor: "pointer",
+            background: MK.voucher,
+            color: "#fff",
+          }}
+        >
+          <Stack direction="row" spacing={1.25} alignItems="center" sx={{ mb: 1.5 }}>
+            <Box sx={{ bgcolor: "rgba(255,255,255,.15)", borderRadius: 2, p: 0.5 }}>
+              <BusinessLogo business={o.business} size={36} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 700 }}>
+                {o.business?.name}
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.8 }} noWrap>
+                {o.business?.primaryCategory?.label}
+              </Typography>
+            </Box>
+          </Stack>
+          <Box sx={{ bgcolor: "rgba(255,255,255,.15)", borderRadius: 2, px: 1.25, py: 1, mb: 1.5 }}>
+            <Typography variant="body2" sx={{ fontWeight: 700 }} noWrap>
+              {o.title}
+            </Typography>
+          </Box>
+          <Button
+            fullWidth
+            size="small"
+            variant="contained"
+            endIcon={<ArrowForwardRoundedIcon />}
+            sx={{ bgcolor: "#fff", color: MK.brand, "&:hover": { bgcolor: "#eee" } }}
+          >
+            View offer
+          </Button>
+        </Paper>
+      ))}
+    </Box>
   </Box>
 );
 
 const MarketplaceHome = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const categories = useCategories();
-  const offers = useOffers({ limit: 5 });
+  const offers = useOffers({ limit: 8 });
   const topRated = useBusinesses({ sort: "topRated", limit: 5 });
+
+  const isPartner = role === ROLES.PARTNER;
+  const offerItems = offers.data?.items || [];
+  const sponsored = offerItems.filter((o) => o.isSponsored);
+  const carousel = sponsored.length ? sponsored : offerItems.slice(0, 3);
 
   return (
     <Box>
@@ -66,15 +137,55 @@ const MarketplaceHome = () => {
         }}
       >
         <SearchRoundedIcon sx={{ color: "text.disabled" }} />
-        <InputBase
-          placeholder="Search businesses, offers, services…"
-          readOnly
-          sx={{ flex: 1, cursor: "pointer" }}
-        />
+        <InputBase placeholder="Search businesses, offers, services…" readOnly sx={{ flex: 1, cursor: "pointer" }} />
       </Paper>
 
+      {/* Become-a-seller CTA (hidden once you're a partner) */}
+      {isPartner ? (
+        <Paper
+          elevation={0}
+          onClick={() => navigate("/app/partner")}
+          sx={{ mt: 2, p: 2, borderRadius: 3, cursor: "pointer", border: "1px solid", borderColor: "divider", display: "flex", alignItems: "center", gap: 1.5 }}
+        >
+          <StorefrontRoundedIcon sx={{ color: "primary.main" }} />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              Manage your storefront
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Edit your listing, offers, reviews and enquiries.
+            </Typography>
+          </Box>
+          <ArrowForwardRoundedIcon sx={{ color: "text.disabled" }} />
+        </Paper>
+      ) : (
+        <Paper
+          elevation={0}
+          onClick={() => navigate("/app/marketplace/sell")}
+          sx={{ mt: 2, p: 2, borderRadius: 3, cursor: "pointer", background: MK.voucher, color: "#fff", display: "flex", alignItems: "center", gap: 1.5 }}
+        >
+          <StorefrontRoundedIcon />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              Own a business? Sell on Marketplace
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+              Get a verified storefront in minutes.
+            </Typography>
+          </Box>
+          <Button size="small" variant="contained" sx={{ bgcolor: "#fff", color: MK.brand, "&:hover": { bgcolor: "#eee" } }}>
+            Start
+          </Button>
+        </Paper>
+      )}
+
+      {/* Sponsored carousel */}
+      {carousel.length > 0 && (
+        <SponsoredCarousel offers={carousel} onOpen={(o) => navigate(`/app/marketplace/offer/${o.id}`)} />
+      )}
+
       {/* Categories */}
-      <SectionTitle title="Browse categories" />
+      <SectionHeader title="Browse categories" actionLabel="See all" onAction={() => navigate("/app/marketplace/search")} />
       <Grid container spacing={1.25}>
         {categories.isLoading
           ? Array.from({ length: 8 }).map((_, i) => (
@@ -100,78 +211,59 @@ const MarketplaceHome = () => {
                     flexDirection: "column",
                     alignItems: "center",
                     gap: 0.75,
-                    "&:hover": { borderColor: "primary.main" },
+                    transition: "border-color .15s, transform .15s",
+                    "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" },
                   }}
                 >
-                  <Box
-                    sx={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: 2.5,
-                      bgcolor: `${c.color}1F`,
-                      color: c.color,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
+                  <Box sx={{ width: 38, height: 38, borderRadius: 2.5, bgcolor: `${c.color}1F`, color: c.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <CategoryIcon name={c.iconName} />
                   </Box>
                   <Typography variant="caption" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
                     {c.label}
                   </Typography>
+                  {c.count > 0 && (
+                    <Typography variant="caption" color="text.disabled" sx={{ fontSize: 10 }}>
+                      {c.count}
+                    </Typography>
+                  )}
                 </Box>
               </Grid>
             ))}
       </Grid>
 
       {/* Deals near you */}
-      {(offers.isLoading || offers.data?.items?.length > 0) && (
+      {(offers.isLoading || offerItems.length > 0) && (
         <>
-          <SectionTitle
-            title="Deals near you"
-            actionLabel="View all"
-            onAction={() => navigate("/app/marketplace/search")}
-          />
-          <Stack spacing={1}>
-            {offers.isLoading
-              ? Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} variant="rounded" height={72} />)
-              : offers.data.items.map((o) => (
-                  <OfferCard key={o.id} offer={o} onOpen={() => navigate(`/app/marketplace/offer/${o.id}`)} />
-                ))}
-          </Stack>
+          <SectionHeader title="Deals near you" actionLabel="View all" onAction={() => navigate("/app/marketplace/search")} />
+          {offers.isLoading ? (
+            <SkeletonRows count={2} height={72} />
+          ) : (
+            <Stack spacing={1}>
+              {offerItems.slice(0, 4).map((o) => (
+                <OfferCard key={o.id} offer={o} onOpen={() => navigate(`/app/marketplace/offer/${o.id}`)} />
+              ))}
+            </Stack>
+          )}
         </>
       )}
 
       {/* Top rated businesses */}
-      <SectionTitle title="Top rated" />
-      <Stack spacing={1}>
-        {topRated.isLoading ? (
-          Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} variant="rounded" height={92} />)
-        ) : topRated.data?.items?.length ? (
-          topRated.data.items.map((b) => (
-            <BusinessCard
-              key={b.id}
-              business={b}
-              onOpen={() => navigate(`/app/marketplace/business/${b.slug}`)}
-            />
-          ))
-        ) : (
-          <Box
-            sx={{
-              textAlign: "center",
-              py: 5,
-              bgcolor: "#fff",
-              border: "1px dashed",
-              borderColor: "divider",
-              borderRadius: 3,
-              color: MK.ink4,
-            }}
-          >
-            <Typography variant="body2">No published businesses yet — check back soon.</Typography>
-          </Box>
-        )}
-      </Stack>
+      <SectionHeader title="Top rated" />
+      {topRated.isLoading ? (
+        <SkeletonRows count={3} />
+      ) : topRated.data?.items?.length ? (
+        <Stack spacing={1}>
+          {topRated.data.items.map((b) => (
+            <BusinessCard key={b.id} business={b} onOpen={() => navigate(`/app/marketplace/business/${b.slug}`)} />
+          ))}
+        </Stack>
+      ) : (
+        <MarketplaceEmpty
+          icon={<StorefrontOutlinedIcon />}
+          title="No published businesses yet"
+          subtitle="Verified partners will appear here soon — or become the first to sell."
+        />
+      )}
     </Box>
   );
 };

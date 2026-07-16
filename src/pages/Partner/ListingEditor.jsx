@@ -8,6 +8,7 @@ import {
   IconButton,
   MenuItem,
   Paper,
+  Rating,
   Stack,
   Tab,
   Tabs,
@@ -15,6 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import PhotoCameraRoundedIcon from "@mui/icons-material/PhotoCameraRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
@@ -72,6 +74,80 @@ const ImageUploadButton = ({ label, onUploaded }) => {
         {label}
       </Button>
     </>
+  );
+};
+
+// Live phone-framed preview of the storefront as customers will see it.
+const StorefrontPreview = ({ base, form, categoryLabel }) => {
+  const merged = { ...base, ...form, primaryCategory: { color: base?.primaryCategory?.color } };
+  return (
+    <Box sx={{ position: { md: "sticky" }, top: 16 }}>
+      <Typography variant="overline" color="text.secondary">
+        Live preview
+      </Typography>
+      <Box sx={{ mt: 1, mx: "auto", width: 300, borderRadius: 6, p: 1, bgcolor: "#0E1014", boxShadow: 6 }}>
+        <Box sx={{ borderRadius: 5, overflow: "hidden", bgcolor: "#fff" }}>
+          {/* cover */}
+          <Box
+            sx={{
+              height: 90,
+              background: form.coverUrl
+                ? `url(${form.coverUrl}) center/cover`
+                : `linear-gradient(135deg, ${MK.brand}, ${MK.brandDeep})`,
+            }}
+          />
+          <Box sx={{ px: 1.75, pb: 2, mt: -3.5 }}>
+            <Box sx={{ bgcolor: "#fff", width: 60, height: 60, borderRadius: 2.5, p: 0.5, boxShadow: 2 }}>
+              <BusinessLogo business={merged} size={52} radius={10} />
+            </Box>
+            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800 }} noWrap>
+                {form.name || "Your business"}
+              </Typography>
+              {base?.isVerified && <VerifiedRoundedIcon sx={{ fontSize: 15, color: MK.green }} />}
+            </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>
+              {categoryLabel || "Category"}
+              {form.secondaryTag ? ` · ${form.secondaryTag}` : ""}
+            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.5 }}>
+              <Rating value={Number(base?.ratingAvg) || 0} precision={0.1} readOnly size="small" />
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                {Number(base?.ratingAvg || 0).toFixed(1)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                ({base?.ratingCount || 0})
+              </Typography>
+            </Stack>
+            {form.tagline && (
+              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 1 }}>
+                {form.tagline}
+              </Typography>
+            )}
+            {form.services.filter((s) => s.name.trim()).length > 0 && (
+              <Box sx={{ mt: 1.5, border: "1px solid", borderColor: "divider", borderRadius: 2, overflow: "hidden" }}>
+                {form.services
+                  .filter((s) => s.name.trim())
+                  .slice(0, 3)
+                  .map((s, i) => (
+                    <Box
+                      key={i}
+                      sx={{ display: "flex", justifyContent: "space-between", px: 1.25, py: 0.75, borderTop: i ? "1px solid" : "none", borderColor: "divider" }}
+                    >
+                      <Typography variant="caption" noWrap sx={{ mr: 1 }}>
+                        {s.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                        {s.priceLabel}
+                      </Typography>
+                    </Box>
+                  ))}
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 
@@ -168,6 +244,8 @@ const ListingEditor = () => {
         </Stack>
       </Stack>
 
+      <Grid container spacing={3}>
+      <Grid item xs={12} md={7}>
       <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
         <Tabs value={tab} onChange={(_e, v) => setTab(v)} variant="scrollable" sx={{ borderBottom: "1px solid", borderColor: "divider", px: 1 }}>
           <Tab label="Basics" />
@@ -281,6 +359,15 @@ const ListingEditor = () => {
           )}
         </Box>
       </Paper>
+      </Grid>
+      <Grid item xs={12} md={5}>
+        <StorefrontPreview
+          base={business}
+          form={form}
+          categoryLabel={(categories.data?.items || []).find((c) => c.slug === form.categorySlug)?.label}
+        />
+      </Grid>
+      </Grid>
     </Box>
   );
 };

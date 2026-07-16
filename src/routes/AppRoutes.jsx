@@ -111,6 +111,9 @@ const MarketplaceSearch = Loadable(
 const MyCollection = Loadable(
   lazy(() => import("../pages/Marketplace/MyCollection")),
 );
+const SellOnMarketplace = Loadable(
+  lazy(() => import("../pages/Marketplace/SellOnMarketplace")),
+);
 const PublicBusinessPage = Loadable(
   lazy(() => import("../pages/Marketplace/PublicBusinessPage")),
 );
@@ -206,6 +209,7 @@ const AppRoutes = () => {
               <Route path="marketplace" element={<MarketplaceScopeLayout />}>
                 <Route index element={<MarketplaceHome />} />
                 <Route path="search" element={<MarketplaceSearch />} />
+                <Route path="sell" element={<SellOnMarketplace />} />
                 <Route path="saved" element={<MyCollection />} />
                 <Route path="category/:slug" element={<CategoryListing />} />
                 <Route path="business/:slug" element={<BusinessDetail />} />
@@ -250,16 +254,21 @@ const AppRoutes = () => {
                 />
                 <Route path="admin/species" element={<SpeciesPage />} />
                 <Route
+                  path="admin/chat-retention"
+                  element={<ChatRetentionPage />}
+                />
+              </Route>
+
+              {/* Marketplace administration — a distinct service, managed
+                  separately from the core Control Panel above */}
+              <Route element={<ProtectedRoute roles={[ADMIN, SUPER_ADMIN]} />}>
+                <Route
                   path="admin/marketplace/listings"
                   element={<MarketplaceListingsPage />}
                 />
                 <Route
                   path="admin/marketplace/categories"
                   element={<MarketplaceCategoriesPage />}
-                />
-                <Route
-                  path="admin/chat-retention"
-                  element={<ChatRetentionPage />}
                 />
               </Route>
 

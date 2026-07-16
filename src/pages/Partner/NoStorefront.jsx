@@ -2,6 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 
+// True when a partner-scoped query failed because the user has no Business yet
+// (the service layer returns 403/404 for offers/reviews/enquiries/storefront).
+export const isNoStorefront = (query) => {
+  const status = query?.error?.response?.status;
+  return query?.isError && (status === 403 || status === 404);
+};
+
 /**
  * Shown on partner pages when the signed-in user has no Business yet (e.g. an
  * admin visiting, or a user who hasn't completed KYB). Points them at the

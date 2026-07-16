@@ -27,6 +27,7 @@ import BookmarkBorderRoundedIcon from "@mui/icons-material/BookmarkBorderRounded
 import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
 import {
   useBusinessBySlug,
   useSaved,
@@ -35,7 +36,7 @@ import {
   useReviewMutations,
 } from "../../hooks/marketplace/useMarketplace";
 import { useEnquiryMutations } from "../../hooks/marketplace/useEnquiries";
-import { BusinessLogo, VerifiedBadge, RatingRow, colorFor } from "./marketplaceUi";
+import { BusinessLogo, VerifiedBadge, RatingRow, StatTile, colorFor } from "./marketplaceUi";
 import { MK } from "../../theme/marketplaceTokens";
 
 const ActionButton = ({ icon, label, href, onClick, primary }) => (
@@ -223,11 +224,11 @@ const BusinessDetailView = ({ slug, interactive = true, onBack }) => {
         ) : null}
       </Stack>
 
-      {/* Rating strip */}
+      {/* Rating / reviews / trust strip */}
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-around",
+          alignItems: "center",
           bgcolor: "#fff",
           border: "1px solid",
           borderColor: "divider",
@@ -236,21 +237,19 @@ const BusinessDetailView = ({ slug, interactive = true, onBack }) => {
           mb: 2,
         }}
       >
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            {Number(business.ratingAvg || 0).toFixed(1)}
-          </Typography>
-          <RatingRow value={business.ratingAvg} count={business.ratingCount} />
-        </Box>
+        <StatTile
+          value={Number(business.ratingAvg || 0).toFixed(1)}
+          label="rating"
+          sub={<Rating value={Number(business.ratingAvg) || 0} precision={0.1} readOnly size="small" />}
+        />
         <Divider orientation="vertical" flexItem />
-        <Box sx={{ textAlign: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            {business.ratingCount}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            reviews
-          </Typography>
-        </Box>
+        <StatTile value={business.ratingCount} label="reviews" />
+        <Divider orientation="vertical" flexItem />
+        <StatTile
+          value={business.isVerified ? "KYB" : "New"}
+          label={business.yearsOnPlatform ? `${business.yearsOnPlatform} yrs here` : "on platform"}
+          sub={business.isVerified ? <VerifiedRoundedIcon sx={{ fontSize: 14, color: MK.green }} /> : null}
+        />
       </Box>
 
       {/* Actions */}

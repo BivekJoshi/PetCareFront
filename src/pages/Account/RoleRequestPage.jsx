@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Alert,
   Box,
@@ -49,6 +50,7 @@ const RoleRequestPage = () => {
   const query = useMyRoleRequests();
   const { submit, cancel } = useRoleRequestMutations();
 
+  const [searchParams] = useSearchParams();
   const [requestedRole, setRequestedRole] = useState("");
   const [reason, setReason] = useState("");
   const [files, setFiles] = useState([]);
@@ -60,6 +62,14 @@ const RoleRequestPage = () => {
 
   // A user can't request the role they already hold.
   const roleOptions = REQUESTABLE_ROLES.filter((r) => r !== role);
+
+  // Preselect the role from a deep link, e.g. the "Sell on Marketplace" CTA
+  // links here with ?role=PARTNER.
+  useEffect(() => {
+    const wanted = searchParams.get("role");
+    if (wanted && roleOptions.includes(wanted)) setRequestedRole(wanted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Admin-defined extra fields for the chosen role.
   const fieldsQuery = useRoleRequestFields(
@@ -135,7 +145,7 @@ const RoleRequestPage = () => {
     <Box>
       <PageHeader
         title="Request a Role Change"
-        subtitle="Apply to become a vet or an administrator. Attach any documents that prove your eligibility — an admin will review and decide."
+        subtitle="Apply to become a marketplace partner (seller), a vet, or an administrator. Attach any documents that prove your eligibility — an admin will review and decide."
       />
 
       <Stack spacing={3}>
