@@ -11,6 +11,8 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -24,15 +26,28 @@ import {
 } from "../../hooks/appointments/useAppointments";
 import { humanize, STATUS_COLORS } from "../../constants/domain";
 import { formatDateTime, fullName } from "../../utility/format";
-import { Loading, EmptyState, petEmoji } from "./ownerUi";
+import { Loading, EmptyState, petEmoji, CardGrid } from "./ownerUi";
 
 const isUpcoming = (a) => ["PENDING", "CONFIRMED"].includes(a.status);
 
 const AppointmentCard = ({ appt, onComplete, onCancel, busy }) => (
-  <Card variant="outlined" sx={{ borderRadius: 3, p: 1.75 }}>
+  <Card
+    variant="outlined"
+    sx={{
+      borderRadius: 3,
+      p: { xs: 1.75, md: 1.5 },
+      transition: "border-color .2s ease, box-shadow .2s ease",
+      "&:hover": { borderColor: "primary.main", boxShadow: 2 },
+    }}
+  >
     <Stack direction="row" spacing={1.5} alignItems="flex-start">
       <Avatar
-        sx={{ width: 46, height: 46, fontSize: 24, bgcolor: "primary.backgroundCard" }}
+        sx={{
+          width: { xs: 46, md: 40 },
+          height: { xs: 46, md: 40 },
+          fontSize: { xs: 24, md: 20 },
+          bgcolor: "primary.backgroundCard",
+        }}
       >
         {petEmoji(appt.pet?.species)}
       </Avatar>
@@ -95,6 +110,8 @@ const AppointmentCard = ({ appt, onComplete, onCancel, busy }) => (
 );
 
 const OwnerAppointments = () => {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const query = useAppointments({ limit: 100 });
   const { create, updateStatus } = useAppointmentMutations();
 
@@ -128,25 +145,38 @@ const OwnerAppointments = () => {
 
   return (
     <Box>
-      <Button
-        fullWidth
-        variant="contained"
-        startIcon={<AddRoundedIcon />}
-        onClick={() => setBooking(true)}
-        sx={{ mb: 1.5 }}
+      {/* Phone: CTA stacked above full-width tabs. Desktop: tabs and CTA share
+          one row so neither stretches across the full content width. */}
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        alignItems={{ md: "center" }}
+        justifyContent="space-between"
+        spacing={{ xs: 1.5, md: 2 }}
+        sx={{ mb: 2 }}
       >
-        Book an appointment
-      </Button>
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          variant={isDesktop ? "standard" : "fullWidth"}
+          sx={{
+            order: { xs: 2, md: 1 },
+            minHeight: 40,
+            "& .MuiTab-root": { minHeight: 40, fontWeight: 700 },
+          }}
+        >
+          <Tab label={`Upcoming${upcoming.length ? ` (${upcoming.length})` : ""}`} />
+          <Tab label="History" />
+        </Tabs>
 
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setTab(v)}
-        variant="fullWidth"
-        sx={{ mb: 2, minHeight: 40, "& .MuiTab-root": { minHeight: 40, fontWeight: 700 } }}
-      >
-        <Tab label={`Upcoming${upcoming.length ? ` (${upcoming.length})` : ""}`} />
-        <Tab label="History" />
-      </Tabs>
+        <Button
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          onClick={() => setBooking(true)}
+          sx={{ order: { xs: 1, md: 2 }, width: { xs: "100%", md: "auto" }, flexShrink: 0 }}
+        >
+          Book an appointment
+        </Button>
+      </Stack>
 
       {query.isLoading ? (
         <Loading />
@@ -161,7 +191,7 @@ const OwnerAppointments = () => {
           }
         />
       ) : (
-        <Stack spacing={1.5}>
+        <CardGrid min={340}>
           {list.map((appt) => (
             <AppointmentCard
               key={appt.id}
@@ -171,7 +201,7 @@ const OwnerAppointments = () => {
               onCancel={handleCancel}
             />
           ))}
-        </Stack>
+        </CardGrid>
       )}
 
       <BookAppointmentDialog

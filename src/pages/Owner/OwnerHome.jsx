@@ -110,7 +110,18 @@ const OwnerHome = () => {
   )} 45%, ${theme.palette.primary.alt} 120%)`;
 
   return (
-    <Box>
+    // Desktop splits into a wide "your pets & actions" column and a narrower
+    // "what's next" rail. On a phone the two stack back into the original
+    // single-column order: hero → actions → pets → next visit → reminders.
+    <Box
+      sx={{
+        display: "grid",
+        gap: { xs: 0, md: 3 },
+        gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1.7fr) minmax(0, 1fr)" },
+        alignItems: "start",
+      }}
+    >
+      <Box sx={{ minWidth: 0 }}>
       {/* Greeting hero */}
       <motion.div variants={fade} initial="hidden" animate="show" custom={0}>
         <Card
@@ -120,8 +131,8 @@ const OwnerHome = () => {
             borderRadius: 4,
             color: "#fff",
             background: heroGradient,
-            px: 2.5,
-            py: 2.75,
+            px: { xs: 2.5, md: 3 },
+            py: { xs: 2.75, md: 2.5 },
             boxShadow: `0 20px 40px -22px ${alpha(theme.palette.primary.main, 0.8)}`,
           }}
         >
@@ -202,12 +213,15 @@ const OwnerHome = () => {
           hint="Register your first companion to start tracking their care."
         />
       ) : (
-        <Stack
-          direction="row"
-          spacing={1.5}
+        // Phone: a swipeable strip. Desktop: wraps into rows — there's width
+        // to spare, and a hidden-scroll strip is a poor fit for a mouse.
+        <Box
           sx={{
-            overflowX: "auto",
+            display: "flex",
+            gap: 1.5,
             pb: 1,
+            flexWrap: { xs: "nowrap", md: "wrap" },
+            overflowX: { xs: "auto", md: "visible" },
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
@@ -216,17 +230,22 @@ const OwnerHome = () => {
               key={pet.id}
               alignItems="center"
               spacing={0.75}
-              sx={{ cursor: "pointer", minWidth: 64 }}
+              sx={{ cursor: "pointer", minWidth: 64, flexShrink: 0 }}
               onClick={() => navigate("/app/pets")}
             >
               <Avatar
                 sx={{
-                  width: 56,
-                  height: 56,
-                  fontSize: 28,
+                  width: { xs: 56, md: 48 },
+                  height: { xs: 56, md: 48 },
+                  fontSize: { xs: 28, md: 24 },
                   bgcolor: "primary.backgroundCard",
                   border: 2,
                   borderColor: alpha(theme.palette.primary.main, 0.25),
+                  transition: "transform .2s ease, border-color .2s ease",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    borderColor: alpha(theme.palette.primary.main, 0.55),
+                  },
                 }}
               >
                 {petEmoji(pet.species)}
@@ -236,11 +255,14 @@ const OwnerHome = () => {
               </Typography>
             </Stack>
           ))}
-        </Stack>
+        </Box>
       )}
+      </Box>
 
+      {/* ------------------------- "What's next" rail ------------------------ */}
+      <Box sx={{ minWidth: 0 }}>
       {/* Next appointment */}
-      <SectionTitle>Next appointment</SectionTitle>
+      <SectionTitle sx={{ mt: { md: 0 } }}>Next appointment</SectionTitle>
       {upcomingQ.isLoading ? (
         <Loading py={3} />
       ) : !next ? (
@@ -365,8 +387,7 @@ const OwnerHome = () => {
           })}
         </Stack>
       )}
-
-      <Box sx={{ height: 8 }} />
+      </Box>
     </Box>
   );
 };

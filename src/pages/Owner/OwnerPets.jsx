@@ -22,7 +22,7 @@ import PetFormDialog from "../Pets/PetFormDialog";
 import PetHealthDialog from "../Pets/PetHealthDialog";
 import { usePets, usePetMutations } from "../../hooks/pets/usePets";
 import { humanize } from "../../constants/domain";
-import { Loading, EmptyState, petEmoji } from "./ownerUi";
+import { Loading, EmptyState, petEmoji, CardGrid } from "./ownerUi";
 
 const OwnerPets = () => {
   const query = usePets({ limit: 100 });
@@ -54,15 +54,18 @@ const OwnerPets = () => {
 
   return (
     <Box>
-      <Button
-        fullWidth
-        variant="contained"
-        startIcon={<AddRoundedIcon />}
-        onClick={() => setForm({ open: true, pet: null })}
-        sx={{ mb: 2 }}
-      >
-        Register a pet
-      </Button>
+      {/* Full-width CTA on a phone; on desktop it shrinks to its label and
+          sits at the top-right of the grid rather than spanning 1440px. */}
+      <Box sx={{ display: "flex", justifyContent: { md: "flex-end" }, mb: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<AddRoundedIcon />}
+          onClick={() => setForm({ open: true, pet: null })}
+          sx={{ width: { xs: "100%", md: "auto" } }}
+        >
+          Register a pet
+        </Button>
+      </Box>
 
       {query.isLoading ? (
         <Loading />
@@ -73,19 +76,27 @@ const OwnerPets = () => {
           hint="Register your first companion — each gets a unique code to share with your vet."
         />
       ) : (
-        <Stack spacing={1.5}>
+        <CardGrid min={300}>
           {pets.map((pet) => (
             <Card
               key={pet.id}
               variant="outlined"
-              sx={{ borderRadius: 3, p: 1.75 }}
+              sx={{
+                borderRadius: 3,
+                p: { xs: 1.75, md: 1.5 },
+                transition: "border-color .2s ease, box-shadow .2s ease",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 2,
+                },
+              }}
             >
               <Stack direction="row" spacing={1.5} alignItems="center">
                 <Avatar
                   sx={{
-                    width: 52,
-                    height: 52,
-                    fontSize: 27,
+                    width: { xs: 52, md: 44 },
+                    height: { xs: 52, md: 44 },
+                    fontSize: { xs: 27, md: 22 },
                     bgcolor: "primary.backgroundCard",
                   }}
                 >
@@ -109,13 +120,13 @@ const OwnerPets = () => {
                     </Box>
                   )}
                 </Box>
-                <IconButton onClick={(e) => openMenu(e, pet)}>
+                <IconButton size="small" onClick={(e) => openMenu(e, pet)}>
                   <MoreVertRoundedIcon />
                 </IconButton>
               </Stack>
             </Card>
           ))}
-        </Stack>
+        </CardGrid>
       )}
 
       {/* Per-pet action menu */}

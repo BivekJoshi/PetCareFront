@@ -11,7 +11,7 @@ import { alpha } from "@mui/material/styles";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useConversations, useContacts } from "../../hooks/chat/useChat";
 import { useChatContext } from "../../context/ChatContext";
-import { displayName } from "../../utility/format";
+import { displayName, timeAgo } from "../../utility/format";
 import { humanize } from "../../constants/domain";
 import { callPreview } from "../../utility/call";
 import UserAvatar from "./UserAvatar";
@@ -24,17 +24,6 @@ const previewOf = (lastMessage, meId) => {
   const body =
     lastMessage.content || (lastMessage.attachmentUrl ? "📎 Attachment" : "");
   return (mine ? "You: " : "") + body;
-};
-
-const timeAgo = (value) => {
-  if (!value) return "";
-  const diff = Date.now() - new Date(value).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "now";
-  if (mins < 60) return `${mins}m`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h`;
-  return `${Math.floor(hrs / 24)}d`;
 };
 
 const Row = ({ user, online, selected, onClick, subtitle, time, unread }) => (

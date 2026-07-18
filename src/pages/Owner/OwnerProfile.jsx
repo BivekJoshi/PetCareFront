@@ -52,7 +52,17 @@ const OwnerProfile = () => {
   };
 
   return (
-    <Box>
+    // Desktop: identity + share code on the left, settings on the right, so a
+    // wide screen doesn't leave a tall column of half-empty cards.
+    <Box
+      sx={{
+        display: "grid",
+        gap: { xs: 0, md: 3 },
+        gridTemplateColumns: { xs: "1fr", md: "minmax(0, 1fr) minmax(0, 1fr)" },
+        alignItems: "start",
+      }}
+    >
+      <Box sx={{ minWidth: 0 }}>
       {/* Identity card */}
       <Card variant="outlined" sx={{ borderRadius: 4, p: 2.5, textAlign: "center", mb: 2 }}>
         <AvatarUploader size={76} fallback="🐾" sx={{ mb: 1.25 }} />
@@ -122,7 +132,9 @@ const OwnerProfile = () => {
         code={user?.ownerCode}
         name={fullName(user)}
       />
+      </Box>
 
+      <Box sx={{ minWidth: 0 }}>
       {/* Settings list */}
       <Card variant="outlined" sx={{ borderRadius: 4, overflow: "hidden" }}>
         <List disablePadding>
@@ -177,6 +189,7 @@ const OwnerProfile = () => {
       >
         🐾 PetCare · Care, simplified
       </Typography>
+      </Box>
     </Box>
   );
 };

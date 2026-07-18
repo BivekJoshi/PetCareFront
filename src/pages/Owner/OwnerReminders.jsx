@@ -15,7 +15,7 @@ import {
   useReminderMutations,
 } from "../../hooks/reminders/useReminders";
 import { humanize, REMINDER_TYPE_COLORS } from "../../constants/domain";
-import { Loading, EmptyState } from "./ownerUi";
+import { Loading, EmptyState, CardGrid } from "./ownerUi";
 
 const OwnerReminders = () => {
   const query = useReminders({ limit: 100 });
@@ -41,7 +41,7 @@ const OwnerReminders = () => {
           hint="Care reminders for vaccines, check-ups and deworming will show up here."
         />
       ) : (
-        <Stack spacing={1.5}>
+        <CardGrid min={340}>
           {reminders.map((r) => {
             const tone = REMINDER_TYPE_COLORS[r.type] || "primary";
             const isUnread = !(r.isRead ?? r.read);
@@ -51,7 +51,7 @@ const OwnerReminders = () => {
                 variant="outlined"
                 sx={{
                   borderRadius: 3,
-                  p: 1.75,
+                  p: { xs: 1.75, md: 1.5 },
                   borderLeft: 4,
                   borderLeftColor: `${tone}.main`,
                   bgcolor: isUnread ? "action.hover" : "transparent",
@@ -95,7 +95,7 @@ const OwnerReminders = () => {
               </Card>
             );
           })}
-        </Stack>
+        </CardGrid>
       )}
     </Box>
   );
